@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType;
 
 import java.math.BigInteger;
 import java.util.Set;
@@ -17,6 +16,8 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
     @Column(nullable = false)
     private String region;
     @Column(nullable = false)
@@ -49,35 +50,46 @@ public class Address {
 
     public static class Builder {
         private final Address address;
-        private Builder(){
+
+        private Builder() {
             this.address = new Address();
         }
+        public Builder setPhoneNumber(String phoneNumber){
+            address.phoneNumber = phoneNumber;
+            return this;
+        }
 
-        public Builder setRegion(String region){
+        public Builder setRegion(String region) {
             address.region = region;
             return this;
         }
 
-        public Builder setDistrict(String district){
+        public Builder setDistrict(String district) {
             address.district = district;
             return this;
         }
 
-        public Builder setLocality(String locality){
+        public Builder setLocality(String locality) {
             address.locality = locality;
             return this;
         }
 
-        public Builder setPremiste(String premise){
+        public Builder setStreet(String street) {
+            address.street = street;
+            return this;
+        }
+
+        public Builder setPremise(String premise) {
             address.premise = premise;
             return this;
         }
 
-        public Builder setZipcode(String zipcode){
+        public Builder setZipcode(String zipcode) {
             address.zipcode = zipcode;
             return this;
         }
-        public Address build(){
+
+        public Address build() {
             return address;
         }
     }

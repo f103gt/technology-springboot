@@ -1,4 +1,4 @@
-package com.technology.registration.registration.requests;
+package com.technology.registration.registration.requests.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

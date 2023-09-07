@@ -1,9 +1,7 @@
 package com.technology.registration.controllers;
 
-import com.technology.registration.dto.input.UserDto;
-import com.technology.registration.models.Address;
-import com.technology.registration.registration.requests.AddressRegistrationRequest;
-import com.technology.registration.registration.requests.UserRegistrationRequest;
+import com.technology.registration.registration.requests.address.AddressRegistrationRequest;
+import com.technology.registration.registration.requests.user.UserRegistrationRequest;
 import com.technology.registration.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

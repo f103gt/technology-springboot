@@ -5,8 +5,8 @@ import com.technology.registration.errors.RoleNotFoundException;
 import com.technology.registration.errors.UserAlreadyExistsException;
 import com.technology.registration.models.Role;
 import com.technology.registration.models.User;
-import com.technology.registration.registration.requests.AddressRegistrationRequest;
-import com.technology.registration.registration.requests.UserRegistrationRequest;
+import com.technology.registration.registration.requests.address.AddressRegistrationRequest;
+import com.technology.registration.registration.requests.user.UserRegistrationRequest;
 import com.technology.registration.repositories.RoleRepository;
 import com.technology.registration.repositories.UserRepository;
 import com.technology.registration.services.address.AddressService;
@@ -55,9 +55,7 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .firstName(userRegistrationRequest.firstName())
                 .lastName(userRegistrationRequest.lastName())
-                .patronymic(userRegistrationRequest.patronymic())
                 .email(email)
-                .phoneNumber(userRegistrationRequest.phoneNumber())
                 .password(passwordEncoder.encode(userRegistrationRequest.password()))
                 .isEnabled(true)
                 .roles(roleOptional.get())
@@ -73,9 +71,7 @@ public class UserServiceImpl implements UserService {
                 .map(user -> new DisplayUserDto(
                 user.getFirstName(),
                 user.getLastName(),
-                user.getPatronymic(),
-                user.getEmail(),
-                user.getPhoneNumber()
+                user.getEmail()
         )).collect(Collectors.toList());
     }
 }

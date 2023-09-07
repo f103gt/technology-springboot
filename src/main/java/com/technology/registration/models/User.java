@@ -26,13 +26,8 @@ public class User{
     @Column(name = "last_name",nullable = false)
     private String lastName;
 
-    @Column(nullable = false)
-    private String patronymic;
-
     @Column(unique = true,nullable = false)
     private String email;
-    @Column(name = "phone_number", nullable = false)
-    private String phoneNumber;
 
     @Column(nullable = false)
     private String password;
@@ -68,11 +63,6 @@ public class User{
             return this;
         }
 
-        public Builder patronymic(String patronymic){
-            user.patronymic = patronymic;
-            return this;
-        }
-
         public Builder email(String email){
             user.email = email;
             return this;
@@ -80,11 +70,6 @@ public class User{
 
         public Builder password(String password){
             user.password = password;
-            return this;
-        }
-
-        public Builder phoneNumber(String phoneNumber){
-            user.phoneNumber = phoneNumber;
             return this;
         }
 

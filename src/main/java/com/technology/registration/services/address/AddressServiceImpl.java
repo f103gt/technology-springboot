@@ -1,8 +1,7 @@
 package com.technology.registration.services.address;
 
-import com.technology.registration.dto.input.UserDto;
 import com.technology.registration.models.Address;
-import com.technology.registration.registration.requests.AddressRegistrationRequest;
+import com.technology.registration.registration.requests.address.AddressRegistrationRequest;
 import com.technology.registration.repositories.AddressRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +20,12 @@ public class AddressServiceImpl implements AddressService{
     @Transactional
     public Address registerUserAddress(AddressRegistrationRequest addressRegistrationRequest) {
         Address address = Address.builder()
+                .setPhoneNumber(addressRegistrationRequest.phoneNumber())
                 .setRegion(addressRegistrationRequest.region())
                 .setDistrict(addressRegistrationRequest.district())
                 .setLocality(addressRegistrationRequest.locality())
-                .setPremiste(addressRegistrationRequest.street())
-                .setPremiste(addressRegistrationRequest.premise())
+                .setStreet(addressRegistrationRequest.street())
+                .setPremise(addressRegistrationRequest.premise())
                 .setZipcode(addressRegistrationRequest.zipcode())
                 .build();
         addressRepository.save(address);
