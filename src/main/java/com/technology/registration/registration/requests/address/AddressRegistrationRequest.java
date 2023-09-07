@@ -1,4 +1,4 @@
-package com.technology.registration.registration.requests;
+package com.technology.registration.registration.requests.address;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 @NotBlank
 @NotEmpty
 public record AddressRegistrationRequest(
+        String phoneNumber,
         String region,
         String district,
         //city town
