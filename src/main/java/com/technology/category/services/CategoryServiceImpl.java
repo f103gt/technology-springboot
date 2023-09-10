@@ -1,6 +1,7 @@
 package com.technology.category.services;
 
 import com.technology.category.dto.CategoryDto;
+import com.technology.category.exceptions.CategoryAlreadyExistsException;
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.exceptions.ParentCategoryNotFoundException;
 import com.technology.category.models.Category;
@@ -28,14 +29,22 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     //TODO refactor the method to adhere to SOLID principles
+    //TODO check if the category to inserted does not exist already
     @Override
     @Transactional
     public void saveCategory(CategoryRegistrationRequest categoryRegistrationRequest) {
-        String parentCategoryName = categoryRegistrationRequest.getCategoryName();
-        if (parentCategoryName == null) {
-            createParentCategory(categoryRegistrationRequest);
-        } else {
-            createChildCategory(categoryRegistrationRequest);
+        if(categoryRepository.findCategoryByCategoryName(
+                categoryRegistrationRequest.getCategoryName()).isEmpty()){
+            String parentCategoryName = categoryRegistrationRequest.getCategoryName();
+            if (parentCategoryName == null) {
+                createParentCategory(categoryRegistrationRequest);
+            } else {
+                createChildCategory(categoryRegistrationRequest);
+            }
+        }
+        else{
+            throw new CategoryAlreadyExistsException("Category "+ categoryRegistrationRequest.getCategoryName()
+            +" already exists");
         }
     }
 
