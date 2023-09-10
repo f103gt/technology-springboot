@@ -4,4 +4,5 @@ import com.technology.category.registration.request.CategoryRegistrationRequest;
 
 public interface CategoryService {
     void saveCategory(CategoryRegistrationRequest categoryRegistrationRequest);
+    void deleteCategory(String categoryName);
 }

@@ -56,7 +56,7 @@ create table product
     id bigserial primary key,
     category_id  int                 not null,
     product_name varchar(255) unique not null,
-    foreign key (category_name) references category (category_name)
+    foreign key (category_id) references category (id)
 );
 
 create table image
@@ -64,5 +64,5 @@ create table image
     id bigserial primary key,
     image_data bytea not null,
     product_id bigint not null,
-    foreign key (product_name) references product (product_name)
+    foreign key (product_id) references product (id)
 );
