@@ -1,6 +1,6 @@
 package com.technology.category.models;
 
-import com.technology.products.models.products.Product;
+import com.technology.products.models.Product;
 import jakarta.persistence.*;
 import lombok.*;
 

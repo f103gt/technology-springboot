@@ -1,8 +1,7 @@
-package com.technology.products.models.products;
+package com.technology.products.models;
 
 import jakarta.persistence.*;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 
 @Entity
