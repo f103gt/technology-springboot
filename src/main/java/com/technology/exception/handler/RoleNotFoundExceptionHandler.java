@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class RoleNotFoundExceptionHandler {
 
-    //@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    //@ExceptionHandler(value = {RoleNotFoundException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = {RoleNotFoundException.class})
     public ResponseEntity<ErrorObject> handleRoleNotFoundExceptions(RoleNotFoundException exception) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorObject error = ErrorObjectCreator.createNewErrorObject(exception,status);
