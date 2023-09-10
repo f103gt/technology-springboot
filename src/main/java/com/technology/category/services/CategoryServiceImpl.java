@@ -1,5 +1,6 @@
 package com.technology.category.services;
 
+import com.technology.category.dto.CategoryDto;
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.exceptions.ParentCategoryNotFoundException;
 import com.technology.category.models.Category;
@@ -10,7 +11,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -49,6 +52,28 @@ public class CategoryServiceImpl implements CategoryService {
         //TODO add queries to repositories for the following methods
         productRepository.deleteAllByCategoryId(category.getId());
         categoryRepository.deleteCategoryByCategoryName(categoryName);
+    }
+
+    @Override
+    public List<CategoryDto> getAllCategories() {
+       return categoryRepository.findAll().stream()
+               .sorted((category1,category2)->
+               category1
+                       .getCategoryName()
+                       .compareToIgnoreCase(
+                               category2.getCategoryName()))
+               .map(category -> {
+                   CategoryDto categoryDto = new CategoryDto();
+                   if(category.getParentCategory()==null){
+                       categoryDto.setParentCategoryName("");
+                   }else{
+                       categoryDto.setParentCategoryName(category.getParentCategory().getCategoryName());
+                   }
+                   categoryDto.setCategoryName(category.getCategoryName());
+                   return categoryDto;
+               })
+               .collect(Collectors.toList());
+
     }
 
     private void createParentCategory(
