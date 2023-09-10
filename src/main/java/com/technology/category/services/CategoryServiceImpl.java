@@ -18,31 +18,44 @@ public class CategoryServiceImpl implements CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
+    //TODO refactor the method to adhere to SOLID principles
     @Override
     public void saveCategory(CategoryRegistrationRequest categoryRegistrationRequest) {
         String parentCategoryName = categoryRegistrationRequest.getCategoryName();
         if (parentCategoryName == null) {
-            categoryRepository.save(Category.builder()
-                    .categoryName(categoryRegistrationRequest.getCategoryName())
-                    .build());
+            createParentCategory(categoryRegistrationRequest);
         } else {
-            Optional<Category> parentCategoryOptional =
-                    categoryRepository.findCategoriesByCategoryName(
-                            categoryRegistrationRequest.getParentCategoryName()
-                    );
-            parentCategoryOptional
-                    .ifPresentOrElse(category -> {
-                                categoryRepository.save(Category.builder()
-                                        .parentCategory(category)
-                                        .categoryName(categoryRegistrationRequest.getCategoryName())
-                                        .build());
-                            },
-                            () -> {
-                                throw new ParentCategoryNotFoundException(
-                                        "Parent category " + categoryRegistrationRequest.getParentCategoryName() +
-                                                " not found. Check it for misspelling or try creating the mentioned parent category " +
-                                                "before adding a child one");
-                            });
+            createChildCategory(categoryRegistrationRequest);
         }
+    }
+
+    private void createParentCategory(
+            CategoryRegistrationRequest categoryRegistrationRequest) {
+        categoryRepository.save(
+                Category.builder()
+                        .categoryName(categoryRegistrationRequest.getCategoryName())
+                        .build());
+    }
+
+    private void createChildCategory(
+            CategoryRegistrationRequest categoryRegistrationRequest) {
+        Optional<Category> parentCategoryOptional =
+                categoryRepository.findCategoriesByCategoryName(
+                        categoryRegistrationRequest.getParentCategoryName()
+                );
+        parentCategoryOptional
+                .ifPresentOrElse(category -> {
+                            categoryRepository.save(
+                                    Category.builder()
+                                            .parentCategory(category)
+                                            .categoryName(categoryRegistrationRequest.getCategoryName())
+                                            .build());
+                        },
+                        () -> {
+                            throw new ParentCategoryNotFoundException(
+                                    "Parent category " + categoryRegistrationRequest.getParentCategoryName() +
+                                            " not found. Check it for misspelling or try creating the mentioned parent category " +
+                                            "before adding a child one");
+                        });
     }
 }
