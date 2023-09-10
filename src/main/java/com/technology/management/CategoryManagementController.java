@@ -1,5 +1,6 @@
 package com.technology.management;
 
+import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.services.CategoryService;
 import org.springframework.http.ResponseEntity;
@@ -7,6 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 public class CategoryManagementController {
@@ -17,8 +21,8 @@ public class CategoryManagementController {
     }
 
     @PostMapping("/manager/all-categories")
-    public ResponseEntity<String> addProduct() {
-        return ResponseEntity.ok("A new product was successfully added");
+    public List<CategoryDto> allCategories() {
+        return ;
     }
 
     @GetMapping("/manager/add-category")
@@ -28,7 +32,8 @@ public class CategoryManagementController {
     }
 
     @PostMapping("/manager/delete-category")
-    public ResponseEntity<String> deleteProduct() {
-        return ResponseEntity.ok("The product was successfully deleted");
+    public ResponseEntity<String> deleteCategory(@RequestBody String categoryName) {
+        categoryService.deleteCategory(categoryName);
+        return ResponseEntity.ok("The category was successfully deleted");
     }
 }
