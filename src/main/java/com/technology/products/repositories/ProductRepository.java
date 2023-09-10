@@ -1,6 +1,6 @@
 package com.technology.products.repositories;
 
-import com.technology.products.models.products.Product;
+import com.technology.products.models.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.math.BigInteger;

@@ -1,4 +1,4 @@
-package com.technology.products.models.products;
+package com.technology.products.models;
 
 import com.technology.category.models.Category;
 import jakarta.persistence.*;
