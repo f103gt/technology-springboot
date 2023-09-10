@@ -3,7 +3,7 @@ package com.technology.products.services;
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.models.Category;
 import com.technology.category.repositories.CategoryRepository;
-import com.technology.products.exceptions.ProductAlreadyExistsException;
+import com.technology.products.exceptions.ProductObjectAlreadyExistsException;
 import com.technology.products.models.Product;
 import com.technology.products.registration.request.ProductRegistrationRequest;
 import com.technology.products.repositories.ProductRepository;
@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
             throw new CategoryNotFoundException("Category " + categoryName + " not found.");
         }
         if (productRepository.findProductByProductName(productName).isPresent()) {
-            throw new ProductAlreadyExistsException("Product with name "
+            throw new ProductObjectAlreadyExistsException("Product with name "
                     + productName + " already exists.");
         }
         productRepository.save(Product.builder()
