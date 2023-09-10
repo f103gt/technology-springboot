@@ -1,5 +1,6 @@
 package com.technology.management;
 
+import com.technology.category.dto.CategoryDto;
 import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.services.CategoryService;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +24,7 @@ public class CategoryManagementController {
 
     @PostMapping("/manager/all-categories")
     public List<CategoryDto> allCategories() {
-        return ;
+        return categoryService.getAllCategories();
     }
 
     @GetMapping("/manager/add-category")
