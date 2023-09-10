@@ -20,7 +20,8 @@ public class AddressServiceImpl implements AddressService{
     @Transactional
     public Address registerUserAddress(AddressRegistrationRequest addressRegistrationRequest) {
         Address address = Address.builder()
-                .setPhoneNumber(addressRegistrationRequest.phoneNumber())
+                .setPhoneNumber(addressRegistrationRequest.phoneNumber()
+                )
                 .setRegion(addressRegistrationRequest.region())
                 .setDistrict(addressRegistrationRequest.district())
                 .setLocality(addressRegistrationRequest.locality())

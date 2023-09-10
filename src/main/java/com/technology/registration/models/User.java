@@ -1,13 +1,11 @@
 package com.technology.registration.models;
 
-import com.technology.registration.errors.RoleNotFoundException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigInteger;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 
 @Entity
