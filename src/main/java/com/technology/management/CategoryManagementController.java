@@ -4,6 +4,7 @@ import com.technology.category.dto.CategoryDto;
 import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.services.CategoryService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +24,11 @@ public class CategoryManagementController {
     }
 
     @PostMapping("/manager/all-categories")
-    public List<CategoryDto> allCategories() {
-        return categoryService.getAllCategories();
+    public ResponseEntity<List<CategoryDto>> allCategories() {
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(categoryService.getAllCategories());
     }
 
     @GetMapping("/manager/add-category")
