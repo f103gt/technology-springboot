@@ -33,18 +33,17 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void saveCategory(CategoryRegistrationRequest categoryRegistrationRequest) {
-        if(categoryRepository.findCategoryByCategoryName(
-                categoryRegistrationRequest.getCategoryName()).isEmpty()){
+        if (categoryRepository.findCategoryByCategoryName(
+                categoryRegistrationRequest.getCategoryName()).isEmpty()) {
             String parentCategoryName = categoryRegistrationRequest.getCategoryName();
             if (parentCategoryName == null) {
                 createParentCategory(categoryRegistrationRequest);
             } else {
                 createChildCategory(categoryRegistrationRequest);
             }
-        }
-        else{
-            throw new CategoryAlreadyExistsException("Category "+ categoryRegistrationRequest.getCategoryName()
-            +" already exists");
+        } else {
+            throw new CategoryAlreadyExistsException("Category " + categoryRegistrationRequest.getCategoryName()
+                    + " already exists");
         }
     }
 
@@ -64,26 +63,31 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public List<CategoryDto> getAllCategories() {
-       return categoryRepository.findAll().stream()
-               .sorted((category1,category2)->
-               category1
-                       .getCategoryName()
-                       .compareToIgnoreCase(
-                               category2.getCategoryName()))
-               .map(category -> {
-                   CategoryDto categoryDto = new CategoryDto();
-                   if(category.getParentCategory()==null){
-                       categoryDto.setParentCategoryName("");
-                   }else{
-                       categoryDto.setParentCategoryName(category.getParentCategory().getCategoryName());
-                   }
-                   categoryDto.setCategoryName(category.getCategoryName());
-                   return categoryDto;
-               })
-               .collect(Collectors.toList());
-
+        return categoryRepository.findAll().stream()
+                .map(category -> {
+                    CategoryDto categoryDto = new CategoryDto();
+                    if (category.getParentCategory() == null) {
+                        categoryDto.setParentCategoryName("");
+                    } else {
+                        categoryDto.setParentCategoryName(category.getParentCategory().getCategoryName());
+                    }
+                    categoryDto.setCategoryName(category.getCategoryName());
+                    return categoryDto;
+                })
+                .sorted((categoryDto1, categoryDto2) -> {
+                    int parentCategoriesComparison = categoryDto1.getParentCategoryName()
+                            .compareToIgnoreCase(categoryDto2.getParentCategoryName());
+                    if (parentCategoriesComparison == 0) {
+                        return categoryDto1.getCategoryName()
+                                .compareToIgnoreCase(categoryDto2.getCategoryName());
+                    }
+                    return parentCategoriesComparison;
+                })
+                .collect(Collectors.toList());
     }
+
 
     private void createParentCategory(
             CategoryRegistrationRequest categoryRegistrationRequest) {
