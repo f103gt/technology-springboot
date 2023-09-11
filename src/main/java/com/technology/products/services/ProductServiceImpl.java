@@ -3,6 +3,8 @@ package com.technology.products.services;
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.models.Category;
 import com.technology.category.repositories.CategoryRepository;
+import com.technology.exception.general.exceptions.ObjectNotFoundException;
+import com.technology.products.exceptions.ProductNotFoundException;
 import com.technology.products.exceptions.ProductObjectAlreadyExistsException;
 import com.technology.products.models.Product;
 import com.technology.products.registration.request.ProductRegistrationRequest;
@@ -48,4 +50,12 @@ public class ProductServiceImpl implements ProductService {
                 .build());
     }
 
+    @Override
+    @Transactional
+    public void deleteProduct(String productName) {
+        if(productRepository.findProductByProductName(productName).isEmpty()){
+            throw new ProductNotFoundException("Product "+productName+" not found");
+        }
+        productRepository.deleteProductByProductName(productName);
+    }
 }
