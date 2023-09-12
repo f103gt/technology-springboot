@@ -26,7 +26,10 @@ public class Category{
     private String categoryName;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "category", cascade = CascadeType.MERGE)
-    private Set<Product> products = new HashSet<Product>();
+    private Set<Product> products;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, mappedBy = "parentCategory")
+    private Set<Category> childCategories;
 
     /*public static Builder builder(){
         return new Builder();
