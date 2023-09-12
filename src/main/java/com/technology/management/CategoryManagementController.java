@@ -6,10 +6,7 @@ import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.services.CategoryService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +20,7 @@ public class CategoryManagementController {
         this.categoryService = categoryService;
     }
 
-    @PostMapping("/manager/all-categories")
+    @GetMapping ("/manager/all-categories")
     public ResponseEntity<List<CategoryDto>> allCategories() {
 
         return ResponseEntity.ok()
@@ -37,7 +34,7 @@ public class CategoryManagementController {
         return ResponseEntity.ok("A new category was successfully added");
     }
 
-    @PostMapping("/manager/delete-category")
+    @DeleteMapping ("/manager/delete-category")
     public ResponseEntity<String> deleteCategory(@RequestBody String categoryName) {
         categoryService.deleteCategory(categoryName);
         return ResponseEntity.ok("The category was successfully deleted");

@@ -1,9 +1,11 @@
 package com.technology.products.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.math.BigInteger;
 
+@Getter
 @Entity
 public class Image{
     @Id
@@ -15,26 +17,15 @@ public class Image{
 
 
     @ManyToOne(cascade=CascadeType.MERGE)
-    @JoinColumn(name = "product_name",referencedColumnName = "product_name",nullable = false)
+    @JoinColumn(name = "product_id",nullable = false)
     private Product product;
-    public BigInteger getId() {
-        return id;
-    }
 
     public void setId(BigInteger id) {
         this.id = id;
     }
 
-    public byte[] getImageData() {
-        return imageData;
-    }
-
     public void setImageData(byte[] imageData) {
         this.imageData = imageData;
-    }
-
-    public Product getProduct() {
-        return product;
     }
 
     public void setProduct(Product product) {

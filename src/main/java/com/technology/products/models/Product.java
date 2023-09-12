@@ -13,23 +13,25 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Product{
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
 
-    @ManyToOne(cascade=CascadeType.MERGE)
-    @JoinColumn(name = "category_id",referencedColumnName = "category_name", unique = true)
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "category_id", unique = true, nullable = false)
     private Category category;
-    @Column(name = "product_name",unique = true)
+    @Column(name = "product_name", unique = true, nullable = false)
     private String productName;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String sku;
+    @Column(nullable = false)
     private Integer quantity;
+    @Column(nullable = false)
     private BigDecimal price;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<Image> images;
 
 }

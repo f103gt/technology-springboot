@@ -34,9 +34,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void saveCategory(CategoryRegistrationRequest categoryRegistrationRequest) {
         if (categoryRepository.findCategoryByCategoryName(
-                categoryRegistrationRequest.getCategoryName()).isEmpty()) {
+                categoryRegistrationRequest.getCategoryName().trim()).isEmpty()) {
             String parentCategoryName = categoryRegistrationRequest.getParentCategoryName();
-            if (parentCategoryName == null) {
+            if (parentCategoryName == null || parentCategoryName.trim().isEmpty()) {
                 createParentCategory(categoryRegistrationRequest);
             } else {
                 createChildCategory(categoryRegistrationRequest);
@@ -101,7 +101,7 @@ public class CategoryServiceImpl implements CategoryService {
             CategoryRegistrationRequest categoryRegistrationRequest) {
         Optional<Category> parentCategoryOptional =
                 categoryRepository.findCategoryByCategoryName(
-                        categoryRegistrationRequest.getParentCategoryName()
+                        categoryRegistrationRequest.getParentCategoryName().trim()
                 );
         parentCategoryOptional
                 .ifPresentOrElse(category -> {
