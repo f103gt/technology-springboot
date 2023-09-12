@@ -1,6 +1,7 @@
 package com.technology.registration.controllers;
 
 import com.technology.registration.registration.requests.address.AddressRegistrationRequest;
+import com.technology.registration.registration.requests.general.RegistrationRequest;
 import com.technology.registration.registration.requests.user.UserRegistrationRequest;
 import com.technology.registration.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,9 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<String> processRegistrationUser(@RequestBody UserRegistrationRequest user,
-                                                          @RequestBody AddressRegistrationRequest address){
-        userService.registerUser(user,address);
+    public ResponseEntity<String> processRegistrationUser(@RequestBody RegistrationRequest registrationRequest){
+        userService.registerUser(registrationRequest.getUserRegistrationRequest(),
+                registrationRequest.getAddressRegistrationRequest());
         return ResponseEntity.ok("User was registered successfully");
     }
 

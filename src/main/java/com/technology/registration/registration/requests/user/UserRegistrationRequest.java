@@ -10,8 +10,6 @@ import jakarta.validation.constraints.NotNull;
 public record UserRegistrationRequest(
         String firstName,
         String lastName,
-        String patronymic,
         String email,
-        String phoneNumber,
         String password) {
 }
