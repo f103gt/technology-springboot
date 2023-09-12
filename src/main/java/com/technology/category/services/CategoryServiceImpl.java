@@ -35,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void saveCategory(CategoryRegistrationRequest categoryRegistrationRequest) {
         if (categoryRepository.findCategoryByCategoryName(
                 categoryRegistrationRequest.getCategoryName()).isEmpty()) {
-            String parentCategoryName = categoryRegistrationRequest.getCategoryName();
+            String parentCategoryName = categoryRegistrationRequest.getParentCategoryName();
             if (parentCategoryName == null) {
                 createParentCategory(categoryRegistrationRequest);
             } else {

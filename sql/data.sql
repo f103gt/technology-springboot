@@ -66,3 +66,5 @@ create table image
     product_id bigint not null,
     foreign key (product_id) references product (id)
 );
+
+insert into role(role_name) values('USER'),('MANAGER'),('ADMIN');

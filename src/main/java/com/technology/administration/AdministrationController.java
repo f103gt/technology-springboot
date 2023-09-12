@@ -5,6 +5,7 @@ import com.technology.registration.services.role.RoleService;
 import com.technology.registration.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +24,10 @@ public class AdministrationController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/admin/all-users")
-    public List<DisplayUserDto> getUsers(){
-        return userService.getAllUsers();
+    public ResponseEntity<List<DisplayUserDto>> getUsers(){
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(userService.getAllUsers());
     }
 
     @PatchMapping("/admin/add-manager")

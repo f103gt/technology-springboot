@@ -31,7 +31,7 @@ public class CategoryManagementController {
                 .body(categoryService.getAllCategories());
     }
 
-    @GetMapping("/manager/add-category")
+    @PostMapping ("/manager/add-category")
     public ResponseEntity<String> addCategory(@RequestBody CategoryRegistrationRequest categoryRegistrationRequest) {
         categoryService.saveCategory(categoryRegistrationRequest);
         return ResponseEntity.ok("A new category was successfully added");
