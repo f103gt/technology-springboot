@@ -19,13 +19,10 @@ import java.util.stream.Collectors;
 @Service
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
-    private final ProductRepository productRepository;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository,
-                               ProductRepository productRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-        this.productRepository = productRepository;
     }
 
     //TODO refactor the method to adhere to SOLID principles
@@ -55,8 +52,6 @@ public class CategoryServiceImpl implements CategoryService {
             throw new CategoryNotFoundException(
                     "Category " + categoryName + " not found.");
         }
-        Category category = categoryOptional.get();
-
         //TODO add queries to repositories for the following methods
         categoryRepository.deleteCategoryByCategoryName(categoryName);
     }
