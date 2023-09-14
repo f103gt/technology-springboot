@@ -25,34 +25,10 @@ public class Category{
     @Column(name = "category_name",unique = true)
     private String categoryName;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "category", cascade = CascadeType.MERGE)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "category", cascade = {CascadeType.MERGE,CascadeType.REMOVE})
     private Set<Product> products;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, mappedBy = "parentCategory")
     private Set<Category> childCategories;
-
-    /*public static Builder builder(){
-        return new Builder();
-    }
-
-    public static class Builder{
-        private final Category category;
-        private Builder(){this.category = new Category();}
-        public  Builder setParentCategory(Category parentCategory){
-            category.parentCategory = parentCategory;
-            return this;
-        }
-        public Builder setCategoryName(String categoryName){
-            category.categoryName = categoryName;
-            return this;
-        }
-        public Builder setProducts(Set<Product> products){
-            category.products = products;
-            return this;
-        }
-        public Category build(){
-            return category;
-        }
-    }*/
 }
 
