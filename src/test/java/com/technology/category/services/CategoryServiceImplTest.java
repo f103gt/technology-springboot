@@ -87,6 +87,28 @@ class CategoryServiceImplTest {
                 "Category " + request.getCategoryName() + " already exists");
     }
 
+    @Test
+    void saveCategory_Throws_ParentCategoryNotFoundException() {
+        //arrange
+        CategoryRegistrationRequest request = new CategoryRegistrationRequest();
+        request.setParentCategoryName("NotFoundParentCategory");
+        request.setCategoryName("TestCategory");
+
+        when(categoryRepository
+                .findCategoryByCategoryName(request.getCategoryName()))
+                .thenReturn((Optional.empty()));
+        when(categoryRepository
+                .findCategoryByCategoryName(request.getParentCategoryName()))
+                .thenReturn(Optional.empty());
+        //act and assert
+        assertThrows(ParentCategoryNotFoundException.class,
+                () -> categoryService.saveCategory(request),
+                "Parent category " + request.getParentCategoryName() +
+                        " not found. Check it for misspelling or try creating the mentioned parent category " +
+                        "before adding a child one");
+    }
+
+
 
     @Test
     void deleteCategory() {
