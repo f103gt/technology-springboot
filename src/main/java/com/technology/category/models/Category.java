@@ -28,7 +28,7 @@ public class Category{
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "category", cascade = {CascadeType.MERGE,CascadeType.REMOVE})
     private Set<Product> products;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, mappedBy = "parentCategory")
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE,CascadeType.REMOVE}, mappedBy = "parentCategory")
     private Set<Category> childCategories;
 }
 
