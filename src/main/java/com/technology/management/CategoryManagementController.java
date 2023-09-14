@@ -1,6 +1,7 @@
 package com.technology.management;
 
 import com.technology.category.dto.CategoryDto;
+import com.technology.category.dto.CategoryToDeleteDto;
 import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.services.CategoryService;
@@ -35,8 +36,8 @@ public class CategoryManagementController {
     }
 
     @DeleteMapping ("/manager/delete-category")
-    public ResponseEntity<String> deleteCategory(@RequestBody String categoryName) {
-        categoryService.deleteCategory(categoryName);
+    public ResponseEntity<String> deleteCategory(@RequestBody CategoryToDeleteDto categoryName) {
+        categoryService.deleteCategory(categoryName.getCategoryName());
         return ResponseEntity.ok("The category was successfully deleted");
     }
 }

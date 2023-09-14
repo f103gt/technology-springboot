@@ -50,7 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(String categoryName) {
-        Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryName(categoryName);
+        Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryName(categoryName.trim());
         if (categoryOptional.isEmpty()) {
             throw new CategoryNotFoundException(
                     "Category " + categoryName + " not found.");
