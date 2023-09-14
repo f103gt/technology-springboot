@@ -20,7 +20,6 @@ import static org.mockito.Mockito.*;
 class CategoryServiceImplTest {
 
     private CategoryRepository categoryRepository;
-    private ProductRepository productRepository;
 
     private CategoryServiceImpl categoryService;
 
@@ -28,11 +27,7 @@ class CategoryServiceImplTest {
     @BeforeEach
     void init() throws Exception {
         categoryRepository = mock(CategoryRepository.class);
-        productRepository = mock(ProductRepository.class);
-        categoryService = new CategoryServiceImpl(
-                categoryRepository,
-                productRepository
-        );
+        categoryService = new CategoryServiceImpl(categoryRepository);
     }
 
     @Test
@@ -109,9 +104,21 @@ class CategoryServiceImplTest {
     }
 
 
-
     @Test
-    void deleteCategory() {
+    void deleteCategory_DeletesCategory_IfCategoryPresent() {
+        //arrange
+        String categoryName = "TestCategory";
+        Category category = new Category();
+        category.setCategoryName(categoryName);
+
+        //act
+        when(categoryRepository
+                .findCategoryByCategoryName(categoryName))
+                .thenReturn(Optional.of(category));
+        categoryService.deleteCategory(categoryName);
+
+        //assert
+        verify(categoryRepository, times(1)).deleteCategoryByCategoryName(categoryName);
     }
 
     @Test

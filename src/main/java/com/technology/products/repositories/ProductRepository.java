@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, BigInteger> {
     //TODO add queries
-    void deleteAllByCategoryId(Integer categoryId);
     void deleteProductByProductName(String productName);
     Optional<Product> findProductByProductName(String productName);
 }
