@@ -6,10 +6,7 @@ import com.technology.products.registration.request.ProductRegistrationRequest;
 import com.technology.products.services.ProductService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -38,7 +35,7 @@ public class ProductManagementController {
         return ResponseEntity.ok("The product was successfully added");
     }
 
-    @PostMapping("/manager/delete-product")
+    @DeleteMapping ("/manager/delete-product")
     public ResponseEntity<String> deleteProduct() {
         return ResponseEntity.ok("The product was successfully deleted");
     }
