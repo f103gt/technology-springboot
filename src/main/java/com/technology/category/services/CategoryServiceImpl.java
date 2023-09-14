@@ -58,7 +58,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryOptional.get();
 
         //TODO add queries to repositories for the following methods
-        productRepository.deleteAllByCategoryId(category.getId());
         categoryRepository.deleteCategoryByCategoryName(categoryName);
     }
 
