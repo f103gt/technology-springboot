@@ -1,5 +1,6 @@
 package com.technology.category.services;
 
+import com.technology.category.dto.CategoryDto;
 import com.technology.category.exceptions.CategoryAlreadyExistsException;
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.exceptions.ParentCategoryNotFoundException;
@@ -11,10 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceImplTest {
@@ -139,6 +143,39 @@ class CategoryServiceImplTest {
     }
 
     @Test
-    void getAllCategories() {
+    void getAllCategories_Gets_AllCategoriesSorted() {
+        //arrange
+        Category parentCategory = new Category();
+        parentCategory.setCategoryName("Parent Category");
+
+        Category childCategoryFirst = new Category();
+        childCategoryFirst.setCategoryName("Child Category 1");
+        childCategoryFirst.setParentCategory(parentCategory);
+
+        Category childCategorySecond = new Category();
+        childCategorySecond.setCategoryName("Child Category 2");
+        childCategorySecond.setParentCategory(parentCategory);
+
+        //act
+        when(categoryRepository.findAll())
+                .thenReturn(
+                        Arrays.asList(parentCategory,
+                                childCategoryFirst,
+                                childCategorySecond));
+
+        List<CategoryDto> categories = categoryService.getAllCategories();
+        //assert
+        assertThat(categories).hasSize(3);
+        assertThat(categories.get(0).getParentCategoryName()).isEqualTo("");
+        CategoryDto categoryDtoFirst = categories.get(1);
+        assertThat(categoryDtoFirst)
+                .extracting(CategoryDto::getParentCategoryName,
+                        CategoryDto::getCategoryName)
+                .containsExactly("Parent Category","Child Category 1");
+        CategoryDto categoryDtoSecond = categories.get(2);
+        assertThat(categoryDtoSecond)
+                .extracting(CategoryDto::getParentCategoryName,
+                        CategoryDto::getCategoryName)
+                .containsExactly("Parent Category","Child Category 2");
     }
 }
