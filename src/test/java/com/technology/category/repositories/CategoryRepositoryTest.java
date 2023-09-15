@@ -59,8 +59,8 @@ class CategoryRepositoryTest {
                 categoryRepository.findCategoryByCategoryName(categoryName);
 
         assertThat(deletedCategory).isEmpty();
-        Optional<Product> deletedProduct =
-                productRepository.findProductByProductName(productName);
-        assertThat(deletedProduct).isEmpty();
+        Set<Product> deletedProducts =
+                productRepository.findProductsByCategoryId(category.getId());
+        assertThat(deletedProducts).isEmpty();
     }
 }
