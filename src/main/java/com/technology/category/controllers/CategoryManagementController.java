@@ -1,8 +1,7 @@
-package com.technology.management;
+package com.technology.category.controllers;
 
 import com.technology.category.dto.CategoryDto;
 import com.technology.category.dto.CategoryToDeleteDto;
-import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.services.CategoryService;
 import org.springframework.http.MediaType;
@@ -10,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @RestController
 public class CategoryManagementController {

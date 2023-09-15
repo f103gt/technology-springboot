@@ -1,13 +1,12 @@
 create table client
 (
-    id bigserial primary key,
+    id         bigserial primary key,
     first_name varchar(255) not null,
     last_name  varchar(255) not null,
     email      varchar(255) not null unique,
     password   varchar(255) not null,
     is_enabled boolean default (false)
 );
-
 
 create table role
 (
@@ -17,7 +16,7 @@ create table role
 
 create table address
 (
-    id bigserial primary key,
+    id           bigserial primary key,
     phone_number varchar(20)  not null,
     region       varchar(255) not null,
     district     varchar(255) not null,
@@ -53,18 +52,37 @@ create table category
 
 create table product
 (
-    id bigserial primary key,
+    id           bigserial primary key,
     category_id  int                 not null,
     product_name varchar(255) unique not null,
+    sku varchar(255) not null unique,
+    quantity int not null,
+    price numeric(10,2) not null,
     foreign key (category_id) references category (id)
 );
 
 create table image
 (
-    id bigserial primary key,
-    image_data bytea not null,
+    id         bigserial primary key,
+    image_data bytea  not null,
     product_id bigint not null,
     foreign key (product_id) references product (id)
 );
 
-insert into role(role_name) values('USER'),('MANAGER'),('ADMIN');
+insert into role(role_name)
+values ('USER'),
+       ('MANAGER'),
+       ('ADMIN');
+
+insert into client_role(client_id, role_id)
+values ((select id from client where email = 'john.doe@example.com'),
+        (select id from role where role_name = 'MANAGER'));
+
+insert into client_role(client_id, role_id)
+values ((select id from client where email = 'john.doe@example.com'),
+        (select id from role where role_name = 'USER'));
+
+delete
+from client_role
+where role_id = (select id from role where role_name = 'USER')
+  and client_id = (select id from client where email = 'john.doe@example.com');

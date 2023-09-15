@@ -7,7 +7,6 @@ import com.technology.category.exceptions.ParentCategoryNotFoundException;
 import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.repositories.CategoryRepository;
-import com.technology.products.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,8 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new CategoryNotFoundException(
                     "Category " + categoryName + " not found.");
         }
-        //TODO add queries to repositories for the following methods
-        categoryRepository.deleteCategoryByCategoryName(categoryName);
+        categoryRepository.delete(categoryOptional.get());
     }
 
     @Override

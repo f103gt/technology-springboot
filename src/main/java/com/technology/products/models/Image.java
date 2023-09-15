@@ -16,7 +16,7 @@ public class Image{
     private byte[] imageData;
 
 
-    @ManyToOne(cascade=CascadeType.MERGE)
+    @ManyToOne(cascade=CascadeType.REMOVE)
     @JoinColumn(name = "product_id",nullable = false)
     private Product product;
 

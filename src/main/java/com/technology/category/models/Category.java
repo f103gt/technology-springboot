@@ -3,6 +3,7 @@ package com.technology.category.models;
 import com.technology.products.models.Product;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,10 +26,10 @@ public class Category{
     @Column(name = "category_name",unique = true)
     private String categoryName;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "category", cascade = {CascadeType.MERGE,CascadeType.REMOVE})
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "category", cascade = CascadeType.REMOVE)
     private Set<Product> products;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE,CascadeType.REMOVE}, mappedBy = "parentCategory")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, mappedBy = "parentCategory")
     private Set<Category> childCategories;
 }
 

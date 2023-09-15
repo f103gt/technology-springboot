@@ -5,7 +5,6 @@ import com.technology.category.exceptions.ParentCategoryNotFoundException;
 import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.repositories.CategoryRepository;
-import com.technology.products.repositories.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
