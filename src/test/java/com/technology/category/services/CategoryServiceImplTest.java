@@ -1,6 +1,7 @@
 package com.technology.category.services;
 
 import com.technology.category.exceptions.CategoryAlreadyExistsException;
+import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.exceptions.ParentCategoryNotFoundException;
 import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
@@ -118,6 +119,23 @@ class CategoryServiceImplTest {
 
         //assert
         verify(categoryRepository, times(1)).deleteCategoryByCategoryName(categoryName);
+    }
+
+    @Test
+    void deleteCategory_Throws_CategoryNotFoundException() {
+        //arrange
+        String categoryName = "TestCategory";
+        Category category = new Category();
+        category.setCategoryName(categoryName);
+
+        //act
+        when(categoryRepository
+                .findCategoryByCategoryName(categoryName))
+                .thenReturn(Optional.empty());
+        //assert
+        assertThrows(CategoryNotFoundException.class,
+                () -> categoryService.deleteCategory(categoryName),
+                "Category " + categoryName + " not found.");
     }
 
     @Test
