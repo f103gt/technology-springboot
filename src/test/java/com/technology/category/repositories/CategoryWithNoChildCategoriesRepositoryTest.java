@@ -3,38 +3,31 @@ package com.technology.category.repositories;
 import com.technology.category.models.Category;
 import com.technology.products.models.Product;
 import com.technology.products.repositories.ProductRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CategoryWithNoChildCategoriesRepositoryTest extends CategoryRepositoryTest{
+    @Autowired
     public CategoryWithNoChildCategoriesRepositoryTest(CategoryRepository categoryRepository, ProductRepository productRepository) {
         super(categoryRepository, productRepository);
-    }
-    private Category category;
-
-    @BeforeEach
-    void setUp() {
-        category = Category.builder()
-                .id(1)
-                .categoryName("Test Category")
-                .build();
-        categoryRepository.save(category);
     }
 
     @Test
     void deleteCategory_DeletesCategory_CategoryWithNoChildCategories() {
-        //given
-        String categoryName = category.getCategoryName();
+        //given super.setUp()
+        categoryRepository.save(parentCategory);
 
         Product product =
                 Product.builder()
-                        .category(category)
+                        .id(BigInteger.ONE)
+                        .category(parentCategory)
                         .productName("Test Product 1")
                         .sku("SKU1")
                         .quantity(1)
@@ -42,18 +35,18 @@ public class CategoryWithNoChildCategoriesRepositoryTest extends CategoryReposit
                         .build();
 
         productRepository.save(product);
-        category.setProducts(Set.of(product));
-        categoryRepository.save(category);
+        parentCategory.setProducts(Set.of(product));
+        categoryRepository.save(parentCategory);
         //when
-        categoryRepository.delete(category);
+        categoryRepository.delete(parentCategory);
 
         //then
         Optional<Category> deletedCategory =
-                categoryRepository.findCategoryByCategoryName(categoryName);
+                categoryRepository.findCategoryByCategoryName(parentCategoryName);
 
         assertThat(deletedCategory).isEmpty();
         Set<Product> deletedProducts =
-                productRepository.findProductsByCategoryId(category.getId());
+                productRepository.findProductsByCategoryId(parentCategory.getId());
         assertThat(deletedProducts).isEmpty();
     }
 }
