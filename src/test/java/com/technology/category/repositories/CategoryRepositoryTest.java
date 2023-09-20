@@ -1,6 +1,7 @@
 package com.technology.category.repositories;
 
 import com.technology.category.models.Category;
+import com.technology.factory.TestObjectFactory;
 import com.technology.products.models.Product;
 import com.technology.products.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -35,25 +36,13 @@ class CategoryRepositoryTest {
     @BeforeEach
     void setUp() {
         parentCategoryName = "Parent Category";
-        parentCategory = Category.builder()
-                .id(1)
-                .categoryName(parentCategoryName)
-                .build();
+        parentCategory = TestObjectFactory.createCategory(1, parentCategoryName, null);
         categoryRepository.save(parentCategory);
     }
 
     protected void createChildCategories() {
-        childCategoryFirst = Category.builder()
-                .id(2)
-                .categoryName("Child Category 1")
-                .parentCategory(parentCategory)
-                .build();
-
-        childCategorySecond = Category.builder()
-                .id(3)
-                .categoryName("Child Category 2")
-                .parentCategory(parentCategory)
-                .build();
+        childCategoryFirst = TestObjectFactory.createCategory(2, "Child Category 1", parentCategory);
+        childCategorySecond = TestObjectFactory.createCategory(3, "Child Category 2", parentCategory);
 
         categoryRepository.save(childCategoryFirst);
         categoryRepository.save(childCategorySecond);
@@ -63,26 +52,10 @@ class CategoryRepositoryTest {
     }
 
     protected void createProductsForChildCategories() {
-        List<Category> childCategories =
-                parentCategory.getChildCategories().stream().toList();
-        Product productFirst = Product.builder()
-                .id(BigInteger.ONE)
-                .category(childCategoryFirst)
-                .productName("Test Product 1")
-                .sku("SKU1")
-                .quantity(1)
-                .price(BigDecimal.TEN)
-                .build();
-
-        Product productSecond = Product.builder()
-                .id(BigInteger.TWO)
-                .category(childCategorySecond)
-                .productName("Test Product 2")
-                .sku("SKU2")
-                .quantity(1)
-                .price(BigDecimal.TEN)
-                .build();
-        productRepository.save(productFirst);
+       Product productFirst = TestObjectFactory.createProduct(BigInteger.ONE, childCategoryFirst,
+                "Test Product 1", "SKU1", 1, BigDecimal.TEN);
+        Product productSecond = TestObjectFactory.createProduct(BigInteger.TWO, childCategorySecond,
+                "Test Product 2", "SKU2", 1, BigDecimal.TEN);
 
         childCategoryFirst.setProducts(Set.of(productFirst));
         categoryRepository.save(childCategoryFirst);
