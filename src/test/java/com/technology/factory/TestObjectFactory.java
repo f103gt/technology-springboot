@@ -5,6 +5,8 @@ import com.technology.products.models.Product;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TestObjectFactory {
     public static Category createCategory(Integer id, String name, Category parent) {
@@ -12,6 +14,8 @@ public class TestObjectFactory {
                 .id(id)
                 .categoryName(name)
                 .parentCategory(parent)
+                .childCategories(new HashSet<>())
+                .products(new HashSet<>())
                 .build();
     }
 
