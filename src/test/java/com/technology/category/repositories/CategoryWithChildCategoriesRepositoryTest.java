@@ -1,8 +1,8 @@
 package com.technology.category.repositories;
 
 import com.technology.category.models.Category;
-import com.technology.products.models.Product;
-import com.technology.products.repositories.ProductRepository;
+import com.technology.product.models.Product;
+import com.technology.product.repositories.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -2,8 +2,8 @@ package com.technology.category.repositories;
 
 import com.technology.category.models.Category;
 import com.technology.factory.TestObjectFactory;
-import com.technology.products.models.Product;
-import com.technology.products.repositories.ProductRepository;
+import com.technology.product.models.Product;
+import com.technology.product.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +11,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
-import java.util.Set;
 
 @DataJpaTest
 @Transactional

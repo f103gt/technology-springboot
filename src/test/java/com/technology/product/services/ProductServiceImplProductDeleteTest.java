@@ -1,7 +1,7 @@
-package com.technology.products.services;
+package com.technology.product.services;
 
-import com.technology.products.exceptions.ProductNotFoundException;
-import com.technology.products.models.Product;
+import com.technology.product.exceptions.ProductNotFoundException;
+import com.technology.product.models.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

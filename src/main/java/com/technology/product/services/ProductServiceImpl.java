@@ -1,14 +1,14 @@
-package com.technology.products.services;
+package com.technology.product.services;
 
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.models.Category;
 import com.technology.category.repositories.CategoryRepository;
-import com.technology.products.ProductDto;
-import com.technology.products.exceptions.ProductNotFoundException;
-import com.technology.products.exceptions.ProductObjectAlreadyExistsException;
-import com.technology.products.models.Product;
-import com.technology.products.registration.request.ProductRegistrationRequest;
-import com.technology.products.repositories.ProductRepository;
+import com.technology.product.ProductDto;
+import com.technology.product.exceptions.ProductNotFoundException;
+import com.technology.product.exceptions.ProductObjectAlreadyExistsException;
+import com.technology.product.models.Product;
+import com.technology.product.registration.request.ProductRegistrationRequest;
+import com.technology.product.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

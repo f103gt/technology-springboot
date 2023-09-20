@@ -1,8 +1,8 @@
-package com.technology.products.controllers;
+package com.technology.product.controllers;
 
-import com.technology.products.ProductDto;
-import com.technology.products.registration.request.ProductRegistrationRequest;
-import com.technology.products.services.ProductService;
+import com.technology.product.ProductDto;
+import com.technology.product.registration.request.ProductRegistrationRequest;
+import com.technology.product.services.ProductService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

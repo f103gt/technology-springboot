@@ -1,4 +1,4 @@
-package com.technology.products.models;
+package com.technology.product.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,8 +1,8 @@
-package com.technology.products.services;
+package com.technology.product.services;
 
 import com.technology.category.models.Category;
-import com.technology.products.ProductDto;
-import com.technology.products.models.Product;
+import com.technology.product.ProductDto;
+import com.technology.product.models.Product;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

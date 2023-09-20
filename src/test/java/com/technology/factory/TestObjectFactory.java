@@ -1,12 +1,11 @@
 package com.technology.factory;
 
 import com.technology.category.models.Category;
-import com.technology.products.models.Product;
+import com.technology.product.models.Product;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashSet;
-import java.util.Set;
 
 public class TestObjectFactory {
     public static Category createCategory(Integer id, String name, Category parent) {

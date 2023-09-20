@@ -1,11 +1,9 @@
 package com.technology.category.models;
 
-import com.technology.products.models.Product;
+import com.technology.product.models.Product;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Cascade;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity

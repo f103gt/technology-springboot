@@ -1,4 +1,4 @@
-package com.technology.products;
+package com.technology.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

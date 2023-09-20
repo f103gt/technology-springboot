@@ -1,7 +1,7 @@
-package com.technology.products.services;
+package com.technology.product.services;
 
 import com.technology.category.repositories.CategoryRepository;
-import com.technology.products.repositories.ProductRepository;
+import com.technology.product.repositories.ProductRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
