@@ -22,7 +22,6 @@ public class CategoryWithNoChildCategoriesRepositoryTest extends CategoryReposit
     @Test
     void deleteCategory_DeletesCategory_CategoryWithNoChildCategories() {
         //given super.setUp()
-        categoryRepository.save(parentCategory);
 
         Product product =
                 Product.builder()
