@@ -18,7 +18,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger cart_id;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "client_id")
     private User user;
 

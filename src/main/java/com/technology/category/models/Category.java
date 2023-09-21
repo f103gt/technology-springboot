@@ -24,9 +24,9 @@ public class Category{
     @Column(name = "category_name",unique = true)
     private String categoryName;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "category", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "category",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Product> products;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, mappedBy = "parentCategory")
+    @OneToMany(mappedBy = "parentCategory",fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private Set<Category> childCategories;
 }

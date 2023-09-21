@@ -1,5 +1,6 @@
 package com.technology.registration.models;
 
+import com.technology.cart.models.Cart;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +46,9 @@ public class User{
             inverseJoinColumns = @JoinColumn(name = "address_id", referencedColumnName = "id"))
     private Set<Address> addresses;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 
     public static class Builder{
         private final User user;

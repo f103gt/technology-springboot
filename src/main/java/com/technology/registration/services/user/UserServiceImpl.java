@@ -1,6 +1,6 @@
 package com.technology.registration.services.user;
 
-import com.technology.registration.dto.display.DisplayUserDto;
+import com.technology.registration.dto.UserDto;
 import com.technology.registration.errors.RoleNotFoundException;
 import com.technology.registration.errors.UserAlreadyExistsException;
 import com.technology.registration.models.Role;
@@ -66,9 +66,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public List<DisplayUserDto> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> new DisplayUserDto(
+                .map(user -> new UserDto(
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail()

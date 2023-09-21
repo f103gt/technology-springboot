@@ -21,7 +21,7 @@ public class UserController {
     @PostMapping("/user/{productId}")
     public ResponseEntity<String> addToCart(
             @PathVariable BigInteger productId) {
-        cartService.saveCartItem(productId);
+        cartService.saveCart(productId);
         return ResponseEntity.ok("The product was successfully added");
     }
 }

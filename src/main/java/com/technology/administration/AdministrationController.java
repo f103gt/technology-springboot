@@ -1,6 +1,6 @@
 package com.technology.administration;
 
-import com.technology.registration.dto.display.DisplayUserDto;
+import com.technology.registration.dto.UserDto;
 import com.technology.registration.services.role.RoleService;
 import com.technology.registration.services.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class AdministrationController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/admin/all-users")
-    public ResponseEntity<List<DisplayUserDto>> getUsers(){
+    public ResponseEntity<List<UserDto>> getUsers(){
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(userService.getAllUsers());

@@ -1,6 +1,6 @@
 package com.technology.registration.services.user;
 
-import com.technology.registration.dto.display.DisplayUserDto;
+import com.technology.registration.dto.UserDto;
 import com.technology.registration.errors.RoleNotFoundException;
 import com.technology.registration.errors.UserAlreadyExistsException;
 import com.technology.registration.registration.requests.address.AddressRegistrationRequest;
@@ -13,5 +13,5 @@ public interface UserService {
                       AddressRegistrationRequest addressRegistrationRequest)
             throws RoleNotFoundException, UserAlreadyExistsException;
 
-    List<DisplayUserDto> getAllUsers();
+    List<UserDto> getAllUsers();
 }
