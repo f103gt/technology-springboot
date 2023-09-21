@@ -1,10 +1,14 @@
 package com.technology.registration.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
 @Entity
+@Getter
+@Setter
 public class Role{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,20 +19,4 @@ public class Role{
 
     @ManyToMany(mappedBy = "roles")
     private Set<User> users;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
 }

@@ -16,19 +16,26 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
+
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
+
     @Column(nullable = false)
     private String region;
+
     @Column(nullable = false)
     private String district;
+
     //city town
     @Column(nullable = false)
     private String locality;
+
     @Column(nullable = false)
     private String street;
+
     @Column(nullable = false)
     private String premise;
+
     @Column(nullable = false)
     private String zipcode;
 
