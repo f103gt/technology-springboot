@@ -19,6 +19,7 @@ public class User{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true)
     private BigInteger id;
+    
     @Column(name = "first_name",nullable = false)
     private String firstName;
 
@@ -34,13 +35,16 @@ public class User{
     @Column(name = "is_enabled",nullable = false)
     private Boolean isEnabled;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    //TODO test the same for role
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinTable(name = "client_role",
             joinColumns = @JoinColumn(name = "client_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<Role> roles;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    //TODO test whether now address will be saved automatically when i save it in user
+    //TODO instead of saving address first and only then a user entity
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinTable(name = "client_address",
             joinColumns = @JoinColumn(name = "client_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "address_id", referencedColumnName = "id"))
