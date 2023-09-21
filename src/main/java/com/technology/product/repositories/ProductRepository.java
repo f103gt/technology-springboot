@@ -12,4 +12,5 @@ public interface ProductRepository extends JpaRepository<Product, BigInteger> {
     void deleteProductByProductName(String productName);
     Set<Product> findProductsByCategoryId(Integer categoryId);
     Optional<Product> findProductByProductName(String productName);
+    Optional<Product> findProductsById(BigInteger productId);
 }

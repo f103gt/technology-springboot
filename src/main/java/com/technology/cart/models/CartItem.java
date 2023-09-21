@@ -17,7 +17,7 @@ import java.math.BigInteger;
 public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private BigInteger cartItemId;
+    private BigInteger id;
 
     @ManyToOne
     @JoinColumn(name="cart_id")

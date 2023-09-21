@@ -19,7 +19,7 @@ public class User{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true)
     private BigInteger id;
-    
+
     @Column(name = "first_name",nullable = false)
     private String firstName;
 

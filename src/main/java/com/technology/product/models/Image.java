@@ -15,7 +15,6 @@ public class Image{
     @Column(name="image_data",nullable = false)
     private byte[] imageData;
 
-
     @ManyToOne
     @JoinColumn(name = "product_id",nullable = false)
     private Product product;
