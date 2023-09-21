@@ -26,10 +26,7 @@ public class CategoryWithNoChildCategoriesRepositoryTest extends CategoryReposit
 
         Product product = TestObjectFactory.createProduct(BigInteger.ONE, parentCategory,
                 "Test Product 1", "SKU1", 1, BigDecimal.TEN);
-
-        productRepository.save(product);
-        parentCategory.setProducts(Set.of(product));
-        categoryRepository.save(parentCategory);
+        createConnectionCategoryProduct(parentCategory,product);
 
         //when
         categoryRepository.delete(parentCategory);

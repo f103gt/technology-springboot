@@ -56,16 +56,12 @@ class CategoryRepositoryTest {
         createConnectionCategoryProduct(childCategorySecond, productSecond);
     }
 
-    private void createConnectionCategoryProduct(Category category, Product product) {
-        productRepository.save(product);
-
+    protected void createConnectionCategoryProduct(Category category, Product product) {
         category.getProducts().add(product);
         categoryRepository.save(category);
     }
 
     private void createConnectionCategoryChildCategory(Category category, Category childCategory){
-        categoryRepository.save(childCategory);
-
         category.getChildCategories().add(childCategory);
         categoryRepository.save(category);
     }

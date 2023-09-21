@@ -17,7 +17,7 @@ public class Category{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "parent_category_id")
     private Category parentCategory;
 
@@ -27,6 +27,6 @@ public class Category{
     @OneToMany(mappedBy = "category",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Product> products;
 
-    @OneToMany(mappedBy = "parentCategory",fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "parentCategory",fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Category> childCategories;
 }
