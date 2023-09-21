@@ -5,7 +5,9 @@ create table client
     last_name  varchar(255) not null,
     email      varchar(255) not null unique,
     password   varchar(255) not null,
-    is_enabled boolean default (false)
+    is_enabled boolean default (false),
+    cart_id bigint,
+    key (cart_id) references cart(id)
 );
 
 create table role

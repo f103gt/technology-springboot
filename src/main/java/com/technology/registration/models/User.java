@@ -20,19 +20,18 @@ public class User{
     @Column(unique = true)
     private BigInteger id;
 
-    @Column(name = "first_name",nullable = false)
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name",nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(unique = true,nullable = false)
+    @Column(unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
-    @Column(name = "is_enabled",nullable = false)
+    @Column(name = "is_enabled")
     private Boolean isEnabled;
 
     //TODO test the same for role
@@ -58,6 +57,11 @@ public class User{
         private final User user;
         private Builder(){
             this.user = new User();
+        }
+
+        public Builder id(BigInteger id){
+            user.id = id;
+            return this;
         }
 
         public Builder firstName(String firstName){

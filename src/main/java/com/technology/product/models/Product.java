@@ -21,25 +21,23 @@ public class Product {
     private BigInteger id;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", unique = true, nullable = false)
+    @JoinColumn(name = "category_id")
     private Category category;
 
-    @Column(name = "product_name", unique = true, nullable = false)
+    @Column(name = "product_name")
     private String productName;
 
-    @Column(unique = true, nullable = false)
+    //@Column(unique = true)
     private String sku;
 
-    @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false)
     private BigDecimal price;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Collection<Image> images;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Collection<CartItem> cartItems;
 }
 

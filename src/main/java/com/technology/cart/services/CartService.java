@@ -22,13 +22,11 @@ import java.util.Set;
 @Service
 public class CartService {
     private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
 
     @Autowired
-    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository) {
+    public CartService(CartRepository cartRepository, ProductRepository productRepository) {
         this.cartRepository = cartRepository;
-        this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
     }
 
@@ -57,7 +55,7 @@ public class CartService {
                     .multiply(BigDecimal.valueOf(quantity)));
         }
         else{
-            Optional<Product> productOptional = productRepository.findProductsById(productId);
+            Optional<Product> productOptional = productRepository.findProductById(productId);
             if (productOptional.isEmpty()) {
                 throw new ProductNotFoundException("Product with id" + productId + " not found");
             }
