@@ -30,4 +30,3 @@ public class Category{
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, mappedBy = "parentCategory")
     private Set<Category> childCategories;
 }
-
