@@ -2,7 +2,9 @@
 
     import com.technology.cart.models.Cart;
     import com.technology.cart.models.CartItem;
+    import com.technology.cart.repositories.CartItemRepository;
     import com.technology.cart.repositories.CartRepository;
+    import com.technology.cart.test.repositories.TestCartItemRepository;
     import com.technology.product.models.Product;
     import com.technology.product.repositories.ProductRepository;
     import com.technology.registration.models.User;
@@ -25,6 +27,7 @@
     import java.util.Optional;
     import java.util.Set;
 
+    import static org.assertj.core.api.Assertions.assertThat;
     import static org.junit.jupiter.api.Assertions.assertEquals;
     import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,6 +37,8 @@
     public class CartServiceTest {
         private final CartRepository cartRepository;
         private final ProductRepository productRepository;
+
+        private final TestCartItemRepository testCartItemRepository;
 
         private final UserRepository userRepository;
 
@@ -47,10 +52,12 @@
         @Autowired
         public CartServiceTest(CartRepository cartRepository,
                                ProductRepository productRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               TestCartItemRepository testCartItemRepository) {
             this.cartRepository = cartRepository;
             this.productRepository = productRepository;
             this.userRepository = userRepository;
+            this.testCartItemRepository = testCartItemRepository;
         }
 
 
@@ -80,6 +87,19 @@
             productRepository.save(product);
         }
 
+        private CartItem makeCartItem(){
+            return CartItem.builder()
+                    .id(BigInteger.TEN)
+                    .product(product)
+                    .quantity(1)
+                    .finalPrice(product.getPrice())
+                    .build();
+        }
+
+        private void establishProductCartItemRelation(CartItem cartItem){
+            product.getCartItems().add(cartItem);
+            productRepository.save(product);
+        }
         @Test
         @DirtiesContext
         public void testSaveCart_AddsProductToExistingCartItem() {
@@ -87,16 +107,10 @@
             Cart cart = makeCart();
             establishRelationUserCart(cart);
 
-            CartItem cartItem = CartItem.builder()
-                    .id(BigInteger.TEN)
-                    .product(product)
-                    .quantity(1)
-                    .finalPrice(product.getPrice())
-                    .build();
+            CartItem cartItem = makeCartItem();
             cart.getCartItems().add(cartItem);
 
-            product.getCartItems().add(cartItem);
-            productRepository.save(product);
+            establishProductCartItemRelation(cartItem);
 
             cartRepository.save(cart);
 
@@ -132,6 +146,39 @@
             //asser
             makeAssertions(1,10);
         }
+
+        @Test
+        @DirtiesContext
+        public void testDeleteCartItem_DeletesCartItem(){
+            //arrange
+            Cart cart = makeCart();
+            establishRelationUserCart(cart);
+
+            CartItem cartItem = makeCartItem();
+            cart.getCartItems().add(cartItem);
+
+            establishProductCartItemRelation(cartItem);
+
+            cartRepository.save(cart);
+
+            //act
+
+            cartService.deleteCartItem(product.getId());
+
+            //assert
+
+            /*checking if the cart item was deleted successfully
+            using cart item id to make the code less complex,
+             however in real life we are deleting cart item
+             by searching in the set of cart items in the cart
+             to prevent any data inconsistency*/
+
+            Optional<CartItem> deletedCartItemOptional =
+                    testCartItemRepository.findCartItemById(cartItem.getId());
+            assertThat(deletedCartItemOptional).isEmpty();
+
+        }
+
         private void makeAssertions(int quantity,int price){
             Optional<Cart> cartOptional = cartRepository.findCartByUserId(user.getId());
             assertTrue(cartOptional.isPresent());
@@ -142,7 +189,6 @@
             assertEquals(quantity, cartItemTest.getQuantity());
             assertEquals(BigDecimal.valueOf(price), cartItemTest.getFinalPrice());
         }
-
         private Cart makeCart(){
             return Cart.builder()
                     .id(BigInteger.ONE)

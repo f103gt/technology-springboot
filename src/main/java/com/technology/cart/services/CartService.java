@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CartService {
@@ -35,9 +36,13 @@ public class CartService {
         this.userRepository = userRepository;
     }
 
-    public void saveCart(BigInteger productId) {
+    private User getUserFromContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+        return (User) authentication.getPrincipal();
+    }
+
+    public void saveCart(BigInteger productId) {
+        User user = getUserFromContext();
         Cart cart = user.getCart();
         if (cart == null) {
             cart = Cart.builder()
@@ -52,19 +57,33 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+    public void deleteCartItem(BigInteger productId) {
+        User user = getUserFromContext();
+        Cart cart = user.getCart();
+        Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
+        Optional<CartItem> cartItemToRemove = cartItems.stream()
+                .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
+                .findFirst();
+        if (cartItemToRemove.isPresent()) {
+            cartItems.remove(cartItemToRemove.get());
+            cartRepository.save(cart);
+        } else {
+            throw new ProductNotFoundException("Product with id " + productId + " not found");
+        }
+    }
+
     private void addProductToCart(BigInteger productId, Cart cart) {
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
         Optional<CartItem> cartItemOptional = cartItems.stream()
                 .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
                 .findFirst();
-        if(cartItemOptional.isPresent()){
+        if (cartItemOptional.isPresent()) {
             CartItem cartItem = cartItemOptional.get();
             int quantity = cartItem.getQuantity() + 1;
             cartItem.setQuantity(quantity);
             cartItem.setFinalPrice(cartItem.getProduct().getPrice()
                     .multiply(BigDecimal.valueOf(quantity)));
-        }
-        else{
+        } else {
             Optional<Product> productOptional = productRepository.findProductById(productId);
             if (productOptional.isEmpty()) {
                 throw new ProductNotFoundException("Product with id" + productId + " not found");
@@ -75,7 +94,7 @@ public class CartService {
                     .quantity(1)
                     .finalPrice(product.getPrice())
                     .product(product)
-                .build();
+                    .build();
             cart.getCartItems().add(cartItem);
         }
     }
