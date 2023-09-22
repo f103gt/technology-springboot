@@ -5,6 +5,7 @@ import com.technology.product.models.Product;
 import com.technology.product.repositories.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Optional;
 import java.util.Set;
@@ -18,6 +19,7 @@ public class CategoryWithChildCategoriesRepositoryTest extends CategoryRepositor
     }
 
     @Test
+    @DirtiesContext
     void deleteCategory_DeletesCategory_CategoryWithChildCategories_WithNoProducts() {
 
         //arrange(setUp)
@@ -39,6 +41,7 @@ public class CategoryWithChildCategoriesRepositoryTest extends CategoryRepositor
     }
 
     @Test
+    @DirtiesContext
     void deleteCategory_DeletesCategory_CategoryWithChildCategories_ChildCategoriesWithProducts() {
         //arrange(setUp)
         createChildCategories();

@@ -6,6 +6,7 @@ import com.technology.product.models.Product;
 import com.technology.product.repositories.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -21,6 +22,7 @@ public class CategoryWithNoChildCategoriesRepositoryTest extends CategoryReposit
     }
 
     @Test
+    @DirtiesContext
     void deleteCategory_DeletesCategory_CategoryWithNoChildCategories() {
         //given super.setUp()
 

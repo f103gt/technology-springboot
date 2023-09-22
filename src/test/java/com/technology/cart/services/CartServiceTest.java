@@ -8,17 +8,16 @@
     import com.technology.registration.models.User;
     import com.technology.registration.repositories.UserRepository;
     import jakarta.transaction.Transactional;
-    import org.junit.jupiter.api.BeforeAll;
     import org.junit.jupiter.api.BeforeEach;
     import org.junit.jupiter.api.Test;
     import org.mockito.Mock;
     import org.mockito.MockitoAnnotations;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-    import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
     import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
     import org.springframework.security.core.Authentication;
     import org.springframework.security.core.context.SecurityContextHolder;
+    import org.springframework.test.annotation.DirtiesContext;
 
     import java.math.BigDecimal;
     import java.math.BigInteger;
@@ -26,7 +25,6 @@
     import java.util.Optional;
     import java.util.Set;
 
-    import static org.assertj.core.api.Assertions.assertThat;
     import static org.junit.jupiter.api.Assertions.assertEquals;
     import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -81,6 +79,7 @@
         }
 
         @Test
+        @DirtiesContext
         public void testSaveCart_AddsProductToExistingCartItem() {
             //arrange
             Cart cart = Cart.builder()
@@ -92,7 +91,6 @@
 
             user.setCart(cart);
             userRepository.save(user);
-
 
             CartItem cartItem = CartItem.builder()
                     .id(BigInteger.TEN)
@@ -111,6 +109,33 @@
             cartService.saveCart(product.getId());
 
             //assert
+           assertPresent();
+        }
+        //TODO also implement test for creation of new cart and new cart item
+        @Test
+        @DirtiesContext
+        public void testSaveCart_SavesCartItem_CreatesNewCartItem(){
+            //arrange serUp()
+            Cart cart = Cart.builder()
+                    .id(BigInteger.ONE)
+                    .user(user)
+                    .cartItems(new HashSet<>())
+                    .build();
+            cartRepository.save(cart);
+
+            user.setCart(cart);
+            userRepository.save(user);
+
+            //act
+            cartService.saveCart(product.getId());
+
+            //asser
+            assertPresent();
+
+            //TODO implement a method for the following assertions
+        }
+
+        private void assertPresent(){
             Optional<Cart> cartOptional = cartRepository.findCartByUserId(user.getId());
             /*assertThat(cartOptional).isPresent();*/
             assertTrue(cartOptional.isPresent());
@@ -118,8 +143,8 @@
             assertEquals(1, cartItems.size());
 
             CartItem cartItemTest = cartItems.iterator().next();
-            assertEquals(2, cartItemTest.getQuantity());
-            assertEquals(BigDecimal.valueOf(20), cartItemTest.getFinalPrice());
+            assertEquals(1, cartItemTest.getQuantity());
+            assertEquals(BigDecimal.valueOf(10), cartItemTest.getFinalPrice());
         }
 
     }
