@@ -8,6 +8,7 @@ import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.models.Product;
 import com.technology.product.repositories.ProductRepository;
 import com.technology.registration.models.User;
+import com.technology.registration.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,12 +23,16 @@ import java.util.Set;
 @Service
 public class CartService {
     private final CartRepository cartRepository;
+    private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
     @Autowired
-    public CartService(CartRepository cartRepository, ProductRepository productRepository) {
+    public CartService(CartRepository cartRepository,
+                       ProductRepository productRepository,
+                       UserRepository userRepository) {
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
     }
 
     public void saveCart(BigInteger productId) {
@@ -35,8 +40,13 @@ public class CartService {
         User user = (User) authentication.getPrincipal();
         Cart cart = user.getCart();
         if (cart == null) {
-            cart = new Cart();
+            cart = Cart.builder()
+                    .cartItems(new HashSet<>())
+                    .user(user)
+                    .build();
+            cartRepository.save(cart);
             user.setCart(cart);
+            userRepository.save(user);
         }
         addProductToCart(productId, cart);
         cartRepository.save(cart);
@@ -66,6 +76,7 @@ public class CartService {
                     .finalPrice(product.getPrice())
                     .product(product)
                 .build();
+            cart.getCartItems().add(cartItem);
         }
     }
 }

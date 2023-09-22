@@ -57,7 +57,9 @@
         @BeforeEach
         public void init() {
             MockitoAnnotations.openMocks(this);
-            cartService = new CartService(cartRepository, productRepository);
+            cartService = new CartService(cartRepository,
+                    productRepository,
+                    userRepository);
         }
 
         @BeforeEach
@@ -82,15 +84,8 @@
         @DirtiesContext
         public void testSaveCart_AddsProductToExistingCartItem() {
             //arrange
-            Cart cart = Cart.builder()
-                    .id(BigInteger.ONE)
-                    .user(user)
-                    .cartItems(new HashSet<>())
-                    .build();
-            cartRepository.save(cart);
-
-            user.setCart(cart);
-            userRepository.save(user);
+            Cart cart = makeCart();
+            establishRelationUserCart(cart);
 
             CartItem cartItem = CartItem.builder()
                     .id(BigInteger.TEN)
@@ -109,42 +104,57 @@
             cartService.saveCart(product.getId());
 
             //assert
-           assertPresent();
+            makeAssertions(2,20);
         }
-        //TODO also implement test for creation of new cart and new cart item
+        //TODO implement test for creation of new cart and new cart item
         @Test
         @DirtiesContext
         public void testSaveCart_SavesCartItem_CreatesNewCartItem(){
             //arrange serUp()
-            Cart cart = Cart.builder()
-                    .id(BigInteger.ONE)
-                    .user(user)
-                    .cartItems(new HashSet<>())
-                    .build();
-            cartRepository.save(cart);
-
-            user.setCart(cart);
-            userRepository.save(user);
+            Cart cart = makeCart();
+            establishRelationUserCart(cart);
 
             //act
             cartService.saveCart(product.getId());
 
             //asser
-            assertPresent();
-
-            //TODO implement a method for the following assertions
+           makeAssertions(1,10);
         }
 
-        private void assertPresent(){
+        @Test
+        @DirtiesContext
+        public void testSaveCart_SavesCartItem_CreatesNewCart_AndNewCartItem(){
+            //arrange serUp()
+
+            //act
+            cartService.saveCart(product.getId());
+
+            //asser
+            makeAssertions(1,10);
+        }
+        private void makeAssertions(int quantity,int price){
             Optional<Cart> cartOptional = cartRepository.findCartByUserId(user.getId());
-            /*assertThat(cartOptional).isPresent();*/
             assertTrue(cartOptional.isPresent());
             Set<CartItem> cartItems = new HashSet<>(cartOptional.get().getCartItems());
             assertEquals(1, cartItems.size());
 
             CartItem cartItemTest = cartItems.iterator().next();
-            assertEquals(1, cartItemTest.getQuantity());
-            assertEquals(BigDecimal.valueOf(10), cartItemTest.getFinalPrice());
+            assertEquals(quantity, cartItemTest.getQuantity());
+            assertEquals(BigDecimal.valueOf(price), cartItemTest.getFinalPrice());
+        }
+
+        private Cart makeCart(){
+            return Cart.builder()
+                    .id(BigInteger.ONE)
+                    .user(user)
+                    .cartItems(new HashSet<>())
+                    .build();
+        }
+        private void establishRelationUserCart(Cart cart){
+            cartRepository.save(cart);
+
+            user.setCart(cart);
+            userRepository.save(user);
         }
 
     }
