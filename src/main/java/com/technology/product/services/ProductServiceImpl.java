@@ -3,7 +3,7 @@ package com.technology.product.services;
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.models.Category;
 import com.technology.category.repositories.CategoryRepository;
-import com.technology.product.ProductDto;
+import com.technology.product.dto.ProductDto;
 import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.exceptions.ProductObjectAlreadyExistsException;
 import com.technology.product.models.Product;

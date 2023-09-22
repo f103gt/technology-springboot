@@ -1,6 +1,6 @@
 package com.technology.product.controllers;
 
-import com.technology.product.ProductDto;
+import com.technology.product.dto.ProductDto;
 import com.technology.product.registration.request.ProductRegistrationRequest;
 import com.technology.product.services.ProductService;
 import org.springframework.http.MediaType;

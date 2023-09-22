@@ -3,6 +3,7 @@ package com.technology.cart.controller;
 import com.technology.cart.services.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,13 @@ public class UserController {
     public ResponseEntity<String> addToCart(
             @PathVariable BigInteger productId) {
         cartService.saveCart(productId);
-        return ResponseEntity.ok("The product was successfully added");
+        return ResponseEntity
+                .ok("The product was successfully added to the cart");
+    }
+
+    @DeleteMapping("/user/delete-cart")
+    public ResponseEntity<String> deleteCart() {
+        cartService.deleteCart();
+        return ResponseEntity.ok("The cart was successfully deleted");
     }
 }

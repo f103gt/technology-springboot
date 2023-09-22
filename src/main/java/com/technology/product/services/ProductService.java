@@ -1,6 +1,6 @@
 package com.technology.product.services;
 
-import com.technology.product.ProductDto;
+import com.technology.product.dto.ProductDto;
 import com.technology.product.registration.request.ProductRegistrationRequest;
 
 import java.util.List;

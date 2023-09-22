@@ -9,13 +9,16 @@ import com.technology.product.models.Product;
 import com.technology.product.repositories.ProductRepository;
 import com.technology.registration.models.User;
 import com.technology.registration.repositories.UserRepository;
+import com.technology.security.adapters.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -36,13 +39,19 @@ public class CartService {
         this.userRepository = userRepository;
     }
 
-    private User getUserFromContext() {
+    private Optional<User> getUserFromContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (User) authentication.getPrincipal();
+        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+        return userRepository.findUserByEmail(securityUser.getUsername());
     }
 
     public void saveCart(BigInteger productId) {
-        User user = getUserFromContext();
+        Optional<User> userOptional = getUserFromContext();
+        if(userOptional.isEmpty()){
+            throw new UsernameNotFoundException("user not found");
+            //TODO create user not found exception instead of this one
+        }
+        User user = userOptional.get();
         Cart cart = user.getCart();
         if (cart == null) {
             cart = Cart.builder()
@@ -58,7 +67,13 @@ public class CartService {
     }
 
     public void deleteCartItem(BigInteger productId) {
-        User user = getUserFromContext();
+        Optional<User> userOptional = getUserFromContext();
+        if(userOptional.isEmpty()){
+            throw new UsernameNotFoundException("user not found");
+            //TODO create user not found exception instead of this one
+        }
+        User user = userOptional.get();
+        //TODO create a method to turn userOption into user
         Cart cart = user.getCart();
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
         Optional<CartItem> cartItemToRemove = cartItems.stream()
@@ -70,6 +85,21 @@ public class CartService {
         } else {
             throw new ProductNotFoundException("Product with id " + productId + " not found");
         }
+    }
+    /*in deleteCart method no need to check if the
+    * cart exists or not, cart purification/removal
+    *  will be implemented as soon as the order
+    * is successfully made */
+    //TODO if needed modify code to accept a parameter
+    public void deleteCart(){
+        Optional<User> userOptional = getUserFromContext();
+        if(userOptional.isEmpty()){
+            throw new UsernameNotFoundException("user not found");
+            //TODO create user not found exception instead of this one
+        }
+        User user = userOptional.get();
+        cartRepository.delete(user.getCart());
+        //userRepository.save(user);
     }
 
     private void addProductToCart(BigInteger productId, Cart cart) {
