@@ -19,7 +19,7 @@ public class Cart {
     private BigInteger id;
 
     @OneToOne
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "client_id",referencedColumnName = "id")
     private User user;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,mappedBy = "cart")

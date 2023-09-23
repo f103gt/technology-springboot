@@ -2,8 +2,7 @@ package com.technology.registration.models;
 
 import com.technology.cart.models.Cart;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigInteger;
 import java.util.Collections;
@@ -13,11 +12,13 @@ import java.util.Set;
 @Table(name = "client")
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true)
     private BigInteger id;
 
     @Column(name = "first_name")
@@ -50,10 +51,11 @@ public class User{
     private Set<Address> addresses;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_id")
+    @JoinColumn(name = "cart_id", referencedColumnName = "id")
     private Cart cart;
-
-    public static class Builder{
+}
+/*
+public static class Builder{
         private final User user;
         private Builder(){
             this.user = new User();
@@ -105,4 +107,4 @@ public class User{
     public static Builder builder(){
         return new Builder();
     }
-}
+ */

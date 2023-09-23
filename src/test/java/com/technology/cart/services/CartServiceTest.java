@@ -8,6 +8,7 @@
     import com.technology.product.repositories.ProductRepository;
     import com.technology.registration.models.User;
     import com.technology.registration.repositories.UserRepository;
+    import com.technology.security.adapters.SecurityUser;
     import jakarta.transaction.Transactional;
     import org.junit.jupiter.api.BeforeEach;
     import org.junit.jupiter.api.Test;
@@ -72,10 +73,19 @@
         public void setUp(){
             user = User.builder()
                     .id(BigInteger.ONE)
+                    .firstName("Test")
+                    .lastName("User")
+                    .email("testuser@example.com")
+                    .password("password")
+                    .isEnabled(true)
+                    .roles(new HashSet<>())
+                    .addresses(new HashSet<>())
                     .build();
             userRepository.save(user);
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null);
+            SecurityUser securityUser = new SecurityUser(user);
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(securityUser, null);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             product = Product.builder()

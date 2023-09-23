@@ -99,7 +99,8 @@ public class CartService {
         }
         User user = userOptional.get();
         cartRepository.delete(user.getCart());
-        //userRepository.save(user);
+        user.setCart(null);
+        userRepository.save(user);
     }
 
     private void addProductToCart(BigInteger productId, Cart cart) {
