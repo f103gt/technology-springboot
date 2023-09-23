@@ -36,6 +36,7 @@ public class SecurityConfig {
                         auth -> {
                             auth
                                     .requestMatchers("/manager/**").hasRole("MANAGER")
+                                    .requestMatchers("/staff/**").hasRole("STAFF")
                                     .requestMatchers("/admin/**").hasRole("ADMIN")
                                     .requestMatchers("/user/**").hasRole("USER")
                                     .requestMatchers("/**").permitAll()
@@ -72,7 +73,9 @@ public class SecurityConfig {
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_MANAGER\nROLE_MANAGER > ROLE_USER");
+        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_MANAGER\n" +
+                "ROLE_MANAGER > ROLE_STAFF"+
+                "ROLE_STAFF > ROLE_USER");
         return roleHierarchy;
     }
 

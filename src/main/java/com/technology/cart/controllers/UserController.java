@@ -1,4 +1,4 @@
-package com.technology.cart.controller;
+package com.technology.cart.controllers;
 
 import com.technology.cart.services.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
