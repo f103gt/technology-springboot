@@ -38,7 +38,6 @@ public class SecurityConfig {
                                     .requestMatchers("/manager/**").hasRole("MANAGER")
                                     .requestMatchers("/staff/**").hasRole("STAFF")
                                     .requestMatchers("/admin/**").hasRole("ADMIN")
-                                    .requestMatchers("/user/**").hasRole("USER")
                                     .requestMatchers("/**").permitAll()
                                     .anyRequest().authenticated();
                         })
@@ -50,9 +49,7 @@ public class SecurityConfig {
                 .build();
     }
 
-    //auth.requestMatchers("/admin/**").hasRole("ADMIN");
-    //auth.requestMatchers("/manager/**").hasRole("MANAGER");
-    //TODO fix the issue with the hierarchy
+    //.requestMatchers("/user/**").hasRole("USER")
 
     /*return http
                 .csrf().disable()
@@ -73,9 +70,9 @@ public class SecurityConfig {
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_MANAGER\n" +
-                "ROLE_MANAGER > ROLE_STAFF"+
-                "ROLE_STAFF > ROLE_USER");
+        roleHierarchy.setHierarchy(
+                "ROLE_ADMIN > ROLE_MANAGER\n" +
+                "ROLE_MANAGER > ROLE_STAFF");
         return roleHierarchy;
     }
 
