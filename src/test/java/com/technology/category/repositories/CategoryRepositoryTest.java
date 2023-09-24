@@ -11,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Optional;
+import java.util.Set;
 
 @DataJpaTest
 @Transactional
@@ -18,11 +20,6 @@ class CategoryRepositoryTest {
     protected final CategoryRepository categoryRepository;
     protected final ProductRepository productRepository;
     protected Category parentCategory;
-    protected Category childCategoryFirst;
-
-    protected Category childCategorySecond;
-
-    protected String parentCategoryName;
 
     @Autowired
     public CategoryRepositoryTest(CategoryRepository categoryRepository,
@@ -33,35 +30,53 @@ class CategoryRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        parentCategoryName = "Parent Category";
-        parentCategory = TestObjectFactory.createCategory(1, parentCategoryName, null);
+        parentCategory = TestObjectFactory.createCategory(1, "Parent Category", null);
         categoryRepository.save(parentCategory);
     }
 
-    protected void createChildCategories() {
-        childCategoryFirst = TestObjectFactory.createCategory(2, "Child Category 1", parentCategory);
-        createConnectionCategoryChildCategory(parentCategory,childCategoryFirst);
-
-        childCategorySecond = TestObjectFactory.createCategory(3, "Child Category 2", parentCategory);
-        createConnectionCategoryChildCategory(parentCategory,childCategorySecond);
+    protected void createChildCategories(int categoriesNumber) {
+        int index = 1;
+        while (index <= categoriesNumber) {
+            parentCategory.getChildCategories().add(
+                    TestObjectFactory.createCategory(
+                            index + 1, "Child Category " + index, parentCategory));
+            categoryRepository.save(parentCategory);
+            index++;
+        }
     }
 
-    protected void createProductsForChildCategories() {
-        Product productFirst = TestObjectFactory.createProduct(BigInteger.ONE, childCategoryFirst,
-                "Test Product 1", "SKU1", 1, BigDecimal.TEN);
-        createConnectionCategoryProduct(childCategoryFirst, productFirst);
-
-        Product productSecond = TestObjectFactory.createProduct(BigInteger.TWO, childCategorySecond,
+    protected void createProductsForChildCategories(int productsNumber, Category category) {
+        Optional<BigInteger> maxIndex = category.getProducts().stream()
+                .map(Product::getId)
+                .max(BigInteger::compareTo);
+        BigInteger index = BigInteger.ONE;
+        if (maxIndex.isPresent()) {
+            index = maxIndex.get().add(BigInteger.ONE);
+        }
+        while (index.compareTo(BigInteger.valueOf(productsNumber)) <= 0) {
+            category.getProducts().add(
+                    TestObjectFactory.createProduct(
+                            index, category, "Test Product " + index.intValue(), "SKU" + index.intValue(), 1, BigDecimal.TEN));
+            index = index.add(BigInteger.ONE);
+            categoryRepository.save(category);
+        }
+        /*Product productSecond = TestObjectFactory.createProduct(BigInteger.TWO, childCategorySecond,
                 "Test Product 2", "SKU2", 1, BigDecimal.TEN);
-        createConnectionCategoryProduct(childCategorySecond, productSecond);
+        createConnectionCategoryProduct(childCategorySecond, productSecond);*/
     }
 
+    //creates a random number of products within a range from 1-5
+    //for all the child categories of a parent category
+    //TODO consider if i need this functionality
+   /* protected  void createProductsForChildCategories(Category category){
+
+    }*/
     protected void createConnectionCategoryProduct(Category category, Product product) {
         category.getProducts().add(product);
         categoryRepository.save(category);
     }
 
-    private void createConnectionCategoryChildCategory(Category category, Category childCategory){
+    private void createConnectionCategoryChildCategory(Category category, Category childCategory) {
         category.getChildCategories().add(childCategory);
         categoryRepository.save(category);
     }

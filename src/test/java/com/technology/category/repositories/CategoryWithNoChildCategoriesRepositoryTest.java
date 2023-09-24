@@ -26,8 +26,8 @@ public class CategoryWithNoChildCategoriesRepositoryTest extends CategoryReposit
     void deleteCategory_DeletesCategory_CategoryWithNoChildCategories() {
         //given super.setUp()
 
-        Product product = TestObjectFactory.createProduct(BigInteger.ONE, parentCategory,
-                "Test Product 1", "SKU1", 1, BigDecimal.TEN);
+        Product product = TestObjectFactory.createProduct(
+                BigInteger.ONE, parentCategory, "Test Product 1", "SKU1", 1, BigDecimal.TEN);
         createConnectionCategoryProduct(parentCategory,product);
 
         //when
@@ -35,7 +35,7 @@ public class CategoryWithNoChildCategoriesRepositoryTest extends CategoryReposit
 
         //then
         Optional<Category> deletedCategory =
-                categoryRepository.findCategoryByCategoryName(parentCategoryName);
+                categoryRepository.findCategoryByCategoryName(parentCategory.getCategoryName());
 
         assertThat(deletedCategory).isEmpty();
         Set<Product> deletedProducts =
