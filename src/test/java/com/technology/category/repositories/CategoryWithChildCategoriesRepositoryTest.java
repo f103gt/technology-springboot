@@ -1,8 +1,8 @@
 package com.technology.category.repositories;
 
 import com.technology.category.models.Category;
+import com.technology.category.test.repositories.TestProductRepository;
 import com.technology.product.models.Product;
-import com.technology.product.repositories.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CategoryWithChildCategoriesRepositoryTest extends CategoryRepositoryTest {
     @Autowired
-    public CategoryWithChildCategoriesRepositoryTest(CategoryRepository categoryRepository, ProductRepository productRepository) {
+    public CategoryWithChildCategoriesRepositoryTest(CategoryRepository categoryRepository, TestProductRepository productRepository) {
         super(categoryRepository, productRepository);
     }
 
