@@ -46,17 +46,12 @@ class CategoryRepositoryTest {
     }
 
     protected void createProductsForCategory(int productsNumber, Category category) {
-        Optional<BigInteger> maxIndex = productRepository.findMaxProductId();
-        BigInteger index = BigInteger.ONE;
-        if (maxIndex.isPresent()) {
-            index = maxIndex.get().add(BigInteger.ONE);
-        }
-        while (index.compareTo(BigInteger.valueOf(productsNumber)) <= 0) {
+        while (productsNumber > 0) {
             category.getProducts().add(
                     TestProductFactory.createProduct(
-                            index, category, "Test Product " + index,
-                            "SKU" + index, 1, BigDecimal.TEN));
-            index = index.add(BigInteger.ONE);
+                            category, "Test Product " + productsNumber,
+                            "SKU" + productsNumber, 1, BigDecimal.TEN));
+            productsNumber--;
             categoryRepository.save(category);
         }
     }

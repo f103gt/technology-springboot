@@ -11,10 +11,9 @@ import java.math.BigInteger;
 import java.util.HashSet;
 
 public class TestProductFactory {
-    public static Product createProduct(BigInteger id, Category category, String name,
+    public static Product createProduct(Category category, String name,
                                   String sku, Integer quantity, BigDecimal price){
         return Product.builder()
-                .id(id)
                 .category(category)
                 .productName(name)
                 .sku(sku)
