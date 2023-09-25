@@ -26,9 +26,7 @@ public class CategoryWithNoChildCategoriesRepositoryTest extends CategoryReposit
     void deleteCategory_DeletesCategory_CategoryWithNoChildCategories() {
         //given super.setUp()
 
-        Product product = TestObjectFactory.createProduct(
-                BigInteger.ONE, parentCategory, "Test Product 1", "SKU1", 1, BigDecimal.TEN);
-        createConnectionCategoryProduct(parentCategory,product);
+        createProductsForCategory(1,parentCategory);
 
         //when
         categoryRepository.delete(parentCategory);

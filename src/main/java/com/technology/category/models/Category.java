@@ -15,7 +15,6 @@ import java.util.Set;
 public class Category{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true)
     private Integer id;
 
     @ManyToOne

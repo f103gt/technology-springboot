@@ -3,6 +3,7 @@ package com.technology.category.repositories;
 import com.technology.category.models.Category;
 import com.technology.category.test.repositories.TestProductRepository;
 import com.technology.factory.TestObjectFactory;
+import com.technology.factory.TestProductFactory;
 import com.technology.product.models.Product;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,7 @@ class CategoryRepositoryTest {
         }
     }
 
-    protected void createProductsForChildCategories(int productsNumber, Category category) {
+    protected void createProductsForCategory(int productsNumber, Category category) {
         Optional<BigInteger> maxIndex = productRepository.findMaxProductId();
         BigInteger index = BigInteger.ONE;
         if (maxIndex.isPresent()) {
@@ -52,30 +53,12 @@ class CategoryRepositoryTest {
         }
         while (index.compareTo(BigInteger.valueOf(productsNumber)) <= 0) {
             category.getProducts().add(
-                    TestObjectFactory.createProduct(
-                            index, category, "Test Product " + index.intValue(), "SKU" + index.intValue(), 1, BigDecimal.TEN));
+                    TestProductFactory.createProduct(
+                            index, category, "Test Product " + index,
+                            "SKU" + index, 1, BigDecimal.TEN));
             index = index.add(BigInteger.ONE);
             categoryRepository.save(category);
         }
-        /*Product productSecond = TestObjectFactory.createProduct(BigInteger.TWO, childCategorySecond,
-                "Test Product 2", "SKU2", 1, BigDecimal.TEN);
-        createConnectionCategoryProduct(childCategorySecond, productSecond);*/
-    }
-
-    //creates a random number of products within a range from 1-5
-    //for all the child categories of a parent category
-    //TODO consider if i need this functionality
-   /* protected  void createProductsForChildCategories(Category category){
-
-    }*/
-    protected void createConnectionCategoryProduct(Category category, Product product) {
-        category.getProducts().add(product);
-        categoryRepository.save(category);
-    }
-
-    private void createConnectionCategoryChildCategory(Category category, Category childCategory) {
-        category.getChildCategories().add(childCategory);
-        categoryRepository.save(category);
     }
 
 }

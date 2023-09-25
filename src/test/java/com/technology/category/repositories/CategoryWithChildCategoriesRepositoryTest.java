@@ -29,15 +29,7 @@ public class CategoryWithChildCategoriesRepositoryTest extends CategoryRepositor
         categoryRepository.delete(parentCategory);
 
         //assert
-        Optional<Category> deletedCategory =
-                categoryRepository.findCategoryByCategoryName(parentCategory.getCategoryName());
-
-        assertThat(deletedCategory).isEmpty();
-
-        Set<Category> deletedChildCategories =
-                categoryRepository.findAllChildCategoriesByParentCategoryId(parentCategory.getId());
-
-        assertThat(deletedChildCategories).isEmpty();
+        makeAssertionsDeletedParentCategoryAndChildChildCategories();
     }
 
     @Test
@@ -46,12 +38,23 @@ public class CategoryWithChildCategoriesRepositoryTest extends CategoryRepositor
         //arrange(setUp)
         createChildCategories(2);
         parentCategory.getChildCategories().forEach(childCategory ->
-                createProductsForChildCategories(1,childCategory));
+                createProductsForCategory(1,childCategory));
 
         //act
         categoryRepository.delete(parentCategory);
 
         //assert
+
+        makeAssertionsDeletedParentCategoryAndChildChildCategories();
+
+        parentCategory.getChildCategories().forEach(childCategory -> {
+            Set<Product> deletedProducts =
+                    productRepository.findProductsByCategoryId(childCategory.getId());
+            assertThat(deletedProducts).isEmpty();
+        });
+    }
+
+    private void makeAssertionsDeletedParentCategoryAndChildChildCategories(){
         Optional<Category> deletedCategory =
                 categoryRepository.findCategoryByCategoryName(parentCategory.getCategoryName());
 
@@ -60,16 +63,5 @@ public class CategoryWithChildCategoriesRepositoryTest extends CategoryRepositor
         Set<Category> deletedChildCategories =
                 categoryRepository.findAllChildCategoriesByParentCategoryId(parentCategory.getId());
         assertThat(deletedChildCategories).isEmpty();
-
-        parentCategory.getChildCategories().forEach(childCategory -> {
-            Set<Product> deletedProducts =
-                    productRepository.findProductsByCategoryId(childCategory.getId());
-            assertThat(deletedProducts).isEmpty();
-        });
-        /*Set<Product> deletedProductsSecondChildCategory =
-                productRepository.findProductsByCategoryId(parentCategory.getChildCategories().stream().toList().get(0).getId());
-
-        assertThat(deletedProductsSecondChildCategory).isEmpty();*/
-
     }
 }

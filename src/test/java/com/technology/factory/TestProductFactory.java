@@ -8,9 +8,10 @@ import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashSet;
 
 public class TestProductFactory {
-    public Product createProduct(BigInteger id, Category category, String name,
+    public static Product createProduct(BigInteger id, Category category, String name,
                                   String sku, Integer quantity, BigDecimal price){
         return Product.builder()
                 .id(id)
@@ -19,24 +20,7 @@ public class TestProductFactory {
                 .sku(sku)
                 .quantity(quantity)
                 .price(price)
+                .cartItems(new HashSet<>())
                 .build();
-    }
-    @Transactional
-    public Product createProduct(BigInteger id, Category category, String name,
-                                        String sku, Integer quantity, BigDecimal price,
-                                        ProductRepository productRepository) {
-        Product product = createProduct(id,category,name,sku,quantity,price);
-        productRepository.save(product);
-        return  product;
-    }
-
-    @Transactional
-    public Product createProduct(BigInteger id, Category category, String name,
-                                        String sku, Integer quantity, BigDecimal price,
-                                        CategoryRepository categoryRepository){
-        Product product = createProduct(id,category,name,sku,quantity,price);
-        category.getProducts().add(product);
-        categoryRepository.save(category);
-        return  product;
     }
 }
