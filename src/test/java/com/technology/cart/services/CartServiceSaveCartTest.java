@@ -2,74 +2,54 @@ package com.technology.cart.services;
 
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
-import com.technology.cart.repositories.CartRepository;
-import com.technology.cart.test.repositories.TestCartItemRepository;
-import com.technology.product.repositories.ProductRepository;
-import com.technology.registration.repositories.UserRepository;
+import com.technology.factory.TestCartItemFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CartServiceSaveCartTest extends CartServiceTest{
-    public CartServiceSaveCartTest(UserRepository userRepository,
-                                   CartRepository cartRepository,
-                                   ProductRepository productRepository,
-                                   TestCartItemRepository testCartItemRepository) {
-        super(cartRepository, productRepository, userRepository, testCartItemRepository);
-    }
-
     @Test
     @DirtiesContext
     public void testSaveCart_AddsProductToExistingCartItem() {
         //arrange
-        Cart cart = makeCart();
-        establishRelationUserCart(cart);
-
-        CartItem cartItem = makeCartItem();
-        cart.getCartItems().add(cartItem);
-
-        establishProductCartItemRelation(cartItem);
-
+        CartItem cartItem = TestCartItemFactory.makeCartItem(product, cart);
+        productRepository.save(product);
         cartRepository.save(cart);
+
 
         //act
         cartService.saveCart(product.getId());
 
         //assert
-        makeAssertions(2,20);
+        makeAssertions(2, 20);
     }
 
     @Test
     @DirtiesContext
-    public void testSaveCart_SavesCartItem_CreatesNewCartItem(){
+    public void testSaveCart_SavesCartItem_CreatesNewCartItem() {
         //arrange serUp()
-        Cart cart = makeCart();
-        establishRelationUserCart(cart);
 
         //act
         cartService.saveCart(product.getId());
 
         //asser
-        makeAssertions(1,10);
+        makeAssertions(1, 10);
     }
 
     @Test
     @DirtiesContext
-    public void testDeleteCart_DeletesCart(){
+    public void testDeleteCart_DeletesCart() {
         //arrange
-        //TODO carry out this piece of code into a separate method
-        //TODO to avoid code duplication
-        Cart cart = makeCart();
-        establishRelationUserCart(cart);
-
-        CartItem cartItem = makeCartItem();
-        cart.getCartItems().add(cartItem);
-
-        establishProductCartItemRelation(cartItem);
-
+        CartItem cartItem = TestCartItemFactory.makeCartItem(product, cart);
+        productRepository.save(product);
         cartRepository.save(cart);
 
         //act
@@ -84,21 +64,30 @@ public class CartServiceSaveCartTest extends CartServiceTest{
         Optional<Cart> userDeletedCartOptional =
                 cartRepository.findCartById(cart.getId());
 
-            /*Optional<Cart> deletedCartOptional =
-                    cartRepository.findCartByUserId(user.getId());*/
         assertThat(userDeletedCartOptional).isEmpty();
     }
 
     @Test
     @DirtiesContext
-    public void testSaveCart_SavesCartItem_CreatesNewCart_AndNewCartItem(){
+    public void testSaveCart_SavesCartItem_CreatesNewCart_AndNewCartItem() {
         //arrange serUp()
 
         //act
         cartService.saveCart(product.getId());
 
         //asser
-        makeAssertions(1,10);
+        makeAssertions(1, 10);
+    }
+
+    private void makeAssertions(int quantity, int price) {
+        Optional<Cart> cartOptional = cartRepository.findCartByUserId(user.getId());
+        assertTrue(cartOptional.isPresent());
+        Set<CartItem> cartItems = new HashSet<>(cartOptional.get().getCartItems());
+        assertEquals(1, cartItems.size());
+
+        CartItem cartItemTest = cartItems.iterator().next();
+        assertEquals(quantity, cartItemTest.getQuantity());
+        assertEquals(BigDecimal.valueOf(price), cartItemTest.getFinalPrice());
     }
 
 }

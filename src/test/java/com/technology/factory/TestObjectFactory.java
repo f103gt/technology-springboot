@@ -17,16 +17,5 @@ public class TestObjectFactory {
                 .products(new HashSet<>())
                 .build();
     }
-
-    public static Product createProduct(BigInteger id, Category category, String name,
-                                        String sku, Integer quantity, BigDecimal price) {
-        return Product.builder()
-                .id(id)
-                .category(category)
-                .productName(name)
-                .sku(sku)
-                .quantity(quantity)
-                .price(price)
-                .build();
-    }
+    //TODO make a separate TestCategoryFactory
 }
