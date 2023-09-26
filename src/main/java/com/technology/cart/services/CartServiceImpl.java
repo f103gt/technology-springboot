@@ -42,11 +42,8 @@ public class CartServiceImpl implements CartService {
     private User getUserFromContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        Optional<User> userOptional = userRepository.findUserByEmail(securityUser.getUsername());
-        if(userOptional.isEmpty()){
-            throw new UsernameNotFoundException("user not found");
-        }
-        return userOptional.get();
+        return userRepository.findUserByEmail(securityUser.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Override
