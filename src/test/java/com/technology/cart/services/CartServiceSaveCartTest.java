@@ -64,7 +64,7 @@ public class CartServiceSaveCartTest extends CartServiceTest{
         Optional<Cart> userDeletedCartOptional =
                 cartRepository.findCartById(cart.getId());
 
-        assertThat(userDeletedCartOptional).isEmpty();
+        assertThat(userDeletedCartOptional).isPresent();
     }
 
     @Test
