@@ -2,6 +2,7 @@ package com.technology.cart.services;
 
 import com.technology.cart.factories.CartFactory;
 import com.technology.cart.factories.CartItemFactory;
+import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
 import com.technology.cart.repositories.CartRepository;
@@ -23,6 +24,8 @@ import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.technology.cart.helpers.CartServiceHelper.*;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -66,10 +69,8 @@ public class CartServiceImpl implements CartService {
         User user = getUserFromContext();
         Cart cart = user.getCart();
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
-        Optional<CartItem> cartItemToRemove = cartItems.stream()
-                .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
-                .findFirst();
-        cartItemToRemove.ifPresentOrElse(cartItem -> {
+        Optional<CartItem> cartItemToRemoveOptional = findParticularCartItem(cartItems, productId);
+        cartItemToRemoveOptional.ifPresentOrElse(cartItem -> {
                     cartItems.remove(cartItem);
                     cartRepository.save(cart);
                 },
@@ -92,9 +93,7 @@ public class CartServiceImpl implements CartService {
 
     private void addProductToCart(BigInteger productId, Cart cart) {
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
-        Optional<CartItem> cartItemOptional = cartItems.stream()
-                .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
-                .findFirst();
+        Optional<CartItem> cartItemOptional = findParticularCartItem(cartItems, productId);
         cartItemOptional.ifPresentOrElse(
                 cartItem -> {
                     int quantity = cartItem.getQuantity() + 1;

@@ -35,8 +35,7 @@ public class CartServiceHelper {
         return cart;
     }
 
-    public static Optional<CartItem> findParticularCartItem(Cart cart, BigInteger productId){
-        Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
+    public static Optional<CartItem> findParticularCartItem(Set<CartItem> cartItems,BigInteger productId){
         return cartItems.stream()
                 .filter(cartItem ->
                         cartItem.getProduct().getId().equals(productId))
