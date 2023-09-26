@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Optional;
@@ -35,10 +36,17 @@ public class CartServiceHelper {
         return cart;
     }
 
-    public static Optional<CartItem> findParticularCartItem(Set<CartItem> cartItems,BigInteger productId){
+    public static Optional<CartItem> findParticularCartItemOptional(Set<CartItem> cartItems, BigInteger productId) {
         return cartItems.stream()
                 .filter(cartItem ->
                         cartItem.getProduct().getId().equals(productId))
                 .findFirst();
+    }
+
+    public static void increaseCartItemQuantity(CartItem cartItem) {
+        int quantity = cartItem.getQuantity() + 1;
+        cartItem.setQuantity(quantity);
+        cartItem.setFinalPrice(cartItem.getProduct().getPrice()
+                .multiply(BigDecimal.valueOf(quantity)));
     }
 }
