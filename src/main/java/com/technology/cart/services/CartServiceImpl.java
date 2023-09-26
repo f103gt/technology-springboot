@@ -95,19 +95,21 @@ public class CartServiceImpl implements CartService {
         Optional<CartItem> cartItemOptional = cartItems.stream()
                 .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
                 .findFirst();
-        if (cartItemOptional.isPresent()) {
-            CartItem cartItem = cartItemOptional.get();
-            int quantity = cartItem.getQuantity() + 1;
-            cartItem.setQuantity(quantity);
-            cartItem.setFinalPrice(cartItem.getProduct().getPrice()
-                    .multiply(BigDecimal.valueOf(quantity)));
-        } else {
-            Optional<Product> productOptional = productRepository.findProductById(productId);
-            if (productOptional.isEmpty()) {
-                throw new ProductNotFoundException("Product with id" + productId + " not found");
-            }
-            Product product = productOptional.get();
-            CartItemFactory.createCartItem(1, cart, product);
-        }
+        cartItemOptional.ifPresentOrElse(
+                cartItem -> {
+                    int quantity = cartItem.getQuantity() + 1;
+                    cartItem.setQuantity(quantity);
+                    cartItem.setFinalPrice(cartItem.getProduct().getPrice()
+                            .multiply(BigDecimal.valueOf(quantity)));
+                },
+                () -> {
+                    Product product = productRepository.findProductById(productId)
+                            .orElseThrow(() ->
+                                    new ProductNotFoundException(
+                                            "Product with id" + productId + " not found"));
+                    CartItemFactory.createCartItem(1, cart, product);
+
+                }
+        );
     }
 }
