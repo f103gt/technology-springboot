@@ -43,12 +43,7 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void saveCart(BigInteger productId) {
         User user = CartServiceHelper.getUserFromContext(userRepository);
-        Cart cart = user.getCart();
-        if (cart == null) {
-            cart = CartFactory.createCart(user);
-            cartRepository.save(cart);
-            userRepository.save(user);
-        }
+        Cart cart = CartServiceHelper.getOrCreateCart(cartRepository, userRepository);
         addProductToCart(productId, cart);
         cartRepository.save(cart);
     }
