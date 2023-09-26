@@ -1,5 +1,6 @@
 package com.technology.cart.services;
 
+import com.technology.cart.factories.CartFactory;
 import com.technology.cart.factories.CartItemFactory;
 import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.cart.models.Cart;
@@ -40,7 +41,12 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void saveCart(BigInteger productId) {
         User user = CartServiceHelper.getUserFromContext(userRepository);
-        Cart cart = CartServiceHelper.getOrCreateCart(user, cartRepository, userRepository);
+        Cart cart = user.getCart();
+        if (cart == null) {
+            cart = CartFactory.createCart(user);
+            cartRepository.save(cart);
+            userRepository.save(user);
+        }
         addProductToCart(productId, cart);
         cartRepository.save(cart);
     }
