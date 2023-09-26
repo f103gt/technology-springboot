@@ -1,5 +1,6 @@
 package com.technology.cart.services;
 
+import com.technology.cart.exceptions.UserNotFoundException;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
 import com.technology.cart.repositories.CartRepository;
@@ -71,7 +72,7 @@ public class CartServiceImpl implements CartService {
     public void deleteCartItem(BigInteger productId) {
         Optional<User> userOptional = getUserFromContext();
         if(userOptional.isEmpty()){
-            throw new UsernameNotFoundException("user not found");
+            throw new UserNotFoundException("user not found");
             //TODO create user not found exception instead of this one
         }
         User user = userOptional.get();
@@ -87,6 +88,7 @@ public class CartServiceImpl implements CartService {
         } else {
             throw new ProductNotFoundException("Product with id " + productId + " not found");
         }
+
     }
     /*in deleteCart method no need to check if the
     * cart exists or not, cart purification/removal
@@ -106,7 +108,7 @@ public class CartServiceImpl implements CartService {
         user.setCart(null);
         userRepository.save(user);
     }
-    
+
     private void addProductToCart(BigInteger productId, Cart cart) {
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
         Optional<CartItem> cartItemOptional = cartItems.stream()
