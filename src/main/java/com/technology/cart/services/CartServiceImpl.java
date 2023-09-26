@@ -53,17 +53,7 @@ public class CartServiceImpl implements CartService {
         User user = getUserFromContext();
         Cart cart = user.getCart();
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
-        Optional<CartItem> cartItemToRemoveOptional = findParticularCartItemOptional(cartItems, productId);
-        cartItemToRemoveOptional.ifPresentOrElse(cartItemToRemove -> {
-                    cartItems.remove(cartItemToRemove);
-                    cartRepository.save(cart);
-                },
-                () -> {
-                    throw new ProductNotFoundException(
-                            "Product with id " + productId + " not found");
-                }
-        );
-
+        removeCartItemFromCartIfPresent(cartItems,cart,productId);
     }
 
     @Override
@@ -104,5 +94,18 @@ public class CartServiceImpl implements CartService {
         }
         return cart;
     }
-    
+
+    private void removeCartItemFromCartIfPresent(Set<CartItem> cartItems,Cart cart,BigInteger productId){
+        Optional<CartItem> cartItemToRemoveOptional = findParticularCartItemOptional(cartItems, productId);
+        cartItemToRemoveOptional.ifPresentOrElse(cartItemToRemove -> {
+                    cartItems.remove(cartItemToRemove);
+                    cartRepository.save(cart);
+                },
+                () -> {
+                    throw new ProductNotFoundException(
+                            "Product with id " + productId + " not found");
+                }
+        );
+    }
+
 }
