@@ -1,5 +1,6 @@
 package com.technology.cart.services;
 
+import com.technology.cart.factories.CartFactory;
 import com.technology.cart.factories.CartItemFactory;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
@@ -54,12 +55,8 @@ public class CartServiceImpl implements CartService {
         User user = getUserFromContext();
         Cart cart = user.getCart();
         if (cart == null) {
-            cart = Cart.builder()
-                    .cartItems(new HashSet<>())
-                    .user(user)
-                    .build();
+            cart = CartFactory.createCart(user);
             cartRepository.save(cart);
-            user.setCart(cart);
             userRepository.save(user);
         }
         addProductToCart(productId, cart);
@@ -83,11 +80,7 @@ public class CartServiceImpl implements CartService {
         }
 
     }
-    /*in deleteCart method no need to check if the
-    * cart exists or not, cart purification/removal
-    *  will be implemented as soon as the order
-    * is successfully made */
-    //TODO if needed modify code to accept a parameter
+
     @Override
     @Transactional
     public void deleteCart(){
