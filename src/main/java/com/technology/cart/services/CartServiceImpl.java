@@ -69,18 +69,21 @@ public class CartServiceImpl implements CartService {
         Optional<CartItem> cartItemToRemove = cartItems.stream()
                 .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
                 .findFirst();
-        if (cartItemToRemove.isPresent()) {
-            cartItems.remove(cartItemToRemove.get());
-            cartRepository.save(cart);
-        } else {
-            throw new ProductNotFoundException("Product with id " + productId + " not found");
-        }
+        cartItemToRemove.ifPresentOrElse(cartItem -> {
+                    cartItems.remove(cartItem);
+                    cartRepository.save(cart);
+                },
+                () -> {
+                    throw new ProductNotFoundException(
+                            "Product with id " + productId + " not found");
+                }
+        );
 
     }
 
     @Override
     @Transactional
-    public void deleteCart(){
+    public void deleteCart() {
         User user = getUserFromContext();
         cartRepository.delete(user.getCart());
         user.setCart(null);
@@ -104,7 +107,7 @@ public class CartServiceImpl implements CartService {
                 throw new ProductNotFoundException("Product with id" + productId + " not found");
             }
             Product product = productOptional.get();
-            CartItemFactory.createCartItem(1,cart,product);
+            CartItemFactory.createCartItem(1, cart, product);
         }
     }
 }
