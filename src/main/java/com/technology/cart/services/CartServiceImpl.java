@@ -70,7 +70,6 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void deleteCartItem(BigInteger productId) {
         User user = getUserFromContext();
-
         Cart cart = user.getCart();
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
         Optional<CartItem> cartItemToRemove = cartItems.stream()
