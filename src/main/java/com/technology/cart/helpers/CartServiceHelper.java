@@ -1,9 +1,13 @@
 package com.technology.cart.helpers;
 
 import com.technology.cart.factories.CartFactory;
+import com.technology.cart.factories.CartItemFactory;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
 import com.technology.cart.repositories.CartRepository;
+import com.technology.product.exceptions.ProductNotFoundException;
+import com.technology.product.models.Product;
+import com.technology.product.repositories.ProductRepository;
 import com.technology.registration.models.User;
 import com.technology.registration.repositories.UserRepository;
 import com.technology.security.adapters.SecurityUser;
@@ -48,5 +52,15 @@ public class CartServiceHelper {
         cartItem.setQuantity(quantity);
         cartItem.setFinalPrice(cartItem.getProduct().getPrice()
                 .multiply(BigDecimal.valueOf(quantity)));
+    }
+
+    public static void createNewCartItemIfProductExists(ProductRepository productRepository,
+                                                        BigInteger productId,
+                                                        Cart cart){
+        Product product = productRepository.findProductById(productId)
+                .orElseThrow(() ->
+                        new ProductNotFoundException(
+                                "Product with id" + productId + " not found"));
+        CartItemFactory.createCartItem(1, cart, product);
     }
 }

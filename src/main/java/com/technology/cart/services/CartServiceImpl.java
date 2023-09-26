@@ -95,12 +95,7 @@ public class CartServiceImpl implements CartService {
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
         Optional<CartItem> cartItemOptional = findParticularCartItemOptional(cartItems, productId);
         cartItemOptional.ifPresentOrElse(
-                cartItem -> {
-                    int quantity = cartItem.getQuantity() + 1;
-                    cartItem.setQuantity(quantity);
-                    cartItem.setFinalPrice(cartItem.getProduct().getPrice()
-                            .multiply(BigDecimal.valueOf(quantity)));
-                },
+                CartServiceHelper::increaseCartItemQuantity,
                 () -> {
                     Product product = productRepository.findProductById(productId)
                             .orElseThrow(() ->
