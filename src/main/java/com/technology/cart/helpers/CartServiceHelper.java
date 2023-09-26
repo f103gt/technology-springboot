@@ -29,8 +29,7 @@ public class CartServiceHelper {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public static Cart getOrCreateCart(CartRepository cartRepository, UserRepository userRepository) {
-        User user = getUserFromContext(userRepository);
+    public static Cart getOrCreateCart(User user,CartRepository cartRepository, UserRepository userRepository) {
         Cart cart = user.getCart();
         if (cart == null) {
             cart = CartFactory.createCart(user);
@@ -56,7 +55,7 @@ public class CartServiceHelper {
 
     public static void createNewCartItemIfProductExists(ProductRepository productRepository,
                                                         BigInteger productId,
-                                                        Cart cart){
+                                                        Cart cart) {
         Product product = productRepository.findProductById(productId)
                 .orElseThrow(() ->
                         new ProductNotFoundException(

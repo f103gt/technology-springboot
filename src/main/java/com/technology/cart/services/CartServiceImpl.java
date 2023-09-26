@@ -1,6 +1,5 @@
 package com.technology.cart.services;
 
-import com.technology.cart.factories.CartFactory;
 import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
@@ -9,12 +8,8 @@ import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.repositories.ProductRepository;
 import com.technology.registration.models.User;
 import com.technology.registration.repositories.UserRepository;
-import com.technology.security.adapters.SecurityUser;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -43,7 +38,7 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void saveCart(BigInteger productId) {
         User user = CartServiceHelper.getUserFromContext(userRepository);
-        Cart cart = CartServiceHelper.getOrCreateCart(cartRepository, userRepository);
+        Cart cart = CartServiceHelper.getOrCreateCart(user,cartRepository, userRepository);
         addProductToCart(productId, cart);
         cartRepository.save(cart);
     }
@@ -55,8 +50,8 @@ public class CartServiceImpl implements CartService {
         Cart cart = user.getCart();
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
         Optional<CartItem> cartItemToRemoveOptional = findParticularCartItemOptional(cartItems, productId);
-        cartItemToRemoveOptional.ifPresentOrElse(cartItem -> {
-                    cartItems.remove(cartItem);
+        cartItemToRemoveOptional.ifPresentOrElse(cartItemToRemove -> {
+                    cartItems.remove(cartItemToRemove);
                     cartRepository.save(cart);
                 },
                 () -> {
@@ -71,15 +66,15 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void deleteCart() {
         User user = CartServiceHelper.getUserFromContext(userRepository);
-        cartRepository.delete(user.getCart());
+        //cartRepository.delete(user.getCart());
         user.setCart(null);
         userRepository.save(user);
     }
 
     private void addProductToCart(BigInteger productId, Cart cart) {
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
-        Optional<CartItem> cartItemOptional =
-                findParticularCartItemOptional(cartItems, productId);
+        Optional<CartItem> cartItemOptional = findParticularCartItemOptional(cartItems, productId);
+        //increaseQuantityOrAddNewCartItem
         cartItemOptional.ifPresentOrElse(
                 CartServiceHelper::increaseCartItemQuantity,
                 () ->
