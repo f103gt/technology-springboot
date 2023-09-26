@@ -1,13 +1,11 @@
 package com.technology.cart.services;
 
 import com.technology.cart.factories.CartFactory;
-import com.technology.cart.factories.CartItemFactory;
 import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
 import com.technology.cart.repositories.CartRepository;
 import com.technology.product.exceptions.ProductNotFoundException;
-import com.technology.product.models.Product;
 import com.technology.product.repositories.ProductRepository;
 import com.technology.registration.models.User;
 import com.technology.registration.repositories.UserRepository;
@@ -19,13 +17,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.technology.cart.helpers.CartServiceHelper.*;
+import static com.technology.cart.helpers.CartServiceHelper.findParticularCartItemOptional;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -42,17 +39,10 @@ public class CartServiceImpl implements CartService {
         this.userRepository = userRepository;
     }
 
-    private User getUserFromContext() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return userRepository.findUserByEmail(securityUser.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
-
     @Override
     @Transactional
     public void saveCart(BigInteger productId) {
-        User user = getUserFromContext();
+        User user = CartServiceHelper.getUserFromContext(userRepository);
         Cart cart = user.getCart();
         if (cart == null) {
             cart = CartFactory.createCart(user);
@@ -66,7 +56,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public void deleteCartItem(BigInteger productId) {
-        User user = getUserFromContext();
+        User user = CartServiceHelper.getUserFromContext(userRepository);
         Cart cart = user.getCart();
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
         Optional<CartItem> cartItemToRemoveOptional = findParticularCartItemOptional(cartItems, productId);
@@ -85,7 +75,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public void deleteCart() {
-        User user = getUserFromContext();
+        User user = CartServiceHelper.getUserFromContext(userRepository);
         cartRepository.delete(user.getCart());
         user.setCart(null);
         userRepository.save(user);
@@ -93,12 +83,16 @@ public class CartServiceImpl implements CartService {
 
     private void addProductToCart(BigInteger productId, Cart cart) {
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
-        Optional<CartItem> cartItemOptional = findParticularCartItemOptional(cartItems, productId);
+        Optional<CartItem> cartItemOptional =
+                findParticularCartItemOptional(cartItems, productId);
         cartItemOptional.ifPresentOrElse(
                 CartServiceHelper::increaseCartItemQuantity,
                 () ->
                         CartServiceHelper
-                                .createNewCartItemIfProductExists(productRepository, productId, cart)
+                                .createNewCartItemIfProductExists(
+                                        productRepository,
+                                        productId,
+                                        cart)
 
         );
     }
