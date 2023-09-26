@@ -1,5 +1,6 @@
 package com.technology.cart.services;
 
+import com.technology.cart.factories.CartItemFactory;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
 import com.technology.cart.repositories.CartRepository;
@@ -51,7 +52,6 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void saveCart(BigInteger productId) {
         User user = getUserFromContext();
-
         Cart cart = user.getCart();
         if (cart == null) {
             cart = Cart.builder()
@@ -114,13 +114,7 @@ public class CartServiceImpl implements CartService {
                 throw new ProductNotFoundException("Product with id" + productId + " not found");
             }
             Product product = productOptional.get();
-            CartItem cartItem = CartItem.builder()
-                    .cart(cart)
-                    .quantity(1)
-                    .finalPrice(product.getPrice())
-                    .product(product)
-                    .build();
-            cart.getCartItems().add(cartItem);
+            CartItemFactory.createCartItem(1,cart,product);
         }
     }
 }
