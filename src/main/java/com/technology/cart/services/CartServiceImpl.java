@@ -96,13 +96,10 @@ public class CartServiceImpl implements CartService {
         Optional<CartItem> cartItemOptional = findParticularCartItemOptional(cartItems, productId);
         cartItemOptional.ifPresentOrElse(
                 CartServiceHelper::increaseCartItemQuantity,
-                () -> {
-                    Product product = productRepository.findProductById(productId)
-                            .orElseThrow(() ->
-                                    new ProductNotFoundException(
-                                            "Product with id" + productId + " not found"));
-                    CartItemFactory.createCartItem(1, cart, product);
-                }
+                () ->
+                        CartServiceHelper
+                                .createNewCartItemIfProductExists(productRepository, productId, cart)
+
         );
     }
 }
