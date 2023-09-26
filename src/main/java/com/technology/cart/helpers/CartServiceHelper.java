@@ -40,8 +40,11 @@ public class CartServiceHelper {
                                                         Cart cart) {
         productOptional.ifPresentOrElse(product ->
                         CartItemFactory.createCartItem(1, cart, product),
-                () ->
-                        new ProductNotFoundException(
-                                "Product with id" + productId + " not found"));
+                () -> {
+                    throw new IllegalArgumentException(
+                            "Product with id" + productId + " not found");
+                }
+        );
     }
+
 }
