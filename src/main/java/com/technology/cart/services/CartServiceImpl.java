@@ -1,10 +1,12 @@
 package com.technology.cart.services;
 
+import com.technology.cart.factories.CartItemFactory;
 import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
 import com.technology.cart.repositories.CartRepository;
 import com.technology.product.exceptions.ProductNotFoundException;
+import com.technology.product.models.Product;
 import com.technology.product.repositories.ProductRepository;
 import com.technology.registration.models.User;
 import com.technology.registration.repositories.UserRepository;
@@ -38,7 +40,7 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void saveCart(BigInteger productId) {
         User user = CartServiceHelper.getUserFromContext(userRepository);
-        Cart cart = CartServiceHelper.getOrCreateCart(user,cartRepository, userRepository);
+        Cart cart = CartServiceHelper.getOrCreateCart(user, cartRepository, userRepository);
         addProductToCart(productId, cart);
         cartRepository.save(cart);
     }
@@ -78,11 +80,11 @@ public class CartServiceImpl implements CartService {
         cartItemOptional.ifPresentOrElse(
                 CartServiceHelper::increaseCartItemQuantity,
                 () ->
-                        CartServiceHelper
-                                .createNewCartItemIfProductExists(
-                                        productRepository,
-                                        productId,
-                                        cart)
+                {Product product = productRepository.findProductById(productId)
+                        .orElseThrow(() ->
+                                new ProductNotFoundException(
+                                        "Product with id" + productId + " not found"));
+        CartItemFactory.createCartItem(1, cart, product);}
 
         );
     }

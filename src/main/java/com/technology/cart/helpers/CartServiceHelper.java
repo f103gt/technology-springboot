@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,7 +28,7 @@ public class CartServiceHelper {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public static Cart getOrCreateCart(User user,CartRepository cartRepository, UserRepository userRepository) {
+    public static Cart getOrCreateCart(User user, CartRepository cartRepository, UserRepository userRepository) {
         Cart cart = user.getCart();
         if (cart == null) {
             cart = CartFactory.createCart(user);
@@ -53,13 +52,14 @@ public class CartServiceHelper {
                 .multiply(BigDecimal.valueOf(quantity)));
     }
 
-    public static void createNewCartItemIfProductExists(ProductRepository productRepository,
+    public static void createNewCartItemIfProductExists(Optional<Product> productOptional,
                                                         BigInteger productId,
                                                         Cart cart) {
-        Product product = productRepository.findProductById(productId)
-                .orElseThrow(() ->
+        productOptional.ifPresentOrElse(product -> {
+                    CartItemFactory.createCartItem(1, cart, product);
+                },
+                () ->
                         new ProductNotFoundException(
                                 "Product with id" + productId + " not found"));
-        CartItemFactory.createCartItem(1, cart, product);
     }
 }
