@@ -27,16 +27,7 @@ public class CartServiceHelper {
         return userRepository.findUserByEmail(securityUser.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
-
-    public static Cart getOrCreateCart(User user, CartRepository cartRepository, UserRepository userRepository) {
-        Cart cart = user.getCart();
-        if (cart == null) {
-            cart = CartFactory.createCart(user);
-            cartRepository.save(cart);
-            userRepository.save(user);
-        }
-        return cart;
-    }
+    
 
     public static Optional<CartItem> findParticularCartItemOptional(Set<CartItem> cartItems, BigInteger productId) {
         return cartItems.stream()
