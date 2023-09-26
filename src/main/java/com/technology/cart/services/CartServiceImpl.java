@@ -1,6 +1,5 @@
 package com.technology.cart.services;
 
-import com.technology.cart.exceptions.UserNotFoundException;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
 import com.technology.cart.repositories.CartRepository;
@@ -38,21 +37,21 @@ public class CartServiceImpl implements CartService {
         this.userRepository = userRepository;
     }
 
-    private Optional<User> getUserFromContext() {
+    private User getUserFromContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return userRepository.findUserByEmail(securityUser.getUsername());
+        Optional<User> userOptional = userRepository.findUserByEmail(securityUser.getUsername());
+        if(userOptional.isEmpty()){
+            throw new UsernameNotFoundException("user not found");
+        }
+        return userOptional.get();
     }
 
     @Override
     @Transactional
     public void saveCart(BigInteger productId) {
-        Optional<User> userOptional = getUserFromContext();
-        if(userOptional.isEmpty()){
-            throw new UsernameNotFoundException("user not found");
-            //TODO create user not found exception instead of this one
-        }
-        User user = userOptional.get();
+        User user = getUserFromContext();
+
         Cart cart = user.getCart();
         if (cart == null) {
             cart = Cart.builder()
@@ -70,13 +69,8 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public void deleteCartItem(BigInteger productId) {
-        Optional<User> userOptional = getUserFromContext();
-        if(userOptional.isEmpty()){
-            throw new UserNotFoundException("user not found");
-            //TODO create user not found exception instead of this one
-        }
-        User user = userOptional.get();
-        //TODO create a method to turn userOption into user
+        User user = getUserFromContext();
+
         Cart cart = user.getCart();
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
         Optional<CartItem> cartItemToRemove = cartItems.stream()
@@ -98,12 +92,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public void deleteCart(){
-        Optional<User> userOptional = getUserFromContext();
-        if(userOptional.isEmpty()){
-            throw new UsernameNotFoundException("user not found");
-            //TODO create user not found exception instead of this one
-        }
-        User user = userOptional.get();
+        User user = getUserFromContext();
         cartRepository.delete(user.getCart());
         user.setCart(null);
         userRepository.save(user);
