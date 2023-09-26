@@ -42,12 +42,7 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void saveCart(BigInteger productId) {
         User user = getUserFromContext();
-        Cart cart = user.getCart();
-        if (cart == null) {
-            cart = CartFactory.createCart(user);
-            cartRepository.save(cart);
-            userRepository.save(user);
-        }
+        Cart cart = getOrCreateCart(user);
         addProductToCart(productId, cart);
         cartRepository.save(cart);
     }
@@ -99,4 +94,15 @@ public class CartServiceImpl implements CartService {
         return userRepository.findUserByEmail(securityUser.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+    private Cart getOrCreateCart(User user) {
+        Cart cart = user.getCart();
+        if (cart == null) {
+            cart = CartFactory.createCart(user);
+            cartRepository.save(cart);
+            userRepository.save(user);
+        }
+        return cart;
+    }
+    
 }

@@ -1,19 +1,13 @@
 package com.technology.cart.helpers;
 
-import com.technology.cart.factories.CartFactory;
 import com.technology.cart.factories.CartItemFactory;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
-import com.technology.cart.repositories.CartRepository;
 import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.models.Product;
-import com.technology.product.repositories.ProductRepository;
-import com.technology.registration.models.User;
-import com.technology.registration.repositories.UserRepository;
 import com.technology.security.adapters.SecurityUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -44,9 +38,8 @@ public class CartServiceHelper {
     public static void createNewCartItemIfProductExists(Optional<Product> productOptional,
                                                         BigInteger productId,
                                                         Cart cart) {
-        productOptional.ifPresentOrElse(product -> {
-                    CartItemFactory.createCartItem(1, cart, product);
-                },
+        productOptional.ifPresentOrElse(product ->
+                        CartItemFactory.createCartItem(1, cart, product),
                 () ->
                         new ProductNotFoundException(
                                 "Product with id" + productId + " not found"));
