@@ -1,11 +1,9 @@
 package com.technology.cart.services;
 
 import com.technology.cart.models.Cart;
-import com.technology.cart.models.CartItem;
 import com.technology.cart.repositories.CartRepository;
 import com.technology.cart.test.repositories.TestCartItemRepository;
 import com.technology.factory.TestCartFactory;
-import com.technology.factory.TestCartItemFactory;
 import com.technology.factory.TestProductFactory;
 import com.technology.factory.TestUserFactory;
 import com.technology.product.models.Product;
@@ -15,7 +13,6 @@ import com.technology.registration.repositories.UserRepository;
 import com.technology.security.adapters.SecurityUser;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -23,9 +20,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.annotation.DirtiesContext;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,7 +51,7 @@ public class CartServiceTest {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        cartService = new CartService(cartRepository,
+        cartService = new CartServiceImpl(cartRepository,
                 productRepository,
                 userRepository);
     }
