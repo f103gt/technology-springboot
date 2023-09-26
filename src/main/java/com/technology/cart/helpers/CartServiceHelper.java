@@ -21,13 +21,11 @@ import java.util.Optional;
 import java.util.Set;
 
 public class CartServiceHelper {
-    public static User getUserFromContext(UserRepository userRepository) {
+    public static SecurityUser getSecurityUserFromContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return userRepository.findUserByEmail(securityUser.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return (SecurityUser) authentication.getPrincipal();
     }
-    
+
 
     public static Optional<CartItem> findParticularCartItemOptional(Set<CartItem> cartItems, BigInteger productId) {
         return cartItems.stream()
