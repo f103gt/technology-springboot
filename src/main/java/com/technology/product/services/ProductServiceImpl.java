@@ -6,6 +6,7 @@ import com.technology.category.repositories.CategoryRepository;
 import com.technology.product.dto.ProductDto;
 import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.exceptions.ProductObjectAlreadyExistsException;
+import com.technology.product.factories.ProductFactory;
 import com.technology.product.helpers.ProductServiceHelper;
 import com.technology.product.models.Product;
 import com.technology.product.registration.request.ProductRegistrationRequest;
@@ -32,9 +33,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void saveProduct(ProductRegistrationRequest productRegistrationRequest) {
-        String categoryName = productRegistrationRequest.getCategoryName();
-        String productName = productRegistrationRequest.getProductName();
+    public void saveProduct(ProductRegistrationRequest request) {
+        String categoryName = request.getCategoryName();
+        String productName = request.getProductName();
         Category category = categoryRepository
                 .findCategoryByCategoryName(categoryName)
                 .orElseThrow(
@@ -43,14 +44,7 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductObjectAlreadyExistsException("Product with name "
                     + productName + " already exists.");
         }
-        productRepository.save(
-                Product.builder()
-                .category(category)
-                .productName(productRegistrationRequest.getProductName())
-                .sku(productRegistrationRequest.getSku())
-                .quantity(productRegistrationRequest.getQuantity())
-                .price(productRegistrationRequest.getPrice())
-                .build());
+        productRepository.save(ProductFactory.createProduct(category,request));
     }
 
     @Override
