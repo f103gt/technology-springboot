@@ -6,6 +6,7 @@ import com.technology.category.repositories.CategoryRepository;
 import com.technology.product.dto.ProductDto;
 import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.exceptions.ProductObjectAlreadyExistsException;
+import com.technology.product.helpers.ProductServiceHelper;
 import com.technology.product.models.Product;
 import com.technology.product.registration.request.ProductRegistrationRequest;
 import com.technology.product.repositories.ProductRepository;
@@ -73,21 +74,7 @@ public class ProductServiceImpl implements ProductService {
                         product.getQuantity(),
                         product.getPrice()
                 ))
-                .sorted((productDto1, productDto2) ->
-                {
-                    int categoryComparison = productDto1.getCategoryName()
-                            .compareToIgnoreCase(productDto2.getCategoryName());
-                    if (categoryComparison == 0) {
-                        int quantityComparison = Integer.compare(
-                                productDto1.getQuantity(), productDto2.getQuantity());
-                        if (quantityComparison == 0) {
-                            return productDto1.getProductName()
-                                    .compareToIgnoreCase(productDto2.getProductName());
-                        }
-                        return quantityComparison;
-                    }
-                    return categoryComparison;
-                })
+                .sorted(ProductServiceHelper::compareProductDtos)
                 .collect(Collectors.toList());
     }
 }
