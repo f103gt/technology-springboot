@@ -29,19 +29,23 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void saveCategory(CategoryRegistrationRequest categoryRegistrationRequest) {
-        if (categoryRepository.findCategoryByCategoryName(
-                categoryRegistrationRequest.getCategoryName().trim()).isEmpty()) {
-            String parentCategoryName = categoryRegistrationRequest.getParentCategoryName();
-            if (parentCategoryName == null || parentCategoryName.trim().isEmpty()) {
-                createParentCategory(categoryRegistrationRequest);
-            } else {
-                createChildCategory(categoryRegistrationRequest);
-            }
+        String categoryName = categoryRegistrationRequest.getCategoryName().trim();
+        if (categoryRepository.findCategoryByCategoryName(categoryName).isPresent()) {
+            throw new CategoryAlreadyExistsException(
+                    "Category " + categoryName + " already exists");
+        }
+        createParentOrChildCategory(categoryRegistrationRequest);
+    }
+
+    private void createParentOrChildCategory(CategoryRegistrationRequest request) {
+        String parentCategoryName = request.getParentCategoryName();
+        if (parentCategoryName == null || parentCategoryName.trim().isEmpty()) {
+            createParentCategory(request);
         } else {
-            throw new CategoryAlreadyExistsException("Category " + categoryRegistrationRequest.getCategoryName()
-                    + " already exists");
+            createChildCategory(request);
         }
     }
+
 
     @Override
     @Transactional
@@ -50,7 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
                 categoryRepository.findCategoryByCategoryName(categoryName.trim());
         Category category = categoryOptional.orElseThrow(() ->
                 new CategoryNotFoundException(
-                "Category " + categoryName + " not found."));
+                        "Category " + categoryName + " not found."));
         categoryRepository.delete(category);
     }
 
@@ -59,7 +63,7 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryDto> getAllCategories() {
         return categoryRepository.findAll().stream()
                 .map(this::createCategoryDto)
-                .sorted(this::sortCategoryDtos)
+                .sorted(this::compareCategoryDtos)
                 .collect(Collectors.toList());
     }
 
@@ -75,7 +79,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryDto;
     }
 
-    private int sortCategoryDtos(CategoryDto categoryDto1, CategoryDto categoryDto2) {
+    private int compareCategoryDtos(CategoryDto categoryDto1, CategoryDto categoryDto2) {
         int parentCategoriesComparison = categoryDto1.getParentCategoryName()
                 .compareToIgnoreCase(categoryDto2.getParentCategoryName());
         if (parentCategoriesComparison == 0) {
@@ -90,7 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
             CategoryRegistrationRequest categoryRegistrationRequest) {
         categoryRepository.save(
                 Category.builder()
-                        .categoryName(categoryRegistrationRequest.getCategoryName())
+                        .categoryName(categoryRegistrationRequest.getCategoryName().trim())
                         .build());
     }
 
@@ -105,7 +109,7 @@ public class CategoryServiceImpl implements CategoryService {
                             categoryRepository.save(
                                     Category.builder()
                                             .parentCategory(category)
-                                            .categoryName(categoryRegistrationRequest.getCategoryName())
+                                            .categoryName(categoryRegistrationRequest.getCategoryName().trim())
                                             .build());
                         },
                         () -> {
