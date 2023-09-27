@@ -1,12 +1,12 @@
 create table client
 (
-    id bigserial primary key,
+    id         bigserial primary key,
     first_name varchar(255) not null,
     last_name  varchar(255) not null,
     email      varchar(255) not null unique,
     password   varchar(255) not null,
     is_enabled boolean default (false),
-    cart_id bigint,
+    cart_id    bigint,
     key (cart_id) references cart(id)
 );
 
@@ -18,7 +18,7 @@ create table role
 
 create table address
 (
-    id bigserial primary key,
+    id           bigserial primary key,
     phone_number varchar(20)  not null,
     region       varchar(255) not null,
     district     varchar(255) not null,
@@ -54,7 +54,7 @@ create table category
 
 create table product
 (
-    id bigserial primary key,
+    id           bigserial primary key,
     category_id  int                 not null,
     product_name varchar(255) unique not null,
     sku          varchar(255)        not null unique,
@@ -65,8 +65,8 @@ create table product
 
 create table image
 (
-    id bigserial primary key,
-    image_data bytea not null,
+    id         bigserial primary key,
+    image_data bytea  not null,
     product_id bigint not null,
     foreign key (product_id) references product (id)
 );
@@ -91,14 +91,14 @@ where role_id = (select id from role where role_name = 'USER')
 
 create table cart
 (
-    id bigserial primary key,
+    id        bigserial primary key,
     client_id bigint not null,
     foreign key (client_id) references client (id)
 );
 
 create table cart_item
 (
-    id bigserial primary key,
+    id         bigserial primary key,
     cart_id    bigint         not null,
     quantity   int            not null,
     price      numeric(10, 2) not null,
@@ -106,3 +106,41 @@ create table cart_item
     foreign key (cart_id) references category (id),
     foreign key (product_id) references product (id)
 );
+
+craete
+table order_status(
+       id int primary key,
+       status_name varchar(15) not null
+);
+
+create table delivery_method
+(
+    id                   int primary key,
+    delivery_method_name varchar(50) not null
+);
+
+create table payment_method
+(
+    id                  int primary key,
+    payment_method_name varchar(50) not null
+);
+
+create table shop_order
+(
+    id                  bigserial primary key,
+    client_id           bigint         not null,
+    cart_id             bigint,
+    order_status_id     int            not null,
+    delivery_address_id bigint         not null,
+    delivery_method_id  int            not null,
+    payment_method_id   int            not null,
+    order_date          date           not null,
+    total_price         numeric(10, 2) not null,
+    foreign key (client_id) references client (id),
+    foreign key (cart_id) references cart (id),
+    foreign key (order_status_id) references order_status (id),
+    foreign key (delivery_address_id) references address (id),
+    foreign key (delivery_method_id) references delivery_method (id),
+    foreign key (payment_method_id) references payment_method (id)
+);
+

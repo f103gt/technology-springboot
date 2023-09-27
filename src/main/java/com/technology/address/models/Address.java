@@ -1,18 +1,20 @@
 package com.technology.address.models;
 
+import com.technology.order.models.Order;
 import com.technology.user.registration.models.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +45,12 @@ public class Address {
     @ManyToMany(mappedBy = "addresses")
     private Set<User> users;
 
-    public Address(String region, String district, String locality, String street, String premise, String zipcode) {
+    @OneToMany(mappedBy = "deliveryAddress")
+    private Collection<Order> orders;
+}
+
+/*
+* public Address(String region, String district, String locality, String street, String premise, String zipcode) {
         this.region = region;
         this.district = district;
         this.locality = locality;
@@ -100,5 +107,4 @@ public class Address {
         public Address build() {
             return address;
         }
-    }
-}
+    }*/

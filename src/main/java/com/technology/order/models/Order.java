@@ -1,10 +1,9 @@
 package com.technology.order.models;
 
+import com.technology.address.models.Address;
 import com.technology.cart.models.Cart;
-import com.technology.registration.models.Address;
-import com.technology.registration.models.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import com.technology.user.registration.models.User;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,29 +18,33 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Entity
+@Table(name = "shop_order")
 public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
 
+    @ManyToOne(cascade = CascadeType.ALL)
     private User user;
 
+    @OneToOne
     private Cart cart;
 
-    @Column("order_status")
+    @ManyToOne
     private OrderStatus orderStatus;
 
-    @Column("payment_method")
+    @ManyToOne
     private PaymentMethod paymentMethod;
 
-    @Column("delivery_method")
+    @ManyToOne
     private DeliveryMethod deliveryMethod;
 
-    @Column("delivery_address")
+    @ManyToOne
     private Address deliveryAddress;
 
-    @Column("order_date")
+    @Column(name = "order_date")
     private LocalDate orderDate;
 
-    @Column("total_price")
+    @Column(name = "total_price")
     private BigDecimal totalPrice;
-
 }

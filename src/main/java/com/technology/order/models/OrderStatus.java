@@ -1,8 +1,9 @@
 package com.technology.order.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Collection;
 
 @Getter
 @Setter
@@ -10,8 +11,16 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table("order_status")
+@Table(name = "order_status")
 public class OrderStatus {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String status;
+
+    @Column(name = "status_name")
+    private String statusName;
+
+    @OneToMany(mappedBy = "orderStatus")
+    private Collection<Order> orders;
+
 }
