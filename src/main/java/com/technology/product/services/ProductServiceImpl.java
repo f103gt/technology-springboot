@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -32,10 +33,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
     public void saveProduct(ProductRegistrationRequest request) {
-        String categoryName = request.getCategoryName();
-        String productName = request.getProductName();
+        String categoryName = request.getCategoryName().trim();
+        String productName = request.getProductName().trim();
         Category category = categoryRepository
                 .findCategoryByCategoryName(categoryName)
                 .orElseThrow(
@@ -44,11 +44,10 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductObjectAlreadyExistsException("Product with name "
                     + productName + " already exists.");
         }
-        productRepository.save(ProductFactory.createProduct(category,request));
+        productRepository.save(ProductFactory.createProduct(category, request));
     }
 
     @Override
-    @Transactional
     public void deleteProduct(String productName) {
         if (productRepository.findProductByProductName(productName).isEmpty()) {
             throw new ProductNotFoundException("Product " + productName + " not found");
@@ -58,16 +57,9 @@ public class ProductServiceImpl implements ProductService {
 
     //return products sorted by product category, product name,product quantity
     @Override
-    @Transactional
     public List<ProductDto> getAllProducts() {
         return productRepository.findAll().stream()
-                .map(product -> new ProductDto(
-                        product.getCategory().getCategoryName(),
-                        product.getProductName(),
-                        product.getSku(),
-                        product.getQuantity(),
-                        product.getPrice()
-                ))
+                .map(ProductFactory::createProductDto)
                 .sorted(ProductServiceHelper::compareProductDtos)
                 .collect(Collectors.toList());
     }
