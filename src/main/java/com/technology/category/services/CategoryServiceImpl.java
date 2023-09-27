@@ -50,11 +50,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(String categoryName) {
-        Optional<Category> categoryOptional =
-                categoryRepository.findCategoryByCategoryName(categoryName.trim());
-        Category category = categoryOptional.orElseThrow(() ->
-                new CategoryNotFoundException(
-                        "Category " + categoryName + " not found."));
+        String finalCategoryName = categoryName.trim();
+        Category category = categoryRepository
+                .findCategoryByCategoryName(finalCategoryName)
+                .orElseThrow(() -> new CategoryNotFoundException(
+                        "Category " + finalCategoryName + " not found.")));
         categoryRepository.delete(category);
     }
 
@@ -99,24 +99,19 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private void createChildCategory(
-            CategoryRegistrationRequest categoryRegistrationRequest) {
-        Optional<Category> parentCategoryOptional =
-                categoryRepository.findCategoryByCategoryName(
-                        categoryRegistrationRequest.getParentCategoryName().trim()
-                );
-        parentCategoryOptional
-                .ifPresentOrElse(category -> {
-                            categoryRepository.save(
-                                    Category.builder()
-                                            .parentCategory(category)
-                                            .categoryName(categoryRegistrationRequest.getCategoryName().trim())
-                                            .build());
-                        },
-                        () -> {
-                            throw new ParentCategoryNotFoundException(
-                                    "Parent category " + categoryRegistrationRequest.getParentCategoryName() +
-                                            " not found. Check it for misspelling or try creating the mentioned parent category " +
-                                            "before adding a child one");
-                        });
+            CategoryRegistrationRequest request) {
+        String parentCategoryName = request.getParentCategoryName().trim();
+        String categoryName = request.getCategoryName().trim();
+        Category category = categoryRepository.findCategoryByCategoryName(parentCategoryName)
+                .orElseThrow(() -> new ParentCategoryNotFoundException(
+                        "Parent category " + request.getParentCategoryName().trim() +
+                                " not found. Check it for misspelling or try creating the mentioned parent category " +
+                                "before adding a child one"));
+        categoryRepository.save(
+                Category.builder()
+                        .parentCategory(category)
+                        .categoryName(categoryName)
+                        .build());
+
     }
 }
