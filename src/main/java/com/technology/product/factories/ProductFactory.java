@@ -7,15 +7,13 @@ import com.technology.product.registration.request.ProductRegistrationRequest;
 
 public class ProductFactory {
     public static Product createProduct(Category category, ProductRegistrationRequest request){
-        Product product = Product.builder()
+        return Product.builder()
                 .category(category)
                 .productName(request.getProductName().trim())
                 .sku(request.getSku().trim())
                 .quantity(request.getQuantity())
                 .price(request.getPrice())
                 .build();
-        category.getProducts().add(product);
-        return  product;
     }
 
     public static ProductDto createProductDto(Product product){
