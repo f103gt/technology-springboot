@@ -46,38 +46,43 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(String categoryName) {
-        Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryName(categoryName.trim());
-        if (categoryOptional.isEmpty()) {
-            throw new CategoryNotFoundException(
-                    "Category " + categoryName + " not found.");
-        }
-        categoryRepository.delete(categoryOptional.get());
+        Optional<Category> categoryOptional =
+                categoryRepository.findCategoryByCategoryName(categoryName.trim());
+        Category category = categoryOptional.orElseThrow(() ->
+                new CategoryNotFoundException(
+                "Category " + categoryName + " not found."));
+        categoryRepository.delete(category);
     }
 
     @Override
     @Transactional
     public List<CategoryDto> getAllCategories() {
         return categoryRepository.findAll().stream()
-                .map(category -> {
-                    CategoryDto categoryDto = new CategoryDto();
-                    if (category.getParentCategory() == null) {
-                        categoryDto.setParentCategoryName("");
-                    } else {
-                        categoryDto.setParentCategoryName(category.getParentCategory().getCategoryName());
-                    }
-                    categoryDto.setCategoryName(category.getCategoryName());
-                    return categoryDto;
-                })
-                .sorted((categoryDto1, categoryDto2) -> {
-                    int parentCategoriesComparison = categoryDto1.getParentCategoryName()
-                            .compareToIgnoreCase(categoryDto2.getParentCategoryName());
-                    if (parentCategoriesComparison == 0) {
-                        return categoryDto1.getCategoryName()
-                                .compareToIgnoreCase(categoryDto2.getCategoryName());
-                    }
-                    return parentCategoriesComparison;
-                })
+                .map(this::createCategoryDto)
+                .sorted(this::sortCategoryDtos)
                 .collect(Collectors.toList());
+    }
+
+    private CategoryDto createCategoryDto(Category category) {
+        CategoryDto categoryDto = new CategoryDto();
+        if (category.getParentCategory() == null) {
+            categoryDto.setParentCategoryName("");
+        } else {
+            categoryDto.setParentCategoryName(
+                    category.getParentCategory().getCategoryName());
+        }
+        categoryDto.setCategoryName(category.getCategoryName());
+        return categoryDto;
+    }
+
+    private int sortCategoryDtos(CategoryDto categoryDto1, CategoryDto categoryDto2) {
+        int parentCategoriesComparison = categoryDto1.getParentCategoryName()
+                .compareToIgnoreCase(categoryDto2.getParentCategoryName());
+        if (parentCategoriesComparison == 0) {
+            return categoryDto1.getCategoryName()
+                    .compareToIgnoreCase(categoryDto2.getCategoryName());
+        }
+        return parentCategoriesComparison;
     }
 
 
