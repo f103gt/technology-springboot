@@ -36,16 +36,17 @@ public class ProductServiceImpl implements ProductService {
     public void saveProduct(ProductRegistrationRequest productRegistrationRequest) {
         String categoryName = productRegistrationRequest.getCategoryName();
         String productName = productRegistrationRequest.getProductName();
-        Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryName(categoryName);
-        if (categoryOptional.isEmpty()) {
-            throw new CategoryNotFoundException("Category " + categoryName + " not found.");
-        }
+        Category category = categoryRepository
+                .findCategoryByCategoryName(categoryName)
+                .orElseThrow(
+                        () -> new CategoryNotFoundException("Category " + categoryName + " not found."));
         if (productRepository.findProductByProductName(productName).isPresent()) {
             throw new ProductObjectAlreadyExistsException("Product with name "
                     + productName + " already exists.");
         }
-        productRepository.save(Product.builder()
-                .category(categoryOptional.get())
+        productRepository.save(
+                Product.builder()
+                .category(category)
                 .productName(productRegistrationRequest.getProductName())
                 .sku(productRegistrationRequest.getSku())
                 .quantity(productRegistrationRequest.getQuantity())
