@@ -24,6 +24,7 @@ import java.util.Set;
 import static com.technology.cart.helpers.CartServiceHelper.findParticularCartItemOptional;
 
 @Service
+@Transactional
 public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
@@ -39,7 +40,6 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional
     public void saveCart(BigInteger productId) {
         User user = getUserFromContext();
         Cart cart = getOrCreateCart(user);
@@ -48,7 +48,6 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional
     public void deleteCartItem(BigInteger productId) {
         User user = getUserFromContext();
         Cart cart = user.getCart();
@@ -57,7 +56,6 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional
     public void deleteCart() {
         User user = getUserFromContext();
         //cartRepository.delete(user.getCart());
@@ -109,3 +107,5 @@ public class CartServiceImpl implements CartService {
     }
 
 }
+
+
