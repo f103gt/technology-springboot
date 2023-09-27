@@ -1,7 +1,7 @@
 package com.technology.cart.factories;
 
 import com.technology.cart.models.Cart;
-import com.technology.registration.models.User;
+import com.technology.user.registration.models.User;
 
 import java.util.HashSet;
 
