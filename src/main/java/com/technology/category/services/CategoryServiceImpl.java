@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,17 +23,15 @@ public class CategoryServiceImpl implements CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    //TODO refactor the method to adhere to SOLID principles
-    //TODO check if the category to inserted does not exist already
     @Override
     @Transactional
-    public void saveCategory(CategoryRegistrationRequest categoryRegistrationRequest) {
-        String categoryName = categoryRegistrationRequest.getCategoryName().trim();
+    public void saveCategory(CategoryRegistrationRequest request) {
+        String categoryName = getCategoryName(request);
         if (categoryRepository.findCategoryByCategoryName(categoryName).isPresent()) {
             throw new CategoryAlreadyExistsException(
                     "Category " + categoryName + " already exists");
         }
-        createParentOrChildCategory(categoryRegistrationRequest);
+        createParentOrChildCategory(request);
     }
 
     private void createParentOrChildCategory(CategoryRegistrationRequest request) {
@@ -54,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository
                 .findCategoryByCategoryName(finalCategoryName)
                 .orElseThrow(() -> new CategoryNotFoundException(
-                        "Category " + finalCategoryName + " not found.")));
+                        "Category " + finalCategoryName + " not found."));
         categoryRepository.delete(category);
     }
 
@@ -91,21 +88,30 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     private void createParentCategory(
-            CategoryRegistrationRequest categoryRegistrationRequest) {
+            CategoryRegistrationRequest request) {
+        String categoryName = getCategoryName(request);
         categoryRepository.save(
                 Category.builder()
-                        .categoryName(categoryRegistrationRequest.getCategoryName().trim())
+                        .categoryName(categoryName)
                         .build());
     }
 
-    private void createChildCategory(
-            CategoryRegistrationRequest request) {
-        String parentCategoryName = request.getParentCategoryName().trim();
-        String categoryName = request.getCategoryName().trim();
-        Category category = categoryRepository.findCategoryByCategoryName(parentCategoryName)
+    private String getCategoryName(CategoryRegistrationRequest request){
+        return request.getCategoryName().trim();
+    }
+    private String getParentCategoryName(CategoryRegistrationRequest request){
+        return request.getParentCategoryName().trim();
+    }
+
+    private void createChildCategory(CategoryRegistrationRequest request) {
+
+        String parentCategoryName = getParentCategoryName(request);
+        String categoryName = getCategoryName(request);
+        Category category = categoryRepository
+                .findCategoryByCategoryName(parentCategoryName)
                 .orElseThrow(() -> new ParentCategoryNotFoundException(
-                        "Parent category " + request.getParentCategoryName().trim() +
-                                " not found. Check it for misspelling or try creating the mentioned parent category " +
+                        "Parent category " + parentCategoryName + " not found. " +
+                                "Check it for misspelling or try creating the mentioned parent category " +
                                 "before adding a child one"));
         categoryRepository.save(
                 Category.builder()
