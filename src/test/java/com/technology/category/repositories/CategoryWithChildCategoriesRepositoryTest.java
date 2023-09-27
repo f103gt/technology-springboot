@@ -21,7 +21,6 @@ public class CategoryWithChildCategoriesRepositoryTest extends CategoryRepositor
     @Test
     @DirtiesContext
     void deleteCategory_DeletesCategory_CategoryWithChildCategories_WithNoProducts() {
-
         //arrange(setUp)
         createChildCategories(2);
 

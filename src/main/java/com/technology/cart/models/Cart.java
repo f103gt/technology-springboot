@@ -1,6 +1,6 @@
 package com.technology.cart.models;
 
-import com.technology.registration.models.User;
+import com.technology.user.registration.models.User;
 import jakarta.persistence.*;
 import lombok.*;
 

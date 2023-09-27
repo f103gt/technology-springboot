@@ -1,17 +1,15 @@
-package com.technology.factory;
+package com.technology.cart.factories;
 
 import com.technology.cart.models.Cart;
 import com.technology.user.registration.models.User;
 
-import java.math.BigInteger;
 import java.util.HashSet;
 
-public class TestCartFactory {
-    public static Cart createCart(int id, User user) {
+public class CartFactory {
+    public static Cart createCart(User user){
         Cart cart = Cart.builder()
-                .id(BigInteger.valueOf(id))
-                .user(user)
                 .cartItems(new HashSet<>())
+                .user(user)
                 .build();
         user.setCart(cart);
         return cart;

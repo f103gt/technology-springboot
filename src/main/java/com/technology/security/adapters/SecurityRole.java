@@ -1,6 +1,6 @@
 package com.technology.security.adapters;
 
-import com.technology.registration.models.Role;
+import com.technology.user.registration.models.Role;
 import org.springframework.security.core.GrantedAuthority;
 
 public class SecurityRole implements GrantedAuthority {

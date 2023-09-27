@@ -1,132 +1,24 @@
 package com.technology.cart.services;
 
-import com.technology.cart.models.Cart;
-import com.technology.cart.models.CartItem;
-import com.technology.cart.repositories.CartItemRepository;
-import com.technology.cart.repositories.CartRepository;
-import com.technology.product.exceptions.ProductNotFoundException;
-import com.technology.product.models.Product;
-import com.technology.product.repositories.ProductRepository;
-import com.technology.registration.models.User;
-import com.technology.registration.repositories.UserRepository;
-import com.technology.security.adapters.SecurityUser;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.file.attribute.UserPrincipalNotFoundException;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-@Service
-public class CartService {
-    private final CartRepository cartRepository;
-    private final UserRepository userRepository;
-    private final ProductRepository productRepository;
+public interface CartService {
+    void saveCart(BigInteger productId);
 
-    @Autowired
-    public CartService(CartRepository cartRepository,
-                       ProductRepository productRepository,
-                       UserRepository userRepository) {
-        this.cartRepository = cartRepository;
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-    }
+    void deleteCartItem(BigInteger productId);
 
-    private Optional<User> getUserFromContext() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
-        return userRepository.findUserByEmail(securityUser.getUsername());
-    }
-
-    public void saveCart(BigInteger productId) {
-        Optional<User> userOptional = getUserFromContext();
-        if(userOptional.isEmpty()){
-            throw new UsernameNotFoundException("user not found");
-            //TODO create user not found exception instead of this one
-        }
-        User user = userOptional.get();
-        Cart cart = user.getCart();
-        if (cart == null) {
-            cart = Cart.builder()
-                    .cartItems(new HashSet<>())
-                    .user(user)
-                    .build();
-            cartRepository.save(cart);
-            user.setCart(cart);
-            userRepository.save(user);
-        }
-        addProductToCart(productId, cart);
-        cartRepository.save(cart);
-    }
-
-    public void deleteCartItem(BigInteger productId) {
-        Optional<User> userOptional = getUserFromContext();
-        if(userOptional.isEmpty()){
-            throw new UsernameNotFoundException("user not found");
-            //TODO create user not found exception instead of this one
-        }
-        User user = userOptional.get();
-        //TODO create a method to turn userOption into user
-        Cart cart = user.getCart();
-        Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
-        Optional<CartItem> cartItemToRemove = cartItems.stream()
-                .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
-                .findFirst();
-        if (cartItemToRemove.isPresent()) {
-            cartItems.remove(cartItemToRemove.get());
-            cartRepository.save(cart);
-        } else {
-            throw new ProductNotFoundException("Product with id " + productId + " not found");
-        }
-    }
     /*in deleteCart method no need to check if the
-    * cart exists or not, cart purification/removal
-    *  will be implemented as soon as the order
-    * is successfully made */
-    //TODO if needed modify code to accept a parameter
-    public void deleteCart(){
-        Optional<User> userOptional = getUserFromContext();
-        if(userOptional.isEmpty()){
-            throw new UsernameNotFoundException("user not found");
-            //TODO create user not found exception instead of this one
-        }
-        User user = userOptional.get();
-        cartRepository.delete(user.getCart());
-        user.setCart(null);
-        userRepository.save(user);
-    }
+     * cart exists or not, cart purification/removal
+     *  will be implemented as soon as the order
+     * is successfully made */
 
-    private void addProductToCart(BigInteger productId, Cart cart) {
-        Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
-        Optional<CartItem> cartItemOptional = cartItems.stream()
-                .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
-                .findFirst();
-        if (cartItemOptional.isPresent()) {
-            CartItem cartItem = cartItemOptional.get();
-            int quantity = cartItem.getQuantity() + 1;
-            cartItem.setQuantity(quantity);
-            cartItem.setFinalPrice(cartItem.getProduct().getPrice()
-                    .multiply(BigDecimal.valueOf(quantity)));
-        } else {
-            Optional<Product> productOptional = productRepository.findProductById(productId);
-            if (productOptional.isEmpty()) {
-                throw new ProductNotFoundException("Product with id" + productId + " not found");
-            }
-            Product product = productOptional.get();
-            CartItem cartItem = CartItem.builder()
-                    .cart(cart)
-                    .quantity(1)
-                    .finalPrice(product.getPrice())
-                    .product(product)
-                    .build();
-            cart.getCartItems().add(cartItem);
-        }
-    }
+    /* deleteCart method does not actually delete
+    * all the items from the cart
+    * only the relation between cart and use
+    * is being destroyed, and, as a replacement
+    * of it, a new relation between user order
+    * and the cart is being begeted.
+    * This approach helps to presume user oder history */
+    //TODO if needed modify code to accept a parameter
+    void deleteCart();
 }

@@ -6,6 +6,8 @@ import com.technology.category.repositories.CategoryRepository;
 import com.technology.product.dto.ProductDto;
 import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.exceptions.ProductObjectAlreadyExistsException;
+import com.technology.product.factories.ProductFactory;
+import com.technology.product.helpers.ProductServiceHelper;
 import com.technology.product.models.Product;
 import com.technology.product.registration.request.ProductRegistrationRequest;
 import com.technology.product.repositories.ProductRepository;
@@ -14,10 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -31,29 +33,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
-    public void saveProduct(ProductRegistrationRequest productRegistrationRequest) {
-        String categoryName = productRegistrationRequest.getCategoryName();
-        String productName = productRegistrationRequest.getProductName();
-        Optional<Category> categoryOptional = categoryRepository.findCategoryByCategoryName(categoryName);
-        if (categoryOptional.isEmpty()) {
-            throw new CategoryNotFoundException("Category " + categoryName + " not found.");
-        }
+    public void saveProduct(ProductRegistrationRequest request) {
+        String categoryName = request.getCategoryName().trim();
+        String productName = request.getProductName().trim();
+        Category category = categoryRepository
+                .findCategoryByCategoryName(categoryName)
+                .orElseThrow(
+                        () -> new CategoryNotFoundException("Category " + categoryName + " not found."));
         if (productRepository.findProductByProductName(productName).isPresent()) {
             throw new ProductObjectAlreadyExistsException("Product with name "
                     + productName + " already exists.");
         }
-        productRepository.save(Product.builder()
-                .category(categoryOptional.get())
-                .productName(productRegistrationRequest.getProductName())
-                .sku(productRegistrationRequest.getSku())
-                .quantity(productRegistrationRequest.getQuantity())
-                .price(productRegistrationRequest.getPrice())
-                .build());
+        productRepository.save(ProductFactory.createProduct(category, request));
     }
 
     @Override
-    @Transactional
     public void deleteProduct(String productName) {
         if (productRepository.findProductByProductName(productName).isEmpty()) {
             throw new ProductNotFoundException("Product " + productName + " not found");
@@ -61,33 +55,12 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteProductByProductName(productName);
     }
 
-    //return products sorted by product category, product name,product quantitry
+    //return products sorted by product category, product name,product quantity
     @Override
-    @Transactional
     public List<ProductDto> getAllProducts() {
         return productRepository.findAll().stream()
-                .map(product -> new ProductDto(
-                        product.getCategory().getCategoryName(),
-                        product.getProductName(),
-                        product.getSku(),
-                        product.getQuantity(),
-                        product.getPrice()
-                ))
-                .sorted((productDto1, productDto2) ->
-                {
-                    int categoryComparison = productDto1.getCategoryName()
-                            .compareToIgnoreCase(productDto2.getCategoryName());
-                    if (categoryComparison == 0) {
-                        int quantityComparison = Integer.compare(
-                                productDto1.getQuantity(), productDto2.getQuantity());
-                        if (quantityComparison == 0) {
-                            return productDto1.getProductName()
-                                    .compareToIgnoreCase(productDto2.getProductName());
-                        }
-                        return quantityComparison;
-                    }
-                    return categoryComparison;
-                })
+                .map(ProductFactory::createProductDto)
+                .sorted(ProductServiceHelper::compareProductDtos)
                 .collect(Collectors.toList());
     }
 }

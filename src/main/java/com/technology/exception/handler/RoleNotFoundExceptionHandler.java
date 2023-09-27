@@ -2,7 +2,7 @@ package com.technology.exception.handler;
 
 import com.technology.exception.error.ErrorObject;
 import com.technology.exception.error.ErrorObjectCreator;
-import com.technology.registration.errors.RoleNotFoundException;
+import com.technology.user.registration.errors.RoleNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

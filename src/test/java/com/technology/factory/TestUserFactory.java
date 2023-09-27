@@ -1,6 +1,6 @@
 package com.technology.factory;
 
-import com.technology.registration.models.User;
+import com.technology.user.registration.models.User;
 
 import java.math.BigInteger;
 import java.util.HashSet;
