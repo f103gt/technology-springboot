@@ -4,6 +4,7 @@ import com.technology.category.dto.CategoryDto;
 import com.technology.category.exceptions.CategoryAlreadyExistsException;
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.exceptions.ParentCategoryNotFoundException;
+import com.technology.category.helper.CategoryServiceHelper;
 import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.repositories.CategoryRepository;
@@ -60,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryDto> getAllCategories() {
         return categoryRepository.findAll().stream()
                 .map(this::createCategoryDto)
-                .sorted(this::compareCategoryDtos)
+                .sorted(CategoryServiceHelper::compareCategoryDtos)
                 .collect(Collectors.toList());
     }
 
