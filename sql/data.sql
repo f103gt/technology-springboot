@@ -144,3 +144,26 @@ create table shop_order
     foreign key (payment_method_id) references payment_method (id)
 );
 
+create table shift
+(
+    id         serial primary key,
+    shift_time time not null
+);
+
+create table client_shift
+(
+    shift_id   int    not null,
+    client_id  bigint not null,
+    shift_date date   not null,
+    foreign key (shift_id) references shift (id),
+    foreign key (client_id) references client (id)
+);
+
+create table activity
+(
+    id bigserial primary key,
+    client_id bigserial not null,
+    is_active bool   not null default 'false',
+    foreign key (client_id) references client (id)
+);
+

@@ -2,10 +2,12 @@ package com.technology.user.registration.models;
 
 import com.technology.cart.models.Cart;
 import com.technology.address.models.Address;
+import com.technology.user.shift.models.UserShift;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Set;
 
 @Entity
@@ -53,6 +55,9 @@ public class User{
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cart_id", referencedColumnName = "id")
     private Cart cart;
+
+    @OneToMany(mappedBy = "user")
+    private Collection<UserShift> userShifts;
 }
 /*
 public static class Builder{
