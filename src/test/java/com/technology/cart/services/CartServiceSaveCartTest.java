@@ -53,7 +53,7 @@ public class CartServiceSaveCartTest extends CartServiceTest{
         cartRepository.save(cart);
 
         //act
-        cartService.deleteCart();
+        cartService.deleteCart(user);
 
         //assert
         Optional<CartItem> deletedCartItemOptional =

@@ -1,5 +1,7 @@
 package com.technology.cart.services;
 
+import com.technology.user.registration.models.User;
+
 import java.math.BigInteger;
 
 public interface CartService {
@@ -20,5 +22,5 @@ public interface CartService {
     * and the cart is being begeted.
     * This approach helps to presume user oder history */
     //TODO if needed modify code to accept a parameter
-    void deleteCart();
+    void deleteCart(User user);
 }

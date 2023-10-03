@@ -58,6 +58,9 @@ public class User{
 
     @OneToMany(mappedBy = "user")
     private Collection<UserShift> userShifts;
+
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private Collection<Activity> userActivity;
 }
 /*
 public static class Builder{

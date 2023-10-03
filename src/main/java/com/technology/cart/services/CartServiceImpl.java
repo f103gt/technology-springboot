@@ -56,8 +56,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void deleteCart() {
-        User user = getUserFromContext();
+    public void deleteCart(User user) {
         //cartRepository.delete(user.getCart());
         user.setCart(null);
         userRepository.save(user);
