@@ -3,6 +3,7 @@ package com.technology.order.services;
 import com.technology.cart.exceptions.UserNotFoundException;
 import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.cart.services.CartService;
+import com.technology.order.exceptions.OrderNotFoundException;
 import com.technology.order.models.Order;
 import com.technology.order.models.OrderStatus;
 import com.technology.order.registration.requests.OrderRegistrationRequest;
@@ -79,7 +80,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void saveOrder(OrderRegistrationRequest request,String userEmail){
+    public void saveOrder(OrderRegistrationRequest request, String userEmail) {
         User user = userRepository.findUserByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException("user not found"));
         Order order = Order.builder()
@@ -99,7 +100,7 @@ public class OrderService {
      * and whose shift is overlapping with the current time
      * (current time lies with the shift start and end hours)*/
 
-    /*Optional<Order> orderOptional = orderRepository.findFirstOrOrderByOrderStatus("PLACED");
+    /*
        if (orderOptional.isPresent()) {
            SecurityUser securityUser = CartServiceHelper.getSecurityUserFromContext();
            User user = userRepository.findUserByEmail(securityUser.getUsername())
@@ -116,36 +117,50 @@ public class OrderService {
         if (numberOfUnprocessedOrders == 0) {
             return;
         }
-        if (numberOfUnprocessedOrders < numberOfStaffMembersByShift) {
-            if (userIsActive()) {
-                BigInteger maxPoints = activityRepository.findMaxPoints()
-                        .orElse(maxPoints = BigInteger.ZERO);
+        if (userIsActive()) {
+            BigInteger maxPoints = activityRepository.findMaxPoints()
+                    .orElse(maxPoints = BigInteger.ZERO);
+            BigInteger currentUserPoints = currentUser.getUserActivity()
+                    .iterator().next().getPoints();
+            BigInteger pointsDifferenceMax = maxPoints.subtract(currentUserPoints);
+            //if number of orders lesser than number of workers,
+            //give some time to rest for the most productive employees
+            //and make the ones with the smallest number of point to work
+            if (numberOfUnprocessedOrders < numberOfStaffMembersByShift &&
+                    !maxPoints.equals(BigInteger.ZERO)) {
+                /*if (pointsDifferenceMax.equals(BigInteger.ZERO)) {
+                    return;
+                }*/
                 BigInteger minPoints = activityRepository.findMinPoints()
                         .orElse(minPoints = BigInteger.ZERO);
-                if (!maxPoints.equals(BigInteger.ZERO)) {
-                    BigInteger currentUserPoints = currentUser.getUserActivity().iterator().next().getPoints();
-                    BigInteger pointsDifferenceMax = maxPoints.subtract(currentUserPoints);
-                    if (pointsDifferenceMax.equals(BigInteger.ZERO)) {
-                        return;
-                    }
-                    BigInteger pointsDifferenceMin = currentUserPoints.subtract(minPoints);
-                    if (pointsDifferenceMax.compareTo(pointsDifferenceMin) <= 0) {
-                        Optional<Order> orderOptional = orderRepository
-                                .findOrderWithNumberOfItemsClosestToRequired(pointsDifferenceMax);
-                        if(orderOptional.isPresent()){
-                            Order order = orderOptional.get();
-                            Activity currentUserActivity = currentUser.getUserActivity().iterator().next();
-                            currentUserActivity.setIsAvailable(false);
-                            activityRepository.save(currentUserActivity);
-                            /*send user email with all order details
-                            except for the card details
-                            also create a popup for user
-                            * */
-                        }
-                    }
+                BigInteger pointsDifferenceMin = currentUserPoints.subtract(minPoints);
+                if (pointsDifferenceMax.compareTo(pointsDifferenceMin) < 0) {
+                    return;
                 }
             }
+            Order order;
+            if (maxPoints.equals(BigInteger.ZERO)) {
+                //TODO implement messaging user that there is no available orders for them to process
+                order = orderRepository.findFirstOrOrderByOrderStatus("PLACED")
+                        .orElseThrow(() -> new OrderNotFoundException("no new orders"));
+            } else {
+                order = orderRepository
+                        .findOrderWithNumberOfItemsClosestToRequired(pointsDifferenceMax)
+                        .orElseThrow(() -> new OrderNotFoundException("no new orders"));
+                /*while (orderOptional.isEmpty()) {
+                    orderOptional = orderRepository
+                            .findOrderWithNumberOfItemsClosestToRequired(pointsDifferenceMax);
+                }*/
+            }
+            //Order order = orderOptional.get();
+            Activity currentUserActivity = currentUser.getUserActivity().iterator().next();
+            currentUserActivity.setIsAvailable(false);
+            activityRepository.save(currentUserActivity);
+                 /*send user email with all order details
+                            except for the card details
+                            also create a popup for user*/
         }
+
     }
 
     private boolean userIsActive() {
