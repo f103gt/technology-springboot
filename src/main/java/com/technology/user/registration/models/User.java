@@ -59,7 +59,7 @@ public class User{
     @OneToMany(mappedBy = "user")
     private Collection<UserShift> userShifts;
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "user")
     private Collection<Activity> userActivity;
 }
 /*

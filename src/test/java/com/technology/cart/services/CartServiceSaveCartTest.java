@@ -20,7 +20,7 @@ public class CartServiceSaveCartTest extends CartServiceTest{
     @DirtiesContext
     public void testSaveCart_AddsProductToExistingCartItem() {
         //arrange
-        CartItem cartItem = TestCartItemFactory.makeCartItem(product, cart);
+        TestCartItemFactory.makeCartItem(product, cart);
         productRepository.save(product);
         cartRepository.save(cart);
 

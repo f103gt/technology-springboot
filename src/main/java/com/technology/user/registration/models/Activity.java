@@ -17,6 +17,7 @@ public class Activity {
     private BigInteger id;
 
     @ManyToOne
+    @JoinColumn(name="client_id")
     private User user;
 
     @Column(name = "is_available")

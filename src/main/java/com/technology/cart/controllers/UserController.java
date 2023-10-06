@@ -29,10 +29,10 @@ public class UserController {
                 .ok("The product was successfully added to the cart");
     }
 
-    @PreAuthorize("hasRole('USER')")
+    /*@PreAuthorize("hasRole('USER')")
     @DeleteMapping("/delete-cart")
     public ResponseEntity<String> deleteCart() {
         cartService.deleteCart();
         return ResponseEntity.ok("The cart was successfully deleted");
-    }
+    }*/
 }

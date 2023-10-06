@@ -1,5 +1,6 @@
 package com.technology.cart.models;
 
+import com.technology.order.models.Order;
 import com.technology.user.registration.models.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,6 +22,10 @@ public class Cart {
     @OneToOne
     @JoinColumn(name = "client_id",referencedColumnName = "id")
     private User user;
+
+    @OneToOne
+    @JoinColumn(name = "order_id",referencedColumnName = "id")
+    private Order order;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,mappedBy = "cart")
     Collection<CartItem> cartItems;

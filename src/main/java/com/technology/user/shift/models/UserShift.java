@@ -2,10 +2,12 @@ package com.technology.user.shift.models;
 
 import com.technology.user.registration.models.User;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
 
+@Getter
 @Entity
 @Table(name = "client_shift")
 public class UserShift {
@@ -14,6 +16,7 @@ public class UserShift {
     private BigInteger id;
 
     @ManyToOne
+    @JoinColumn(name = "client_id")
     private User user;
 
     @ManyToOne
@@ -34,22 +37,6 @@ public class UserShift {
 
     public static UserShiftBuilder builder() {
         return new UserShiftBuilder();
-    }
-
-    public BigInteger getId() {
-        return this.id;
-    }
-
-    public User getUser() {
-        return this.user;
-    }
-
-    public Shift getShift() {
-        return this.shift;
-    }
-
-    public LocalDate getShiftDate() {
-        return this.shiftDate;
     }
 
     public void setId(BigInteger id) {

@@ -18,12 +18,29 @@ public interface UserRepository extends JpaRepository<User, BigInteger> {
             select u from User u
             join u.roles r
             join u.userShifts us
+            join u.userActivity ua
+            where r.roleName = :roleName
+            and us.shiftDate = current_date
+            and us.shift.startTime = :shiftStartTime
+            and ua.isAvailable = :activityStatus
+            """)
+    List<User> findAllByRoleNameAndUserShiftStartTimeAndUserActivityStatus(
+            @Param("roleName") String roleName,
+            @Param("shiftStartTime") LocalTime shiftStartTime,
+            @Param("activityStatus") Boolean activityStatus
+    );
+
+    @Query("""
+            select u from User u
+            join u.roles r
+            join u.userShifts us
             where r.roleName = :roleName
             and us.shiftDate = current_date
             and us.shift.startTime = :shiftStartTime
             """)
     List<User> findAllUsersByShiftAndRole(@Param("roleName") String roleName,
                                           @Param("shiftStartTime") LocalTime shiftStartTime);
+
     @Query("""
             select count(u)
             from User u
@@ -37,12 +54,4 @@ public interface UserRepository extends JpaRepository<User, BigInteger> {
     Long findNumberOfUsersByCurrentShiftStartTime(
             @Param("userRole") String userRole,
             @Param("currentShiftStartTime") LocalTime currentShiftStartTime);
-
-    @Query("""
-            select u from User u
-            join u.userActivity ua
-            where ua.points = (select max(a.points) from Activity a)
-            """)
-    Optional<User> findUserWithMaxPoint();
-
 }

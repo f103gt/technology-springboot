@@ -25,9 +25,11 @@ public class Order {
     private BigInteger id;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="client_id")
     private User user;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cart_id", referencedColumnName = "id")
     private Cart cart;
 
     @ManyToOne

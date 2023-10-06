@@ -1,33 +1,29 @@
 package com.technology.order.services;
 
 import com.technology.cart.exceptions.UserNotFoundException;
-import com.technology.cart.helpers.CartServiceHelper;
+import com.technology.cart.models.CartItem;
 import com.technology.cart.services.CartService;
-import com.technology.order.exceptions.OrderNotFoundException;
 import com.technology.order.models.Order;
 import com.technology.order.models.OrderStatus;
 import com.technology.order.registration.requests.OrderRegistrationRequest;
 import com.technology.order.repositories.OrderRepository;
-import com.technology.security.adapters.SecurityUser;
 import com.technology.user.registration.models.Activity;
 import com.technology.user.registration.models.User;
-import com.technology.user.registration.repositories.ActivityRepository;
 import com.technology.user.registration.repositories.UserRepository;
 import com.technology.user.shift.models.Shift;
 import com.technology.user.shift.repositories.ShiftRepository;
 import jakarta.transaction.Transactional;
-import org.apache.catalina.security.SecurityUtil;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @EnableScheduling
@@ -35,31 +31,24 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ShiftRepository shiftRepository;
-    private final ActivityRepository activityRepository;
     private final CartService cartService;
+    private final SimpMessagingTemplate messaging;
 
     @Autowired
     public OrderService(OrderRepository orderRepository,
                         UserRepository userRepository,
                         ShiftRepository shiftRepository,
-                        ActivityRepository activityRepository,
-                        CartService cartService) {
+                        CartService cartService,
+                        SimpMessagingTemplate messaging) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.shiftRepository = shiftRepository;
-        this.activityRepository = activityRepository;
         this.cartService = cartService;
+        this.messaging = messaging;
     }
 
     private LocalTime currenShiftStartTime;
     private Long numberOfStaffMembersByShift;
-    private User currentUser;
-
-    private void findCurrentUser() {
-        SecurityUser securityUser = CartServiceHelper.getSecurityUserFromContext();
-        currentUser = userRepository.findUserByEmail(securityUser.getUsername())
-                .orElseThrow(() -> new UserNotFoundException("user not found"));
-    }
 
     @Scheduled(cron = "0 55 * * * ?")
     @Transactional
@@ -99,72 +88,62 @@ public class OrderService {
      * write query to find the number of employees whose working day is the current day
      * and whose shift is overlapping with the current time
      * (current time lies with the shift start and end hours)*/
-
-    /*
-       if (orderOptional.isPresent()) {
-           SecurityUser securityUser = CartServiceHelper.getSecurityUserFromContext();
-           User user = userRepository.findUserByEmail(securityUser.getUsername())
-                   .orElseThrow(() -> new UserNotFoundException("user not found"));
-           //isActive(user)
-           if(user.getActivity().equals("ACTIVE")){
-               if(user.getHandledTasks() )
-           }
-       }*/
     @Scheduled(fixedRate = 5 * 60 * 1000)
     @Transactional
-    public void checkForUnprocessedOrders() {
-        Long numberOfUnprocessedOrders = orderRepository.findNumberOfUnprocessedOrders("PLACED");
-        if (numberOfUnprocessedOrders == 0) {
+    public void distributeOrders() {
+        List<User> availableUsers =
+                userRepository.findAllByRoleNameAndUserShiftStartTimeAndUserActivityStatus("STAFF", currenShiftStartTime, true);
+        List<Order> unprocessedOrders = orderRepository.findAllOrdersByOrderStatus("PLACED");
+        if (unprocessedOrders.isEmpty()) {
             return;
         }
-        if (userIsActive()) {
-            BigInteger maxPoints = activityRepository.findMaxPoints()
-                    .orElse(maxPoints = BigInteger.ZERO);
-            BigInteger currentUserPoints = currentUser.getUserActivity()
-                    .iterator().next().getPoints();
-            BigInteger pointsDifferenceMax = maxPoints.subtract(currentUserPoints);
-            //if number of orders lesser than number of workers,
-            //give some time to rest for the most productive employees
-            //and make the ones with the smallest number of point to work
-            if (numberOfUnprocessedOrders < numberOfStaffMembersByShift &&
-                    !maxPoints.equals(BigInteger.ZERO)) {
-                /*if (pointsDifferenceMax.equals(BigInteger.ZERO)) {
-                    return;
-                }*/
-                BigInteger minPoints = activityRepository.findMinPoints()
-                        .orElse(minPoints = BigInteger.ZERO);
-                BigInteger pointsDifferenceMin = currentUserPoints.subtract(minPoints);
-                if (pointsDifferenceMax.compareTo(pointsDifferenceMin) < 0) {
-                    return;
-                }
-            }
-            Order order;
-            if (maxPoints.equals(BigInteger.ZERO)) {
-                //TODO implement messaging user that there is no available orders for them to process
-                order = orderRepository.findFirstOrOrderByOrderStatus("PLACED")
-                        .orElseThrow(() -> new OrderNotFoundException("no new orders"));
-            } else {
-                order = orderRepository
-                        .findOrderWithNumberOfItemsClosestToRequired(pointsDifferenceMax)
-                        .orElseThrow(() -> new OrderNotFoundException("no new orders"));
-                /*while (orderOptional.isEmpty()) {
-                    orderOptional = orderRepository
-                            .findOrderWithNumberOfItemsClosestToRequired(pointsDifferenceMax);
-                }*/
-            }
-            //Order order = orderOptional.get();
-            Activity currentUserActivity = currentUser.getUserActivity().iterator().next();
-            currentUserActivity.setIsAvailable(false);
-            activityRepository.save(currentUserActivity);
-                 /*send user email with all order details
-                            except for the card details
-                            also create a popup for user*/
+        if (availableUsers.isEmpty()) {
+            return;
         }
+        BigInteger maxPoints = availableUsers.stream()
+                .map(user -> user.getUserActivity().iterator().next().getPoints())
+                .max(BigInteger::compareTo).get();
+        if (!maxPoints.equals(BigInteger.ZERO)) {
+            availableUsers = availableUsers.stream()
+                    .sorted(Comparator.comparing(user -> user.getUserActivity().iterator().next().getPoints()))
+                    .collect(Collectors.toList());
 
+            // Calculate total quantities for each order
+            List<Map.Entry<Order, Integer>> orderQuantities = unprocessedOrders.stream()
+                    .map(order -> new AbstractMap.SimpleEntry<>(
+                            order, order.getCart().getCartItems().stream()
+                            .mapToInt(CartItem::getQuantity)
+                            .sum()))
+                    .collect(Collectors.toList());
+
+            // Sort orders by total quantity in descending order
+            unprocessedOrders = orderQuantities.stream()
+                    .sorted(Map.Entry.<Order, Integer>comparingByValue().reversed())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+        }
+        int iterationSize = Math.min(availableUsers.size(), unprocessedOrders.size());
+        for (int index = 0; index < iterationSize; index++) {
+            User user = availableUsers.get(index);
+            if (userIsActive(user)) {
+                Order order = unprocessedOrders.get(index);
+                String destination = "/staff/task-processing/user-" + user.getId();
+                String message = "You have been assigned a to process new order.";
+                //TODO add new url upon following which an employee sees all the order details
+                messaging.convertAndSend(destination, message);
+            }
+        }
+        /*availableUsers.forEach(user -> {
+            String destination = "/staff/task-processing/user-" + user.getId();
+            String message = "You have been assigned a to process new order.";
+            //TODO add new url upon following which an employee sees all the order details
+            messaging.convertAndSend(destination, message);
+        });*/
     }
 
-    private boolean userIsActive() {
-        return currentUser.getUserActivity().stream()
+    private boolean userIsActive(User user) {
+        return user.getUserActivity().stream()
                 .anyMatch(Activity::getIsAvailable);
     }
 }

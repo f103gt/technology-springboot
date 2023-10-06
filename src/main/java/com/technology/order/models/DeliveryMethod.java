@@ -20,6 +20,6 @@ public class DeliveryMethod {
     @Column(name = "delivery_method_name")
     private String deliveryMethodName;
 
-    @OneToMany(mappedBy = "deliverMethod")
-    private Collection<Order> orders;
+   /* @OneToMany(mappedBy = "deliverMethod")
+    private Collection<Order> orders;*/
 }

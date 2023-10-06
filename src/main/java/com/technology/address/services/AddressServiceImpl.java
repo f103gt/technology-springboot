@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AddressServiceImpl implements AddressService{
+public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
 
     @Autowired
@@ -20,14 +20,14 @@ public class AddressServiceImpl implements AddressService{
     @Transactional
     public Address registerUserAddress(AddressRegistrationRequest addressRegistrationRequest) {
         Address address = Address.builder()
-                .setPhoneNumber(addressRegistrationRequest.phoneNumber()
+                .phoneNumber(addressRegistrationRequest.phoneNumber()
                 )
-                .setRegion(addressRegistrationRequest.region())
-                .setDistrict(addressRegistrationRequest.district())
-                .setLocality(addressRegistrationRequest.locality())
-                .setStreet(addressRegistrationRequest.street())
-                .setPremise(addressRegistrationRequest.premise())
-                .setZipcode(addressRegistrationRequest.zipcode())
+                .region(addressRegistrationRequest.region())
+                .district(addressRegistrationRequest.district())
+                .locality(addressRegistrationRequest.locality())
+                .street(addressRegistrationRequest.street())
+                .premise(addressRegistrationRequest.premise())
+                .zipcode(addressRegistrationRequest.zipcode())
                 .build();
         addressRepository.save(address);
         return address;

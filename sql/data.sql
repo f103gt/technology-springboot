@@ -93,7 +93,9 @@ create table cart
 (
     id        bigserial primary key,
     client_id bigint not null,
-    foreign key (client_id) references client (id)
+    order_id  bigint,
+    foreign key (client_id) references client (id),
+    foreign key (order_id) references shop_order (id)
 );
 
 create table cart_item
@@ -163,9 +165,9 @@ create table client_shift
 
 create table activity
 (
-    id        bigserial primary key,
-    client_id bigserial not null,
-    points    bigint             default '0',
+    id           bigserial primary key,
+    client_id    bigserial not null,
+    points       bigint             default '0',
     is_available bool      not null default 'false',
     foreign key (client_id) references client (id)
 );
