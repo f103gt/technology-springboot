@@ -2,7 +2,7 @@ package com.technology.order.models;
 
 import com.technology.address.models.Address;
 import com.technology.cart.models.Cart;
-import com.technology.user.registration.models.User;
+import com.technology.user.models.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

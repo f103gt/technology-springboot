@@ -1,6 +1,6 @@
 package com.technology.cart.services;
 
-import com.technology.user.registration.models.User;
+import com.technology.user.models.User;
 
 import java.math.BigInteger;
 

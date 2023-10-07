@@ -1,9 +1,9 @@
 package com.technology.order.config;
 
-import com.technology.user.registration.models.User;
-import com.technology.user.registration.repositories.UserRepository;
-import com.technology.user.shift.models.Shift;
-import com.technology.user.shift.repositories.ShiftRepository;
+import com.technology.user.models.User;
+import com.technology.user.repositories.UserRepository;
+import com.technology.shift.models.Shift;
+import com.technology.shift.repositories.ShiftRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

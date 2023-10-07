@@ -1,6 +1,6 @@
 package com.technology.security.adapters;
 
-import com.technology.user.registration.models.User;
+import com.technology.user.models.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

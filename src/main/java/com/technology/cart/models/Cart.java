@@ -1,7 +1,7 @@
 package com.technology.cart.models;
 
 import com.technology.order.models.Order;
-import com.technology.user.registration.models.User;
+import com.technology.user.models.User;
 import jakarta.persistence.*;
 import lombok.*;
 

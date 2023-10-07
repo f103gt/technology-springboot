@@ -1,7 +1,7 @@
 package com.technology.security.services;
 
-import com.technology.user.registration.models.User;
-import com.technology.user.registration.repositories.UserRepository;
+import com.technology.user.models.User;
+import com.technology.user.repositories.UserRepository;
 import com.technology.security.adapters.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,7 +1,7 @@
 package com.technology.factory;
 
 import com.technology.cart.models.Cart;
-import com.technology.user.registration.models.User;
+import com.technology.user.models.User;
 
 import java.math.BigInteger;
 import java.util.HashSet;
