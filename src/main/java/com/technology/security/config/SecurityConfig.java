@@ -14,6 +14,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -27,14 +32,16 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(
                         auth -> {
                             auth
+                                    .requestMatchers("/api/v1/auth/authenticate").permitAll()
                                     .requestMatchers("/manager/**").hasRole("MANAGER")
                                     .requestMatchers("/staff/**").hasRole("STAFF")
                                     .requestMatchers("/admin/**").hasRole("ADMIN")
-                                    .requestMatchers("/**").permitAll()
                                     .anyRequest().authenticated();
                         })
                 .userDetailsService(userDetailsService)
@@ -43,20 +50,22 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults())
-                .formLogin(loginConfig -> loginConfig
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/all-products"))
                 .build();
     }
 
-    //.requestMatchers("/user/**").hasRole("USER")
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "PUT", "POST", "DELETE"));
+        corsConfiguration.setAllowedHeaders(List.of("Authorization"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+        return source;
+    }
 
-    /*return http
-                .csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/").permitAll()
-                .and()
-                .authorizeHttpRequests().requestMatchers("/manager").authenticated()
-                .and().formLogin()
-                .and().build();*/
+    /*.formLogin(loginConfig -> loginConfig
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/all-products"))*/
+
 }
