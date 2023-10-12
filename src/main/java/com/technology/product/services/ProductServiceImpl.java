@@ -3,6 +3,7 @@ package com.technology.product.services;
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.models.Category;
 import com.technology.category.repositories.CategoryRepository;
+import com.technology.product.dto.GeneralProductDto;
 import com.technology.product.dto.ProductDto;
 import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.exceptions.ProductObjectAlreadyExistsException;
@@ -32,7 +33,21 @@ public class ProductServiceImpl implements ProductService {
         this.categoryRepository = categoryRepository;
     }
 
+
     @Override
+    @Transactional
+    public List<GeneralProductDto> getAllProductsByCagoryName(String categoryName) {
+        List<Product> products = productRepository.findProductsByCategoryCategoryName(categoryName.trim());
+        return products.stream()
+                .map(product -> GeneralProductDto.builder()
+                        .productName(product.getProductName())
+                        .productPrice(product.getPrice())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
     public void saveProduct(ProductRegistrationRequest request) {
         String categoryName = request.getCategoryName().trim();
         String productName = request.getProductName().trim();

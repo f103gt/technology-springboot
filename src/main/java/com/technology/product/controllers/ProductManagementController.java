@@ -1,5 +1,6 @@
 package com.technology.product.controllers;
 
+import com.technology.product.dto.GeneralProductDto;
 import com.technology.product.dto.ProductDto;
 import com.technology.product.registration.request.ProductRegistrationRequest;
 import com.technology.product.services.ProductService;
@@ -18,10 +19,14 @@ public class ProductManagementController {
         this.productService = productService;
     }
 
-    @GetMapping("api/v1/{productCategoryName}")
-    public  ResponseEntity<ProductDto> allProductByCategory(@PathVariable("productCategoryName") String category){
-        productService.getAllProductsByCagoryName();
+    @GetMapping("api/v1/category-products")
+    public ResponseEntity<List<GeneralProductDto>> allProductByCategory(
+            @RequestParam("categoryName") String categoryName) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(productService.getAllProductsByCagoryName(categoryName));
     }
+
     @GetMapping("/manager/all-products")
     public ResponseEntity<List<ProductDto>> allProducts() {
         return ResponseEntity.ok()
@@ -38,7 +43,7 @@ public class ProductManagementController {
         return ResponseEntity.ok("The product was successfully added");
     }
 
-    @DeleteMapping ("/manager/delete-product")
+    @DeleteMapping("/manager/delete-product")
     public ResponseEntity<String> deleteProduct() {
         return ResponseEntity.ok("The product was successfully deleted");
     }

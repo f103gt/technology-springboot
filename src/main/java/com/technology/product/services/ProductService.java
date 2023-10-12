@@ -1,5 +1,6 @@
 package com.technology.product.services;
 
+import com.technology.product.dto.GeneralProductDto;
 import com.technology.product.dto.ProductDto;
 import com.technology.product.registration.request.ProductRegistrationRequest;
 
@@ -14,5 +15,5 @@ public interface ProductService {
 
     List<ProductDto> getAllProducts();
 
-    List<ProductDto> getAllProductsByCagoryName();
+    List<GeneralProductDto> getAllProductsByCagoryName(String categoryName);
 }
