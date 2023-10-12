@@ -1,5 +1,6 @@
 package com.technology.product.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 

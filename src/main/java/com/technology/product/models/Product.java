@@ -1,5 +1,6 @@
 package com.technology.product.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.technology.cart.models.CartItem;
 import com.technology.category.models.Category;
 import jakarta.persistence.*;

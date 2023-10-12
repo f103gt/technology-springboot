@@ -2,6 +2,8 @@ package com.technology.category.controllers;
 
 import com.technology.category.dto.CategoryDto;
 import com.technology.category.dto.CategoryToDeleteDto;
+import com.technology.category.dto.JsonCategoryDto;
+import com.technology.category.models.Category;
 import com.technology.category.registration.request.CategoryRegistrationRequest;
 import com.technology.category.services.CategoryService;
 import org.springframework.http.MediaType;
@@ -18,12 +20,12 @@ public class CategoryManagementController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping ("/manager/all-categories")
-    public ResponseEntity<List<CategoryDto>> allCategories() {
+    @GetMapping ("/api/v1/all-categories")
+    public ResponseEntity<List<JsonCategoryDto>> allCategories() {
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(categoryService.getAllCategories());
+                .body(categoryService.getAllParentCategoriesWithChildren());
     }
 
     @PostMapping ("/manager/add-category")

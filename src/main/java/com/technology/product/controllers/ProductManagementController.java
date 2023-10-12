@@ -18,6 +18,10 @@ public class ProductManagementController {
         this.productService = productService;
     }
 
+    @GetMapping("api/v1/{productCategoryName}")
+    public  ResponseEntity<ProductDto> allProductByCategory(@PathVariable("productCategoryName") String category){
+        productService.getAllProductsByCagoryName();
+    }
     @GetMapping("/manager/all-products")
     public ResponseEntity<List<ProductDto>> allProducts() {
         return ResponseEntity.ok()

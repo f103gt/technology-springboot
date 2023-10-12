@@ -9,6 +9,10 @@ public interface ProductService {
     void saveProduct(ProductRegistrationRequest productRegistrationRequest);
 
     void deleteProduct(String productName);
+    
+    
 
     List<ProductDto> getAllProducts();
+
+    List<ProductDto> getAllProductsByCagoryName();
 }

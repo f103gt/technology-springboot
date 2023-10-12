@@ -1,6 +1,7 @@
 package com.technology.category.services;
 
 import com.technology.category.dto.CategoryDto;
+import com.technology.category.dto.JsonCategoryDto;
 import com.technology.category.exceptions.CategoryAlreadyExistsException;
 import com.technology.category.exceptions.CategoryNotFoundException;
 import com.technology.category.exceptions.ParentCategoryNotFoundException;
@@ -12,7 +13,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.technology.category.helper.CategoryServiceHelper.*;
@@ -58,6 +59,35 @@ public class CategoryServiceImpl implements CategoryService {
                 .sorted(CategoryServiceHelper::compareCategoryDtos)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional
+    public List<JsonCategoryDto> getAllParentCategoriesWithChildren() {
+        List<Category> categories = categoryRepository.findAll();
+        List<JsonCategoryDto> finalList = new ArrayList<>();
+        Set<Category> isPresent = new HashSet<>();
+        for (Category category : categories) {
+            if (!isPresent.contains(category)) {
+                finalList.add(JsonCategoryDto.builder()
+                        .categoryName(category.getCategoryName())
+                        .childCategories(
+                                category.getChildCategories().stream()
+                                        .map(childCategory -> JsonCategoryDto.builder()
+                                                .categoryName(childCategory.getCategoryName())
+                                                .build()).collect(Collectors.toList()))
+                        .build());
+                isPresent.add(category);
+                if (!category.getChildCategories().isEmpty()) {
+                    isPresent.addAll(category.getChildCategories());
+                }
+            }
+        }
+        return finalList;
+    }
+
+   /* private void categoriesArePresent(Map<Category, Boolean> isPresent, List<Category> categories,) {
+
+    }*/
 
     private void createParentOrChildCategory(CategoryRegistrationRequest request) {
         String parentCategoryName = request.getParentCategoryName();

@@ -1,5 +1,7 @@
 package com.technology.category.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.technology.product.models.Product;
 import jakarta.persistence.*;
 import lombok.*;
