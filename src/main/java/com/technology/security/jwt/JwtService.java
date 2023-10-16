@@ -45,11 +45,11 @@ public class JwtService {
                 .getBody();
     }
 
-    public String generateToke(UserDetails userDetails) {
-        return generateToke(new HashMap<>(), userDetails);
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails);
     }
 
-    public String generateToke(
+    public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {

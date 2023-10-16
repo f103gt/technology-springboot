@@ -19,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -49,8 +50,8 @@ public class AuthenticationService {
                 .roles(Set.of(role))
                 .build();
         userRepository.save(user);
-        String jwtToken = jwtService.generateToke(new SecurityUser(user));
-        return new AuthenticationResponse(jwtToken, user.getFirstName(), user.getLastName(), user.getEmail());
+        String jwtToken = jwtService.generateToken(Map.of("role",role.getRoleName()),new SecurityUser(user));
+        return new AuthenticationResponse(jwtToken);
     }
 
     @Transactional
@@ -61,7 +62,8 @@ public class AuthenticationService {
         );
         User user = userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));
-        String jwtToken = jwtService.generateToke(new SecurityUser(user));
-        return new AuthenticationResponse(jwtToken, user.getFirstName(), user.getLastName(), user.getEmail());
+        Map<String,Object> claims = Map.of("role",user.getRoles().iterator().next().getRoleName());
+        String jwtToken = jwtService.generateToken(claims,new SecurityUser(user));
+        return new AuthenticationResponse(jwtToken);
     }
 }

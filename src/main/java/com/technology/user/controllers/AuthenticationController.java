@@ -20,23 +20,20 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(
+    public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegistrationRequest request) {
-        AuthenticationResponse response = service.register(request);
-        return ResponseEntity.ok().header(
-                        HttpHeaders.AUTHORIZATION,
-                        response.getToken())
-                .body(UserDto.getUserDto(response));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.AUTHORIZATION)
+                .body(service.register(request));
     }
     //add role in response
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticate(
+    public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticationRequest request) {
-        AuthenticationResponse response = service.authenticate(request);
-        return ResponseEntity.ok().header(
-                        HttpHeaders.AUTHORIZATION,
-                        response.getToken())
-                .body(UserDto.getUserDto(response));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.AUTHORIZATION)
+                .body(service.authenticate(request));
+
     }
 }
