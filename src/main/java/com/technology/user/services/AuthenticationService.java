@@ -51,7 +51,7 @@ public class AuthenticationService {
                 .build();
         userRepository.save(user);
         String jwtToken = jwtService.generateToken(Map.of("role",role.getRoleName()),new SecurityUser(user));
-        return new AuthenticationResponse(jwtToken);
+        return new AuthenticationResponse(jwtToken,email,role.getRoleName());
     }
 
     @Transactional
@@ -62,8 +62,9 @@ public class AuthenticationService {
         );
         User user = userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));
-        Map<String,Object> claims = Map.of("role",user.getRoles().iterator().next().getRoleName());
+        String role = user.getRoles().iterator().next().getRoleName();
+        Map<String,Object> claims = Map.of("role",role);
         String jwtToken = jwtService.generateToken(claims,new SecurityUser(user));
-        return new AuthenticationResponse(jwtToken);
+        return new AuthenticationResponse(jwtToken,email,role);
     }
 }
