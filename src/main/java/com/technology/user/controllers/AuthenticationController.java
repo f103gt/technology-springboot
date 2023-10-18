@@ -36,14 +36,17 @@ public class AuthenticationController {
                 ResponseCookie.from("token", response.getToken())
                         .secure(true)
                         .httpOnly(true)
+                        .path("/")
                         .build()
                         .toString();
         String emailCookie = ResponseCookie.from("email", response.getEmail())
                 .secure(true)
+                .path("/")
                 .build()
                 .toString();
         String roleCookie = ResponseCookie.from("role",response.getRole())
                 .secure(true)
+                .path("/")
                 .build()
                 .toString();
         return ResponseEntity.ok()
