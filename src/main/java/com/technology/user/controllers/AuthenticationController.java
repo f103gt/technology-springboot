@@ -20,18 +20,18 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity<Void> register(
             @RequestBody RegistrationRequest request) {
-        return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION)
-                .body(service.register(request));
+        return configureResponseEntity(service.register(request));
     }
-    //add role in response
 
     @PostMapping("/authenticate")
         public ResponseEntity<Void> authenticate(
             @RequestBody AuthenticationRequest request) {
-        AuthenticationResponse response = service.authenticate(request);
+        return configureResponseEntity(service.authenticate(request));
+    }
+
+    private ResponseEntity<Void> configureResponseEntity(AuthenticationResponse response){
         String tokenCookie =
                 ResponseCookie.from("token", response.getToken())
                         .secure(true)
