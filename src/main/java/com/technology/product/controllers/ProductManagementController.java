@@ -18,6 +18,10 @@ public class ProductManagementController {
     public ProductManagementController(ProductService productService) {
         this.productService = productService;
     }
+    @GetMapping("/api/v1/specific-product")
+    public void getSpecificProduct(){
+
+    }
 
     @GetMapping("api/v1/category-products")
     public ResponseEntity<List<GeneralProductDto>> allProductByCategory(

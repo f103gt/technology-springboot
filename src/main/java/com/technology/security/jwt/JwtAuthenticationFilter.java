@@ -1,13 +1,16 @@
 package com.technology.security.jwt;
 
+import com.technology.cart.exceptions.UserNotFoundException;
+import com.technology.security.adapters.SecurityUser;
 import com.technology.security.services.JpaUserDetailsService;
+import com.technology.user.models.User;
+import com.technology.user.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,14 +20,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final JpaUserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -40,6 +43,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         if (jwtToken != null) {
+            if (jwtService.isTokenExpired(jwtToken)) {
+                String refreshToken = null;
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("refreshToken")) {
+                        refreshToken = cookie.getValue();
+                    }
+                }
+                if (refreshToken != null) {
+                    if (jwtService.isTokenExpired(refreshToken)) {
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+                    final String username = jwtService.extractUsername(refreshToken);
+                    User user = userRepository.findUserByEmail(username)
+                            .orElseThrow(
+                                    () -> new UserNotFoundException("User not found"));
+                    String userRole = user.getRoles().iterator().next().getRoleName();
+                    jwtToken = jwtService.generateToken(Map.of("role",userRole),new SecurityUser(user));
+
+                    for (Cookie cookie : cookies) {
+                        if (cookie.getName().equals("token")) {
+                            cookie.setValue(jwtToken);
+                            response.addCookie(cookie);
+                        }
+                    }
+
+                }
+            }
             final String username = jwtService.extractUsername(jwtToken);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -58,7 +89,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
-
 
         /*final String authenticationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authenticationHeader == null || !authenticationHeader.startsWith("Bearer ")) {

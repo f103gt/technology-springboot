@@ -52,6 +52,7 @@ public class SecurityConfig {
                                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/all-categories").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/category-products").permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/api/v1/specific-product").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/csrf/api/v1").permitAll()
                                         .requestMatchers("/manager/**").hasRole("MANAGER")
                                         .requestMatchers("/staff/**").hasRole("STAFF")

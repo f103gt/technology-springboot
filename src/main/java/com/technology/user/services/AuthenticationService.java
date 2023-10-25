@@ -50,8 +50,10 @@ public class AuthenticationService {
                 .roles(Set.of(role))
                 .build();
         userRepository.save(user);
-        String jwtToken = jwtService.generateToken(Map.of("role",role.getRoleName()),new SecurityUser(user));
-        return new AuthenticationResponse(jwtToken,email,role.getRoleName());
+        SecurityUser securityUser = new SecurityUser(user);
+        String jwtToken = jwtService.generateToken(Map.of("role",role.getRoleName()),securityUser);
+        String refreshToken = jwtService.generateRefreshToken(securityUser);
+        return new AuthenticationResponse(jwtToken,refreshToken,user.getFirstName(),user.getLastName(),role.getRoleName());
     }
 
     @Transactional
@@ -62,9 +64,12 @@ public class AuthenticationService {
         );
         User user = userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));
+        //TODO replace oneToMany mapping with oneToOne
         String role = user.getRoles().iterator().next().getRoleName();
         Map<String,Object> claims = Map.of("role",role);
-        String jwtToken = jwtService.generateToken(claims,new SecurityUser(user));
-        return new AuthenticationResponse(jwtToken,email,role);
+        SecurityUser securityUser = new SecurityUser(user);
+        String jwtToken = jwtService.generateToken(claims,securityUser);
+        String refreshToken = jwtService.generateRefreshToken(securityUser);
+        return new AuthenticationResponse(jwtToken,refreshToken,user.getFirstName(),user.getLastName(),role);
     }
 }
