@@ -33,6 +33,20 @@ public class ProductServiceImpl implements ProductService {
         this.categoryRepository = categoryRepository;
     }
 
+    @Override
+    @Transactional
+    public ProductDto getProduct(String productName) {
+        Product product = productRepository.findProductByProductName(productName)
+                .orElseThrow(() ->
+                        new ProductNotFoundException(productName+ " not found"));
+        return ProductDto.builder()
+                .productName(product.getProductName())
+                .categoryName(product.getCategory().getCategoryName())
+                .price(product.getPrice())
+                .sku(product.getSku())
+                .quantity(product.getQuantity())
+                .build();
+    }
 
     @Override
     @Transactional
