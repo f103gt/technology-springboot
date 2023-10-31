@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
-
 @Entity
 @Getter
 @Setter
@@ -18,6 +16,6 @@ public class Role{
     @Column(name = "role_name",unique = true)
     private String roleName;
 
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users;
+    @OneToOne(mappedBy = "role")
+    private User user;
 }

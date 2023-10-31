@@ -21,9 +21,10 @@ public class ProductManagementController {
     @GetMapping("/api/v1/specific-product")
     public ResponseEntity<ProductDto> getSpecificProduct(
             @RequestParam("productName") String productName){
+        ProductDto productDto = productService.getProduct(productName);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(productService.getProduct(productName));
+                .body(productDto);
     }
 
     @GetMapping("api/v1/category-products")

@@ -8,7 +8,7 @@ public class ProductServiceHelper {
                 .compareToIgnoreCase(productDto2.getCategoryName());
         if (categoryComparison == 0) {
             int quantityComparison = Integer.compare(
-                    productDto1.getQuantity(), productDto2.getQuantity());
+                    productDto1.getProductQuantity(), productDto2.getProductQuantity());
             if (quantityComparison == 0) {
                 return productDto1.getProductName()
                         .compareToIgnoreCase(productDto2.getProductName());

@@ -8,9 +8,9 @@ import com.technology.cart.repositories.CartRepository;
 import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.models.Product;
 import com.technology.product.repositories.ProductRepository;
+import com.technology.security.adapters.SecurityUser;
 import com.technology.user.models.User;
 import com.technology.user.repositories.UserRepository;
-import com.technology.security.adapters.SecurityUser;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -39,6 +39,17 @@ public class CartServiceImpl implements CartService {
         this.userRepository = userRepository;
     }
 
+
+    @Override
+    @Transactional
+    public void addCartItem(String productName) {
+        Product product = productRepository.findProductByProductName(productName)
+                .orElseThrow(() ->
+                        new ProductNotFoundException(productName + " product not found"));
+        User user = getUserFromContext();
+        addProductToCart(product.getId(), user.getCart());
+    }
+
     @Override
     public void saveCart(BigInteger productId) {
         User user = getUserFromContext();
@@ -48,11 +59,19 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    public void deleteItemFromCart(String productName) {
+        Product product = productRepository.findProductByProductName(productName)
+                .orElseThrow(()->
+                        new ProductNotFoundException("product not found"));
+       deleteCartItem(product.getId());
+    }
+
+    @Override
     public void deleteCartItem(BigInteger productId) {
         User user = getUserFromContext();
         Cart cart = user.getCart();
         Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
-        removeCartItemFromCartIfPresent(cartItems,cart,productId);
+        removeCartItemFromCartIfPresent(cartItems, cart, productId);
     }
 
     @Override
@@ -92,7 +111,7 @@ public class CartServiceImpl implements CartService {
         return cart;
     }
 
-    private void removeCartItemFromCartIfPresent(Set<CartItem> cartItems,Cart cart,BigInteger productId){
+    private void removeCartItemFromCartIfPresent(Set<CartItem> cartItems, Cart cart, BigInteger productId) {
         Optional<CartItem> cartItemToRemoveOptional = findParticularCartItemOptional(cartItems, productId);
         cartItemToRemoveOptional.ifPresentOrElse(cartItemToRemove -> {
                     cartItems.remove(cartItemToRemove);

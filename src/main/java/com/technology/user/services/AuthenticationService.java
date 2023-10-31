@@ -47,7 +47,7 @@ public class AuthenticationService {
                 .email(email)
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .isEnabled(true)
-                .roles(Set.of(role))
+                .role(role)
                 .build();
         userRepository.save(user);
         SecurityUser securityUser = new SecurityUser(user);
@@ -65,7 +65,7 @@ public class AuthenticationService {
         User user = userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));
         //TODO replace oneToMany mapping with oneToOne
-        String role = user.getRoles().iterator().next().getRoleName();
+        String role = user.getRole().getRoleName();
         Map<String,Object> claims = Map.of("role",role);
         SecurityUser securityUser = new SecurityUser(user);
         String jwtToken = jwtService.generateToken(claims,securityUser);

@@ -42,9 +42,9 @@ public class ProductServiceImpl implements ProductService {
         return ProductDto.builder()
                 .productName(product.getProductName())
                 .categoryName(product.getCategory().getCategoryName())
-                .price(product.getPrice())
-                .sku(product.getSku())
-                .quantity(product.getQuantity())
+                .productPrice(product.getPrice())
+                .productSku(product.getSku())
+                .productQuantity(product.getQuantity())
                 .build();
     }
 

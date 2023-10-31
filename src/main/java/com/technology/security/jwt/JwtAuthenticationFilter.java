@@ -35,21 +35,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         Cookie[] cookies = request.getCookies();
         String jwtToken = null;
+        String refreshToken = null;
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("token")) {
                     jwtToken = cookie.getValue();
                 }
+                else if(cookie.getName().equals("refreshToken")){
+                    refreshToken = cookie.getValue();
+                }
             }
         }
         if (jwtToken != null) {
             if (jwtService.isTokenExpired(jwtToken)) {
-                String refreshToken = null;
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("refreshToken")) {
-                        refreshToken = cookie.getValue();
-                    }
-                }
                 if (refreshToken != null) {
                     if (jwtService.isTokenExpired(refreshToken)) {
                         filterChain.doFilter(request, response);
@@ -59,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     User user = userRepository.findUserByEmail(username)
                             .orElseThrow(
                                     () -> new UserNotFoundException("User not found"));
-                    String userRole = user.getRoles().iterator().next().getRoleName();
+                    String userRole = user.getRole().getRoleName();
                     jwtToken = jwtService.generateToken(Map.of("role",userRole),new SecurityUser(user));
 
                     for (Cookie cookie : cookies) {
@@ -70,6 +68,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
 
                 }
+                filterChain.doFilter(request, response);
+                return;
             }
             final String username = jwtService.extractUsername(jwtToken);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -89,12 +89,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
-
-        /*final String authenticationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    }
+}
+/*final String authenticationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authenticationHeader == null || !authenticationHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
         final String jwtToken = authenticationHeader.substring(7);*/
-    }
-}

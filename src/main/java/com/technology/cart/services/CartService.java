@@ -1,6 +1,7 @@
 package com.technology.cart.services;
 
 import com.technology.user.models.User;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.math.BigInteger;
 
@@ -8,6 +9,10 @@ public interface CartService {
     void saveCart(BigInteger productId);
 
     void deleteCartItem(BigInteger productId);
+
+    void deleteItemFromCart(String productName);
+    void addCartItem(String productName);
+
 
     /*in deleteCart method no need to check if the
      * cart exists or not, cart purification/removal
