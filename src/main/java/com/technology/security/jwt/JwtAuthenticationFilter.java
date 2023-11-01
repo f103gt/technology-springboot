@@ -46,6 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         }
+       /* String username = null;*/
         if (jwtToken != null) {
             if (jwtService.isTokenExpired(jwtToken)) {
                 if (refreshToken != null) {
@@ -57,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     User user = userRepository.findUserByEmail(username)
                             .orElseThrow(
                                     () -> new UserNotFoundException("User not found"));
-                    String userRole = user.getRole().getRoleName();
+                    String userRole = user.getRole().name();
                     jwtToken = jwtService.generateToken(Map.of("role",userRole),new SecurityUser(user));
 
                     for (Cookie cookie : cookies) {
@@ -90,7 +91,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
+    /*private UserDetails loadUserDetails(String username){
+        UserDetails userDetails = user
+    }*/
 }
+
 /*final String authenticationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authenticationHeader == null || !authenticationHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);

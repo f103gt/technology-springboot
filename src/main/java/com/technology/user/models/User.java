@@ -3,7 +3,7 @@ package com.technology.user.models;
 import com.technology.activity.models.Activity;
 import com.technology.cart.models.Cart;
 import com.technology.address.models.Address;
-import com.technology.role.models.Role;
+import com.technology.role.enums.Role;
 import com.technology.shift.models.UserShift;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,7 +39,7 @@ public class User{
     @Column(name = "is_enabled")
     private Boolean isEnabled;
 
-    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     //TODO test whether now address will be saved automatically when i save it in user

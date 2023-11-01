@@ -86,7 +86,7 @@ public class AsyncConfiguration {
 
     }
 
-    @Scheduled(cron = "0 55 * * * ?")
+   /* @Scheduled(cron = "0 55 * * * ?")
     private void getAllUsersByShift() {
         LocalDateTime now = LocalDateTime.now();
         List<Shift> shifts = shiftRepository.findAll();
@@ -113,7 +113,7 @@ public class AsyncConfiguration {
                     executor.setCorePoolSize(staffNumber);
                     executor.setMaxPoolSize(staffNumber);
                 });
-    }
+    }*/
 
     @Bean(name = "threadPoolTaskExecutor")
     public Executor asyncExecutor() {

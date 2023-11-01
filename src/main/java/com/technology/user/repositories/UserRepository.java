@@ -14,12 +14,12 @@ public interface UserRepository extends JpaRepository<User, BigInteger> {
     @Query("select u from User u where u.email = :email")
     Optional<User> findUserByEmail(String email);
 
-    @Query("""
+   /* @Query("""
             select u from User u
-            join u.roles r
+            join u.role r
             join u.userShifts us
             join u.userActivity ua
-            where r.roleName = :roleName
+            where u.role.roleName = :roleName
             and us.shiftDate = current_date
             and us.shift.startTime = :shiftStartTime
             and ua.isAvailable = :activityStatus
@@ -32,7 +32,7 @@ public interface UserRepository extends JpaRepository<User, BigInteger> {
 
     @Query("""
             select u from User u
-            join u.roles r
+            join u.role r
             join u.userShifts us
             where r.roleName = :roleName
             and us.shiftDate = current_date
@@ -44,7 +44,7 @@ public interface UserRepository extends JpaRepository<User, BigInteger> {
     @Query("""
             select count(u)
             from User u
-            join u.roles r
+            join u.role r
             join u.userShifts us
             join us.shift s
             where r.roleName = :userRole
@@ -53,5 +53,5 @@ public interface UserRepository extends JpaRepository<User, BigInteger> {
             """)
     Long findNumberOfUsersByCurrentShiftStartTime(
             @Param("userRole") String userRole,
-            @Param("currentShiftStartTime") LocalTime currentShiftStartTime);
+            @Param("currentShiftStartTime") LocalTime currentShiftStartTime);*/
 }

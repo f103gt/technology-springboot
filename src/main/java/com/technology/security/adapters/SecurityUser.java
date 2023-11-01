@@ -2,11 +2,11 @@ package com.technology.security.adapters;
 
 import com.technology.user.models.User;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SecurityUser implements UserDetails {
     private final User user;
@@ -34,7 +34,7 @@ public class SecurityUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SecurityRole(user.getRole()));
+        return List.of(new SimpleGrantedAuthority(user.getRole().name()));
     }
 
 

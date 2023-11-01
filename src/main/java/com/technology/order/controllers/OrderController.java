@@ -22,7 +22,7 @@ public class OrderController {
     public ResponseEntity<String> placeOrder(HttpServletRequest request,
                                              @RequestBody OrderRegistrationRequest orderRegistrationRequest){
         String username = request.getRemoteUser();
-        orderService.saveOrder(orderRegistrationRequest,username);
+       /* orderService.saveOrder(orderRegistrationRequest,username);*/
         return ResponseEntity.ok("Order places successfully");
     }
 }

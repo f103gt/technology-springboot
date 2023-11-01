@@ -1,8 +1,8 @@
 package com.technology.user.services;
 
 import com.technology.cart.exceptions.UserNotFoundException;
+import com.technology.role.enums.Role;
 import com.technology.role.errors.RoleNotFoundException;
-import com.technology.role.models.Role;
 import com.technology.role.repositories.RoleRepository;
 import com.technology.security.adapters.SecurityUser;
 import com.technology.security.jwt.JwtService;
@@ -20,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -35,12 +34,13 @@ public class AuthenticationService {
     public AuthenticationResponse register(RegistrationRequest registrationRequest)
             throws RoleNotFoundException, UserAlreadyExistsException {
         String email = registrationRequest.getEmail();
-        userRepository.findUserByEmail(email)
+        /*userRepository.findUserByEmail(email)
                 .ifPresent(user -> {
                     throw new UserAlreadyExistsException("User " + email + " already exists");
                 });
         Role role = roleRepository.findRoleByRoleName("USER")
-                .orElseThrow(() -> new RoleNotFoundException("Role USER is not found"));
+                .orElseThrow(() -> new RoleNotFoundException("Role USER is not found"));*/
+        Role role = Role.USER;
         User user = User.builder()
                 .firstName(registrationRequest.getFirstName())
                 .lastName(registrationRequest.getLastName())
@@ -51,9 +51,9 @@ public class AuthenticationService {
                 .build();
         userRepository.save(user);
         SecurityUser securityUser = new SecurityUser(user);
-        String jwtToken = jwtService.generateToken(Map.of("role",role.getRoleName()),securityUser);
+        String jwtToken = jwtService.generateToken(Map.of("role",role.name()),securityUser);
         String refreshToken = jwtService.generateRefreshToken(securityUser);
-        return new AuthenticationResponse(jwtToken,refreshToken,user.getFirstName(),user.getLastName(),role.getRoleName());
+        return new AuthenticationResponse(jwtToken,refreshToken,user.getFirstName(),user.getLastName(),role.name());
     }
 
     @Transactional
@@ -65,7 +65,7 @@ public class AuthenticationService {
         User user = userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));
         //TODO replace oneToMany mapping with oneToOne
-        String role = user.getRole().getRoleName();
+        String role = user.getRole().name();
         Map<String,Object> claims = Map.of("role",role);
         SecurityUser securityUser = new SecurityUser(user);
         String jwtToken = jwtService.generateToken(claims,securityUser);

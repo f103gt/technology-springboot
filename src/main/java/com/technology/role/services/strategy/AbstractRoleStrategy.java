@@ -1,6 +1,6 @@
 package com.technology.role.services.strategy;
 
-import com.technology.role.models.Role;
+import com.technology.role.enums.Role;
 import com.technology.user.models.User;
 import com.technology.user.repositories.UserRepository;
 import jakarta.transaction.Transactional;
@@ -17,9 +17,7 @@ public abstract class AbstractRoleStrategy implements RoleStrategy{
 
         Optional<User> userOptional = userRepository.findUserByEmail(username);
         userOptional.ifPresentOrElse(user -> {
-                    Role role = new Role();
-                    role.setRoleName(getRoleName());
-                    user.getRoles().add(role);
+                    user.setRole(Role.valueOf(getRoleName()));
                     userRepository.save(user);
                 },
                 () -> {
@@ -35,10 +33,7 @@ public abstract class AbstractRoleStrategy implements RoleStrategy{
         userOptional.ifPresentOrElse(user -> {
                     String currenUserName = getCurrenUserName();
                     if (!user.getEmail().equals(currenUserName)) {
-                        Set<Role> roles = user.getRoles();
-                        roles.removeIf(role -> role
-                                .getRoleName()
-                                .equals(getRoleName()));
+                       user.setRole(null);
                         userRepository.save(user);
                     }
                 },
