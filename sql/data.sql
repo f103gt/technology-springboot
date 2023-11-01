@@ -66,10 +66,12 @@ create table product
 create table image
 (
     id         bigserial primary key,
+    is_primary boolean false,
     image_data bytea  not null,
     product_id bigint not null,
     foreign key (product_id) references product (id)
 );
+
 
 insert into role(role_name)
 values ('USER'),

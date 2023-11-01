@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
@@ -22,3 +23,6 @@ public class ProductRegistrationRequest {
     private Integer quantity;
     private BigDecimal price;
 }
+/*private MultipartFile description;
+    private MultipartFile primaryImage;
+    private MultipartFile[] images;*/

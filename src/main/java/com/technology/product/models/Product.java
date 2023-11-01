@@ -3,6 +3,7 @@ package com.technology.product.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.technology.cart.models.CartItem;
 import com.technology.category.models.Category;
+import com.technology.product.images.models.Image;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,6 +35,8 @@ public class Product {
     private Integer quantity;
 
     private BigDecimal price;
+
+    private byte[] description;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Collection<Image> images;

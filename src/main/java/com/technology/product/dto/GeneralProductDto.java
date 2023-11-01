@@ -1,6 +1,6 @@
 package com.technology.product.dto;
 
-import com.technology.product.models.Image;
+import com.technology.product.images.models.Image;
 import lombok.Builder;
 import lombok.Data;
 
