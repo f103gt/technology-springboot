@@ -5,6 +5,7 @@ import com.technology.security.adapters.SecurityUser;
 import com.technology.security.services.JpaUserDetailsService;
 import com.technology.user.models.User;
 import com.technology.user.repositories.UserRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -38,61 +40,80 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String refreshToken = null;
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("token")) {
+                if (cookie.getName().equals("jwtToken")) {
                     jwtToken = cookie.getValue();
                 } else if (cookie.getName().equals("refreshToken")) {
                     refreshToken = cookie.getValue();
                 }
             }
         }
-        /* String username = null;*/
-        if (jwtToken != null) {
-            if (jwtService.isTokenExpired(jwtToken)) {
-                if (refreshToken != null) {
-                    if (!jwtService.isTokenExpired(refreshToken)) {
-                        filterChain.doFilter(request, response);
-                        final String username = jwtService.extractUsername(refreshToken);
-                        User user = userRepository.findUserByEmail(username)
-                                .orElseThrow(
-                                        () -> new UserNotFoundException("User not found"));
-                        String userRole = user.getRole().name();
-                        SecurityUser userDetails = new SecurityUser(user);
-                        jwtToken = jwtService.generateToken(Map.of("role", userRole), userDetails);
-                        refreshToken = jwtService.generateRefreshToken(Map.of("role", userRole), userDetails);
+        boolean tokenIsExpired = false;
+        boolean refreshIsExpired = false;
+        try {
+            if (!jwtService.isTokenExpired(jwtToken)) {
+                tokenIsExpired = false;
+            }
+        } catch (ExpiredJwtException e) {
+            tokenIsExpired = true;
+        }
 
-                        for (Cookie cookie : cookies) {
-                            if (cookie.getName().equals("token")) {
-                                cookie.setValue(jwtToken);
-                                response.addCookie(cookie);
-                            } else if (cookie.getName().equals("refreshToken")) {
-                                cookie.setValue(refreshToken);
-                                response.addCookie(cookie);
-                            }
-                        }
-                    }
-
-                }
-            } else {
-                final String username = jwtService.extractUsername(jwtToken);
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    if (jwtService.isJwtTokenValid(jwtToken, userDetails)) {
-                        UsernamePasswordAuthenticationToken authToken =
-                                new UsernamePasswordAuthenticationToken(
-                                        userDetails,
-                                        null,
-                                        userDetails.getAuthorities()
-                                );
-                        authToken.setDetails(
-                                new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                    }
+        try {
+            if (!jwtService.isTokenExpired(refreshToken)) {
+                refreshIsExpired = false;
+            }
+        } catch (ExpiredJwtException e) {
+            refreshIsExpired = true;
+        }
+        if (jwtToken != null && !tokenIsExpired) {
+            final String username = jwtService.extractUsername(jwtToken);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (jwtService.isJwtTokenValid(jwtToken, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
         }
+        //TODO do the same check for expiration as in jwtToken
+        else if (refreshToken != null && !refreshIsExpired) {
+            final String username = jwtService.extractUsername(refreshToken);
+            User user = userRepository.findUserByEmail(username)
+                    .orElseThrow(
+                            () -> new UserNotFoundException("User not found"));
+            String userRole = user.getRole().name();
+            SecurityUser userDetails = new SecurityUser(user);
+            jwtToken = jwtService.generateToken(Map.of("role", userRole), userDetails);
+            refreshToken = jwtService.generateRefreshToken(Map.of("role", userRole), userDetails);
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+            authToken.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            Cookie jwtCookie = new Cookie("jwtToken", jwtToken);
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setSecure(true);
+            Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setSecure(true);
+            response.addCookie(refreshCookie);
+        } else{
+            //logout
+        }
         filterChain.doFilter(request, response);
+
     }
+
 }
 
  /*private UserDetails loadUserDetails(String username){

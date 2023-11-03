@@ -34,9 +34,10 @@ public class AuthenticationController {
 
     private ResponseEntity<JsonAuthResponse> configureResponseEntity(AuthenticationResponse response) {
         String tokenCookie =
-                ResponseCookie.from("token", response.getToken())
+                ResponseCookie.from("jwtToken", response.getToken())
                         .secure(true)
                         .httpOnly(true)
+                        .sameSite("Strict")
                         .path("/")
                         .build()
                         .toString();
@@ -45,6 +46,7 @@ public class AuthenticationController {
                 ResponseCookie.from("refreshToken", response.getRefreshToken())
                         .secure(true)
                         .httpOnly(true)
+                        .sameSite("Strict")
                         .path("/")
                         .build()
                         .toString();
