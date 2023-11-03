@@ -1,8 +1,8 @@
 package com.technology.product.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.technology.product.dto.GeneralProductDto;
 import com.technology.product.dto.ProductDto;
-import com.technology.product.models.Product;
 import com.technology.product.registration.request.ProductRegistrationRequest;
 import com.technology.product.services.ProductService;
 import org.springframework.http.MediaType;
@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -49,14 +49,15 @@ public class ProductManagementController {
     //TODO the add-characteristic controller in order to find out later on
     //TODO the product id by product name-
     @PostMapping("/manager/add-product")
-    public ResponseEntity<String> addProduct(@RequestParam("categoryName") String categoryName,
-                                             @RequestParam("productName") String productName,
-                                             @RequestParam("sku") String sku,
-                                             @RequestParam("quantity") int quantity,
-                                             @RequestParam("price") BigDecimal price,
-                                             @RequestParam("description") MultipartFile description,
-                                             @RequestParam("primaryImage") MultipartFile primaryImage,
-                                             @RequestParam("images") List<MultipartFile> images) {
+    public ResponseEntity<String> addProduct(@RequestPart("product") String productJson,
+                                             @RequestPart("description") MultipartFile description,
+                                             @RequestPart("primaryImage") MultipartFile primaryImage,
+                                             @RequestPart("images") List<MultipartFile> images) throws IOException {
+        ProductRegistrationRequest product = new ObjectMapper().readValue(productJson, ProductRegistrationRequest.class);
+        product.setDescription(description);
+        product.setPrimaryImage(primaryImage);
+        product.setImages(images);
+        productService.saveProduct(product);
         return ResponseEntity.ok("The product was successfully added");
     }
 

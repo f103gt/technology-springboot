@@ -8,6 +8,7 @@ import com.technology.product.registration.request.ProductRegistrationRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.when;
 public class ProductServiceImplSaveProductTest extends ProductServiceImplTest {
     private ProductRegistrationRequest request;
 
-    @BeforeEach
+   /* @BeforeEach
     void setUp() {
         request =
                 new ProductRegistrationRequest(
@@ -29,10 +30,10 @@ public class ProductServiceImplSaveProductTest extends ProductServiceImplTest {
                         1,
                         BigDecimal.TEN
                 );
-    }
+    }*/
 
     @Test
-    void saveProduct_SavesProduct() {
+    void saveProduct_SavesProduct() throws IOException {
         //arrange setUp
 
         //act

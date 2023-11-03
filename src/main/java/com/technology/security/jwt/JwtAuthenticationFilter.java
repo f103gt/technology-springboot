@@ -40,62 +40,64 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("token")) {
                     jwtToken = cookie.getValue();
-                }
-                else if(cookie.getName().equals("refreshToken")){
+                } else if (cookie.getName().equals("refreshToken")) {
                     refreshToken = cookie.getValue();
                 }
             }
         }
-       /* String username = null;*/
+        /* String username = null;*/
         if (jwtToken != null) {
             if (jwtService.isTokenExpired(jwtToken)) {
                 if (refreshToken != null) {
-                    if (jwtService.isTokenExpired(refreshToken)) {
+                    if (!jwtService.isTokenExpired(refreshToken)) {
                         filterChain.doFilter(request, response);
-                        return;
-                    }
-                    final String username = jwtService.extractUsername(refreshToken);
-                    User user = userRepository.findUserByEmail(username)
-                            .orElseThrow(
-                                    () -> new UserNotFoundException("User not found"));
-                    String userRole = user.getRole().name();
-                    jwtToken = jwtService.generateToken(Map.of("role",userRole),new SecurityUser(user));
+                        final String username = jwtService.extractUsername(refreshToken);
+                        User user = userRepository.findUserByEmail(username)
+                                .orElseThrow(
+                                        () -> new UserNotFoundException("User not found"));
+                        String userRole = user.getRole().name();
+                        SecurityUser userDetails = new SecurityUser(user);
+                        jwtToken = jwtService.generateToken(Map.of("role", userRole), userDetails);
+                        refreshToken = jwtService.generateRefreshToken(Map.of("role", userRole), userDetails);
 
-                    for (Cookie cookie : cookies) {
-                        if (cookie.getName().equals("token")) {
-                            cookie.setValue(jwtToken);
-                            response.addCookie(cookie);
+                        for (Cookie cookie : cookies) {
+                            if (cookie.getName().equals("token")) {
+                                cookie.setValue(jwtToken);
+                                response.addCookie(cookie);
+                            } else if (cookie.getName().equals("refreshToken")) {
+                                cookie.setValue(refreshToken);
+                                response.addCookie(cookie);
+                            }
                         }
                     }
 
                 }
-                filterChain.doFilter(request, response);
-                return;
-            }
-            final String username = jwtService.extractUsername(jwtToken);
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                if (jwtService.isJwtTokenValid(jwtToken, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                final String username = jwtService.extractUsername(jwtToken);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    if (jwtService.isJwtTokenValid(jwtToken, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
+                                );
+                        authToken.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
 
+                    }
                 }
             }
         }
         filterChain.doFilter(request, response);
     }
+}
 
-    /*private UserDetails loadUserDetails(String username){
+ /*private UserDetails loadUserDetails(String username){
         UserDetails userDetails = user
     }*/
-}
 
 /*final String authenticationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authenticationHeader == null || !authenticationHeader.startsWith("Bearer ")) {

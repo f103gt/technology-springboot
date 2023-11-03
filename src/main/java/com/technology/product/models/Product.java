@@ -1,11 +1,12 @@
 package com.technology.product.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.technology.cart.models.CartItem;
 import com.technology.category.models.Category;
-import com.technology.product.images.models.Image;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -36,10 +37,22 @@ public class Product {
 
     private BigDecimal price;
 
-    private byte[] description;
+    //private byte[] description;
+    @Column(name="description_url")
+    private String descriptionUrl;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Collection<Image> images;
+    @Column(name="primary_image_url")
+    private String primaryImageUrl;
+
+    //private byte[] primaryImage;
+    @ElementCollection
+    @CollectionTable(name="product_images",joinColumns =
+    @JoinColumn(name="product_id"))
+    @Column(name="image_url")
+    private List<String> imageUrls;
+
+    /*@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Collection<Image> images;*/
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Collection<CartItem> cartItems;
