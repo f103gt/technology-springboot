@@ -4,12 +4,14 @@ import com.technology.activity.models.Activity;
 import com.technology.cart.models.Cart;
 import com.technology.address.models.Address;
 import com.technology.role.enums.Role;
+import com.technology.security.jwt.models.Token;
 import com.technology.shift.models.UserShift;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -59,6 +61,9 @@ public class User{
 
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "user")
     private Collection<Activity> userActivity;
+
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
 }
 /*
 public static class Builder{

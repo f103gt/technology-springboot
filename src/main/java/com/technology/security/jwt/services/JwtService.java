@@ -1,4 +1,4 @@
-package com.technology.security.jwt;
+package com.technology.security.jwt.services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -59,17 +59,17 @@ public class JwtService {
         return buildToken(extraClaims,userDetails,Long.parseLong(expiration));
     }
 
-    public String generateRefreshToken(
+   /* public String generateRefreshToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
         return buildToken(extraClaims,userDetails,Long.parseLong(refreshExpiration));
-    }
-    public String generateRefreshToken(
+    }*/
+    /*public String generateRefreshToken(
             UserDetails userDetails
     ) {
         return buildToken(new HashMap<>(),userDetails,Long.parseLong(refreshExpiration));
-    }
+    }*/
 
     private String buildToken( Map<String, Object> extraClaims,
                                UserDetails userDetails,
@@ -91,6 +91,15 @@ public class JwtService {
 
     public boolean isTokenExpired(String jwtToken) {
         return extractExpiration(jwtToken).before(new Date());
+    }
+
+    public String generateRefreshToken(){
+        long localTime = System.currentTimeMillis();
+        return Jwts.builder()
+                .setIssuedAt(new Date(localTime))
+                .setExpiration(new Date(localTime + Long.parseLong(refreshExpiration)))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private Key getSigningKey() {

@@ -5,7 +5,10 @@ import com.technology.role.enums.Role;
 import com.technology.role.errors.RoleNotFoundException;
 import com.technology.role.repositories.RoleRepository;
 import com.technology.security.adapters.SecurityUser;
-import com.technology.security.jwt.JwtService;
+import com.technology.security.jwt.models.Token;
+import com.technology.security.jwt.models.TokenType;
+import com.technology.security.jwt.repositores.TokenRepository;
+import com.technology.security.jwt.services.JwtService;
 import com.technology.user.errors.UserAlreadyExistsException;
 import com.technology.user.models.User;
 import com.technology.user.repositories.UserRepository;
@@ -29,6 +32,7 @@ public class AuthenticationService {
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final TokenRepository tokenRepository;
 
     @Transactional
     public AuthenticationResponse register(RegistrationRequest registrationRequest)
@@ -51,9 +55,9 @@ public class AuthenticationService {
                 .build();
         userRepository.save(user);
         SecurityUser securityUser = new SecurityUser(user);
-        String jwtToken = jwtService.generateToken(Map.of("role",role.name()),securityUser);
-        String refreshToken = jwtService.generateRefreshToken(securityUser);
-        return new AuthenticationResponse(jwtToken,refreshToken,user.getFirstName(),user.getLastName(),role.name());
+        String jwtToken = jwtService.generateToken(Map.of("role", role.name()), securityUser);
+        String refreshToken = jwtService.generateRefreshToken();
+        return new AuthenticationResponse(jwtToken, refreshToken, user.getFirstName(), user.getLastName(), role.name());
     }
 
     @Transactional
@@ -66,10 +70,24 @@ public class AuthenticationService {
                 .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));
         //TODO replace oneToMany mapping with oneToOne
         String role = user.getRole().name();
-        Map<String,Object> claims = Map.of("role",role);
+        Map<String, Object> claims = Map.of("role", role);
         SecurityUser securityUser = new SecurityUser(user);
-        String jwtToken = jwtService.generateToken(claims,securityUser);
-        String refreshToken = jwtService.generateRefreshToken(securityUser);
-        return new AuthenticationResponse(jwtToken,refreshToken,user.getFirstName(),user.getLastName(),role);
+        String jwtToken = jwtService.generateToken(claims, securityUser);
+        String refreshToken = jwtService.generateRefreshToken();
+        tokenRepository.save(Token.builder()
+                .token(jwtToken)
+                .type(TokenType.BEARER)
+                .user(user)
+                .expired(false)
+                .revoked(false)
+                .build());
+        tokenRepository.save(Token.builder()
+                .token(refreshToken)
+                .user(user)
+                .type(TokenType.REFRESH)
+                .expired(false)
+                .revoked(false)
+                .build());
+        return new AuthenticationResponse(jwtToken, refreshToken, user.getFirstName(), user.getLastName(), role);
     }
 }

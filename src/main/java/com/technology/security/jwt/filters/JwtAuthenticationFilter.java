@@ -1,0 +1,170 @@
+package com.technology.security.jwt.filters;
+
+import com.technology.security.adapters.SecurityUser;
+import com.technology.security.jwt.exceptions.TokenNotFoundException;
+import com.technology.security.jwt.models.Token;
+import com.technology.security.jwt.models.TokenType;
+import com.technology.security.jwt.repositores.TokenRepository;
+import com.technology.security.jwt.services.JwtService;
+import com.technology.security.jwt.services.LogoutService;
+import com.technology.security.jwt.utilities.CookieUtility;
+import com.technology.security.services.JpaUserDetailsService;
+import com.technology.user.models.User;
+import com.technology.user.repositories.UserRepository;
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.Map;
+
+//TODO add cashing to speed up the code
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private final JwtService jwtService;
+    private final JpaUserDetailsService userDetailsService;
+    private final TokenRepository tokenRepository;
+    private final LogoutService logoutService;
+    private final UserRepository userRepository;
+
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+        /*if (request.getServletPath().contains("/api/v1/auth/register")) {
+            filterChain.doFilter(request, response);
+            return;
+        }*/
+        Cookie[] cookies = request.getCookies();
+        Map<String, String> tokens = CookieUtility.getTokens(cookies);
+        String jwtToken = tokens.get("jwtToken");
+        String refreshToken = tokens.get("refreshToken");
+        boolean accessIsExpired = isTokenExpired(jwtToken);
+        boolean refreshIsExpired = isTokenExpired(refreshToken);
+
+        if (jwtToken != null && !accessIsExpired) {
+            final String username = jwtService.extractUsername(jwtToken);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                User user = userRepository.findUserByEmail(username)
+                        .orElseThrow(()->new UsernameNotFoundException("Username" + username + "not found"));
+                UserDetails userDetails = userDetailsService.loadSecurityUserByUserEntity(user);
+                boolean isTokenValid = isTokenValid(jwtToken);
+                if (jwtService.isJwtTokenValid(jwtToken, userDetails) && isTokenValid) {
+                    setAuthenticationForUser(request, userDetails);
+                } else if (refreshIsExpired) {
+                    setStoredTokenExpired(refreshToken);
+                    refreshToken = jwtService.generateRefreshToken();
+                    tokenRepository.save(Token.builder()
+                            .token(jwtToken)
+                            .type(TokenType.BEARER)
+                            .user(user)
+                            .expired(false)
+                            .revoked(false)
+                            .build());
+                    createTokenCookie(response, "refreshToken", refreshToken);
+                }
+            }
+        }
+        //TODO do the same check for expiration as in jwtToken
+        else if (refreshToken != null && !refreshIsExpired) {
+            //TODO deactivate previous tokens and set new ones, store them in token repository
+
+            boolean isRefreshTokenValid = isTokenValid(jwtToken);
+            if (isRefreshTokenValid) {
+                Token storedRefresh = null;
+                try {
+                    storedRefresh = tokenRepository.findTokenByToken(refreshToken)
+                            .orElseThrow(() -> new TokenNotFoundException("Refresh token not found"));
+                } catch (TokenNotFoundException e) {
+                    logger.error("Refresh token not found", e);
+                }
+                if (storedRefresh != null) {
+                    setStoredTokenExpired(jwtToken);
+                    User user = storedRefresh.getUser();
+                    String userRole = user.getRole().name();
+                    SecurityUser userDetails = new SecurityUser(user);
+                    jwtToken = jwtService.generateToken(Map.of("role", userRole), userDetails);
+                    tokenRepository.save(Token.builder()
+                            .token(refreshToken)
+                            .type(TokenType.REFRESH)
+                            .user(user)
+                            .expired(false)
+                            .revoked(false)
+                            .build());
+                    setAuthenticationForUser(request, userDetails);
+                    createTokenCookie(response, "jwtToken", jwtToken);
+
+                }
+            }
+        } else if (jwtToken != null && refreshToken != null && refreshIsExpired && accessIsExpired) {
+            logoutService.logout(request, response, null);
+        }
+        filterChain.doFilter(request, response);
+
+    }
+
+    private void setStoredTokenExpired(String jwtToken) {
+        Token storedJwtToken = tokenRepository.findTokenByToken(jwtToken)
+                .orElse(null);
+        if (storedJwtToken != null) {
+            storedJwtToken.setExpired(true);
+            tokenRepository.save(storedJwtToken);
+        }
+    }
+
+    private Boolean isTokenValid(String jwtToken) {
+        return tokenRepository.findTokenByToken(jwtToken)
+                .map(token -> !token.isExpired() && !token.isRevoked())
+                .orElse(false);
+    }
+
+    private void createTokenCookie(HttpServletResponse response, String tokenType, String token) {
+        Cookie tokenCookie = new Cookie(tokenType, token);
+        tokenCookie.setHttpOnly(true);
+        tokenCookie.setSecure(true);
+        response.addCookie(tokenCookie);
+    }
+
+    private void setAuthenticationForUser(HttpServletRequest request, UserDetails userDetails) {
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+        authToken.setDetails(
+                new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+    }
+
+    private boolean isTokenExpired(String jwtToken) {
+        if (jwtToken == null) {
+            return true;
+        }
+        try {
+            if (!jwtService.isTokenExpired(jwtToken)) {
+                return false;
+            }
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
+        return false;
+    }
+
+}
