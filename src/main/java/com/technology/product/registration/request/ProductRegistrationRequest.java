@@ -28,16 +28,4 @@ public class ProductRegistrationRequest {
     private MultipartFile description;
     private MultipartFile primaryImage;
     private List<MultipartFile> images;
-
-    public ProductRegistrationRequest(String categoryName,
-                                      String productName,
-                                      String sku,
-                                      Integer quantity,
-                                      BigDecimal price) {
-        this.categoryName = categoryName;
-        this.productName = productName;
-        this.sku = sku;
-        this.quantity = quantity;
-        this.price = price;
-    }
 }

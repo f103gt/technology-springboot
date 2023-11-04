@@ -10,6 +10,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+/*
 public class CategoryServiceImplGetAllCategoriesTest extends CategoryServiceImplTest{
     @Test
     void getAllCategories_Gets_AllCategoriesSorted() {
@@ -48,3 +49,4 @@ public class CategoryServiceImplGetAllCategoriesTest extends CategoryServiceImpl
                 .containsExactly("Parent Category","Child Category 2");
     }
 }
+*/

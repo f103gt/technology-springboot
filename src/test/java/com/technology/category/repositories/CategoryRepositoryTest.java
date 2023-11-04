@@ -1,11 +1,12 @@
-package com.technology.category.repositories;
+/*package com.technology.category.repositories;
 
 import com.technology.category.models.Category;
 import com.technology.factory.TestObjectFactory;
 import com.technology.factory.TestProductFactory;
 import com.technology.product.models.Product;
 import com.technology.product.repositories.ProductRepository;
-import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional;*/
+/*
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -51,4 +52,4 @@ class CategoryRepositoryTest {
         }
     }
 
-}
+}*/

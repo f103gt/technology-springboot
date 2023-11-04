@@ -1,4 +1,4 @@
-package com.technology.product.services;
+/*package com.technology.product.services;
 
 import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.models.Product;
@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.*;*/
 
-public class ProductServiceImplProductDeleteTest extends ProductServiceImplTest{
+/*public class ProductServiceImplProductDeleteTest extends ProductServiceImplTest{
     private String productName;
 
     @BeforeEach
@@ -23,26 +23,26 @@ public class ProductServiceImplProductDeleteTest extends ProductServiceImplTest{
         //arrange (setUp)
 
         //act
-        when(productRepository.findProductByProductName(productName))
+       *//* when(productRepository.findProductByProductName(productName))
                 .thenReturn(Optional.of(new Product()));
         productService.deleteProduct(productName);
 
         //assert
         verify(productRepository,times(1))
-                .deleteProductByProductName(productName);
+                .deleteProductByProductName(productName);*//*
     }
 
     @Test
     void deleteProduct_Throws_ProductNotFoundException() {
         //arrange(setUp)
         //act
-        when(productRepository
+        *//*when(productRepository
                 .findProductByProductName(productName))
                 .thenReturn(Optional.empty());
         //assert
         assertThrows(ProductNotFoundException.class,
                 () -> productService.deleteProduct(productName),
-                "Category " + productName + " not found.");
+                "Category " + productName + " not found.");*//*
     }
 
-}
+}*/

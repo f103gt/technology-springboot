@@ -16,12 +16,4 @@ public class ProductFactory {
                 .build();
     }
 
-    public static ProductDto createProductDto(Product product){
-        return new ProductDto(
-                product.getCategory().getCategoryName(),
-                product.getProductName(),
-                product.getSku(),
-                product.getQuantity(),
-                product.getPrice());
-    }
 }

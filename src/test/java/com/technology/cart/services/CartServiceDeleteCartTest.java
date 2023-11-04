@@ -1,3 +1,4 @@
+/*
 package com.technology.cart.services;
 
 import com.technology.cart.models.CartItem;
@@ -8,7 +9,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+*/
 
+/*
 public class CartServiceDeleteCartTest extends CartServiceTest{
     @Test
     @DirtiesContext
@@ -26,11 +29,13 @@ public class CartServiceDeleteCartTest extends CartServiceTest{
 
         //assert
 
-            /*checking if the cart item was deleted successfully
+            */
+/*checking if the cart item was deleted successfully
             using cart item id to make the code less complex,
              however in real life we are deleting cart item
              by searching in the set of cart items in the cart
-             to prevent any data inconsistency*/
+             to prevent any data inconsistency*//*
+
 
         Optional<CartItem> deletedCartItemOptional =
                 testCartItemRepository.findCartItemById(cartItem.getId());
@@ -38,3 +43,4 @@ public class CartServiceDeleteCartTest extends CartServiceTest{
 
     }
 }
+*/

@@ -35,13 +35,14 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findProductByProductName(productName)
                 .orElseThrow(() ->
                         new ProductNotFoundException(productName+ " not found"));
-        return ProductDto.builder()
+        /*return ProductDto.builder()
                 .productName(product.getProductName())
                 .categoryName(product.getCategory().getCategoryName())
                 .productPrice(product.getPrice())
                 .productSku(product.getSku())
                 .productQuantity(product.getQuantity())
-                .build();
+                .build();*/
+        return null;
     }
 
     @Override
@@ -96,9 +97,10 @@ public class ProductServiceImpl implements ProductService {
     //return products sorted by product category, product name,product quantity
     @Override
     public List<ProductDto> getAllProducts() {
-        return productRepository.findAll().stream()
+        /*return productRepository.findAll().stream()
                 .map(ProductFactory::createProductDto)
                 .sorted(ProductServiceHelper::compareProductDtos)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
+        return null;
     }
 }

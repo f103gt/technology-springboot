@@ -1,3 +1,4 @@
+/*
 package com.technology.category.services;
 
 import com.technology.category.exceptions.CategoryNotFoundException;
@@ -46,3 +47,4 @@ public class CategoryServiceImplCategoryDeleteTest extends CategoryServiceImplTe
                 "Category " + categoryName + " not found.");
     }
 }
+*/

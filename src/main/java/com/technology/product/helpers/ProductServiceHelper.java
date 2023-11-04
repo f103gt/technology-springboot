@@ -3,8 +3,8 @@ package com.technology.product.helpers;
 import com.technology.product.dto.ProductDto;
 
 public class ProductServiceHelper {
-    public static int compareProductDtos(ProductDto productDto1, ProductDto productDto2){
-        int categoryComparison = productDto1.getCategoryName()
+    public static int compareProductDtos(ProductDto productDto1, ProductDto productDto2) {
+        /*int categoryComparison = productDto1.getCategoryName()
                 .compareToIgnoreCase(productDto2.getCategoryName());
         if (categoryComparison == 0) {
             int quantityComparison = Integer.compare(
@@ -16,5 +16,8 @@ public class ProductServiceHelper {
             return quantityComparison;
         }
         return categoryComparison;
+    }*/
+
+        return 0;
     }
 }

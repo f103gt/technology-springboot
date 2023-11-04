@@ -1,3 +1,4 @@
+/*
 package com.technology.category.test.repositories;
 
 import com.technology.product.repositories.ProductRepository;
@@ -12,3 +13,4 @@ public interface TestProductRepository extends ProductRepository {
             """)
     Optional<BigInteger> findMaxProductId();
 }
+*/

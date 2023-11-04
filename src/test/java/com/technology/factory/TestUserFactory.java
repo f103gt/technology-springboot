@@ -1,3 +1,4 @@
+/*
 package com.technology.factory;
 
 import com.technology.user.models.User;
@@ -15,10 +16,10 @@ public class TestUserFactory {
                 .email("testuser@example.com")
                 .password("password")
                 .isEnabled(true)
-                .roles(new HashSet<>())
                 .addresses(new HashSet<>())
                 .build();
     }
 
     //TODD add method to create a custom user
 }
+*/

@@ -1,20 +1,23 @@
 package com.technology.product.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Getter
+@Setter
 public class ProductDto {
 
     private String categoryName;
     private String productName;
-
-    private String productSku;
-    private Integer productQuantity;
-    private BigDecimal productPrice;
+    private String sku;
+    private Integer quantity;
+    private BigDecimal price;
+    private String descriptionUrl;
+    private String primaryImageUrl;
+    private List<String> imageUrls;
 }

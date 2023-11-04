@@ -1,3 +1,4 @@
+/*
 package com.technology.factory;
 
 import com.technology.category.models.Category;
@@ -19,3 +20,4 @@ public class TestObjectFactory {
     }
     //TODO make a separate TestCategoryFactory
 }
+*/

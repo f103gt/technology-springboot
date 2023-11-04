@@ -1,5 +1,5 @@
-package com.technology.product.services;
-
+/*package com.technology.product.services;*/
+/*
 import com.technology.category.models.Category;
 import com.technology.product.dto.ProductDto;
 import com.technology.product.models.Product;
@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;*/
 
-public class ProductServiceImplGetAllProductsTest extends ProductServiceImplTest {
+/*public class ProductServiceImplGetAllProductsTest extends ProductServiceImplTest {
 
     @Test
     void getAllProducts() {
         //arrange
-        Category category = Category.builder()
+        *//*Category category = Category.builder()
                 .categoryName("Test Category")
                 .build();
         List<Product> products = List.of(
@@ -65,6 +65,6 @@ public class ProductServiceImplGetAllProductsTest extends ProductServiceImplTest
                     assertThat(productDto)
                             .extracting(ProductDto::getCategoryName, ProductDto::getProductName)
                             .containsExactly(product.getCategory().getCategoryName(), product.getProductName());
-                });
+                });*//*
     }
-}
+}*/

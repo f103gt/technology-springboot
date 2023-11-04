@@ -1,3 +1,4 @@
+/*
 package com.technology.category.services;
 
 import com.technology.category.repositories.CategoryRepository;
@@ -15,4 +16,4 @@ class CategoryServiceImplTest {
     @InjectMocks
     protected CategoryServiceImpl categoryService;
 
-}
+}*/

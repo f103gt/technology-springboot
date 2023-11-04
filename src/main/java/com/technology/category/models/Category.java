@@ -10,6 +10,7 @@ import java.util.Set;
 
 @Entity
 @Getter
+@Table
 @Setter
 @Builder
 @AllArgsConstructor

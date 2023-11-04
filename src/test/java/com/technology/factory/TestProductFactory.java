@@ -1,3 +1,4 @@
+/*
 package com.technology.factory;
 
 import com.technology.category.models.Category;
@@ -21,7 +22,6 @@ public class TestProductFactory {
                 .quantity(10)
                 .price(BigDecimal.TEN)
                 .cartItems(new HashSet<>())
-                .images(new HashSet<>())
                 .build();
     }
     public static Product createProduct(Category category, String name, String sku){
@@ -37,3 +37,4 @@ public class TestProductFactory {
         return product;
     }
 }
+*/
