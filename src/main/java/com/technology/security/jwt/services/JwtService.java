@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,6 +98,7 @@ public class JwtService {
         long localTime = System.currentTimeMillis();
         return Jwts.builder()
                 .setIssuedAt(new Date(localTime))
+                .setSubject(Instant.now().toString())
                 .setExpiration(new Date(localTime + Long.parseLong(refreshExpiration)))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();

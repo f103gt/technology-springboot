@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Map;
 
 //TODO add cashing to speed up the code
@@ -85,30 +86,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         else if (refreshToken != null && !refreshIsExpired) {
             //TODO deactivate previous tokens and set new ones, store them in token repository
 
-            boolean isRefreshTokenValid = isTokenValid(jwtToken);
+            boolean isRefreshTokenValid = isTokenValid(refreshToken);
             if (isRefreshTokenValid) {
                 Token storedRefresh = null;
                 try {
                     storedRefresh = tokenRepository.findTokenByToken(refreshToken)
                             .orElseThrow(() -> new TokenNotFoundException("Refresh token not found"));
                 } catch (TokenNotFoundException e) {
-                    logger.error("Refresh token not found", e);
+                    logger.error("REFRESH TOKEN NOT FOUND", e);
                 }
                 if (storedRefresh != null) {
                     setStoredTokenExpired(jwtToken);
                     User user = storedRefresh.getUser();
                     String userRole = user.getRole().name();
                     SecurityUser userDetails = new SecurityUser(user);
-                    jwtToken = jwtService.generateToken(Map.of("role", userRole), userDetails);
+                    String newJwtToken = jwtService.generateToken(Map.of("role", userRole,"timestamp", Instant.now().toString()), userDetails);
                     tokenRepository.save(Token.builder()
-                            .token(refreshToken)
-                            .type(TokenType.REFRESH)
+                            .token(newJwtToken)
+                            .type(TokenType.BEARER)
                             .user(user)
                             .expired(false)
                             .revoked(false)
                             .build());
                     setAuthenticationForUser(request, userDetails);
-                    createTokenCookie(response, "jwtToken", jwtToken);
+                    createTokenCookie(response, "jwtToken", newJwtToken);
 
                 }
             }
