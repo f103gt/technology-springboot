@@ -2,12 +2,14 @@ package com.technology.user.controllers;
 
 import com.technology.user.dto.UserDto;
 import com.technology.role.services.RoleService;
+import com.technology.user.services.NewEmployeeService;
 import com.technology.user.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,10 +18,12 @@ public class AdministrationController {
     //TODO check if user to delete is not a current user
     private final RoleService roleService;
     private final UserService userService;
+    private final NewEmployeeService newEmployeeService;
     @Autowired
-    public AdministrationController(RoleService roleService,UserService userService) {
+    public AdministrationController(RoleService roleService, UserService userService, NewEmployeeService newEmployeeService) {
         this.roleService = roleService;
         this.userService = userService;
+        this.newEmployeeService = newEmployeeService;
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -28,6 +32,14 @@ public class AdministrationController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(userService.getAllUsers());
+    }
+
+    @PostMapping("/admin/add-new-employees")
+    public ResponseEntity<String> uploadNewEmployeesData(@RequestParam("newEmployeesData")MultipartFile data){
+        newEmployeeService.uploadNewEmployeesData(data);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .build();
     }
 
     @PatchMapping("/admin/add-manager")

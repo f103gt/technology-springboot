@@ -33,9 +33,10 @@ public class ProductManagementController {
     @GetMapping("api/v1/category-products")
     public ResponseEntity<List<GeneralProductDto>> allProductByCategory(
             @RequestParam("categoryName") String categoryName) {
+        List<GeneralProductDto> products=productService.getAllProductsByCagoryName(categoryName);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(productService.getAllProductsByCagoryName(categoryName));
+                .body(products);
     }
 
     @GetMapping("/manager/all-products")

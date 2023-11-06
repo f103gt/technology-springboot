@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")
+@PreAuthorize("hasAnyAuthority('ROlE_USER','ROLE_MANAGER','ROLE_ADMIN','ROLE_STAFF')")
 @RequestMapping("cart/api/v1")
 @RequiredArgsConstructor
 public class UserCartController {

@@ -9,6 +9,6 @@ import java.math.BigDecimal;
 @Builder
 public class GeneralProductDto {
     private String productName;
-    private BigDecimal productPrice;
-    //private Image coverImage;
+    private BigDecimal price;
+    private String primaryImage;
 }

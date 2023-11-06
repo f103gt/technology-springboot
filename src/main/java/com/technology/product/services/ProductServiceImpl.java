@@ -10,6 +10,7 @@ import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.exceptions.ProductObjectAlreadyExistsException;
 import com.technology.product.factories.ProductFactory;
 import com.technology.product.helpers.ProductServiceHelper;
+import com.technology.product.mappers.ProductMapper;
 import com.technology.product.models.Product;
 import com.technology.product.registration.request.ProductRegistrationRequest;
 import com.technology.product.repositories.ProductRepository;
@@ -28,6 +29,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final AWSService awsService;
+    private final ProductMapper productMapper;
 
     @Override
     @Transactional
@@ -35,14 +37,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findProductByProductName(productName)
                 .orElseThrow(() ->
                         new ProductNotFoundException(productName+ " not found"));
-        /*return ProductDto.builder()
-                .productName(product.getProductName())
-                .categoryName(product.getCategory().getCategoryName())
-                .productPrice(product.getPrice())
-                .productSku(product.getSku())
-                .productQuantity(product.getQuantity())
-                .build();*/
-        return null;
+        return productMapper.productToProductDto(product);
     }
 
     @Override
@@ -50,10 +45,7 @@ public class ProductServiceImpl implements ProductService {
     public List<GeneralProductDto> getAllProductsByCagoryName(String categoryName) {
         List<Product> products = productRepository.findProductsByCategoryCategoryName(categoryName.trim());
         return products.stream()
-                .map(product -> GeneralProductDto.builder()
-                        .productName(product.getProductName())
-                        .productPrice(product.getPrice())
-                        .build())
+                .map(productMapper::productToGeneralProductDto)
                 .collect(Collectors.toList());
     }
 
@@ -97,10 +89,9 @@ public class ProductServiceImpl implements ProductService {
     //return products sorted by product category, product name,product quantity
     @Override
     public List<ProductDto> getAllProducts() {
-        /*return productRepository.findAll().stream()
-                .map(ProductFactory::createProductDto)
+        return productRepository.findAll().stream()
+                .map(productMapper::productToProductDto)
                 .sorted(ProductServiceHelper::compareProductDtos)
-                .collect(Collectors.toList());*/
-        return null;
+                .collect(Collectors.toList());
     }
 }

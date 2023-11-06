@@ -2,15 +2,15 @@ package com.technology.user.services;
 
 import com.technology.cart.exceptions.UserNotFoundException;
 import com.technology.role.enums.Role;
-import com.technology.role.errors.RoleNotFoundException;
-import com.technology.role.repositories.RoleRepository;
 import com.technology.security.adapters.SecurityUser;
 import com.technology.security.jwt.models.Token;
 import com.technology.security.jwt.models.TokenType;
 import com.technology.security.jwt.repositores.TokenRepository;
 import com.technology.security.jwt.services.JwtService;
 import com.technology.user.errors.UserAlreadyExistsException;
+import com.technology.user.models.NewEmployee;
 import com.technology.user.models.User;
+import com.technology.user.repositories.NewEmployeeRepository;
 import com.technology.user.repositories.UserRepository;
 import com.technology.user.requests.AuthenticationRequest;
 import com.technology.user.requests.RegistrationRequest;
@@ -29,35 +29,38 @@ import java.util.Map;
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
+    private final NewEmployeeRepository newEmployeeRepository;
 
     @Transactional
     public AuthenticationResponse register(RegistrationRequest registrationRequest)
-            throws RoleNotFoundException, UserAlreadyExistsException {
+            throws UserAlreadyExistsException {
         String email = registrationRequest.getEmail();
-        /*userRepository.findUserByEmail(email)
-                .ifPresent(user -> {
-                    throw new UserAlreadyExistsException("User " + email + " already exists");
-                });
-        Role role = roleRepository.findRoleByRoleName("USER")
-                .orElseThrow(() -> new RoleNotFoundException("Role USER is not found"));*/
-        Role role = Role.USER;
         User user = User.builder()
                 .firstName(registrationRequest.getFirstName())
                 .lastName(registrationRequest.getLastName())
                 .email(email)
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .isEnabled(true)
-                .role(role)
                 .build();
+        newEmployeeRepository.findNewEmployeeByEmail(email)
+                .ifPresentOrElse(
+                        (employee) -> {
+                            user.setRole(employee.getRole());
+                            employee.setRegistered(true);
+                            newEmployeeRepository.save(employee);
+                        },
+                        () -> user.setRole(Role.USER)
+                );
+
         userRepository.save(user);
+        String role = user.getRole().name();
         SecurityUser securityUser = new SecurityUser(user);
-        String jwtToken = jwtService.generateToken(Map.of("role", role.name()), securityUser);
+        String jwtToken = jwtService.generateToken(Map.of("role", role), securityUser);
         String refreshToken = jwtService.generateRefreshToken();
-        return new AuthenticationResponse(jwtToken, refreshToken, user.getFirstName(), user.getLastName(), role.name());
+        return new AuthenticationResponse(jwtToken, refreshToken, user.getFirstName(), user.getLastName(), role);
     }
 
     @Transactional
