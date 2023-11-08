@@ -56,17 +56,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Map<String, String> tokens = CookieUtility.getTokens(cookies);
         String jwtToken = tokens.get("jwtToken");
         String refreshToken = tokens.get("refreshToken");
-        boolean accessIsExpired = isTokenExpired(jwtToken);
         boolean refreshIsExpired = isTokenExpired(refreshToken);
 
-        if (jwtToken != null && !accessIsExpired) {
+        if (jwtToken != null && !isTokenExpired(jwtToken)) {
             final String username = jwtService.extractUsername(jwtToken);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 User user = userRepository.findUserByEmail(username)
                         .orElseThrow(()->new UsernameNotFoundException("Username" + username + "not found"));
                 UserDetails userDetails = userDetailsService.loadSecurityUserByUserEntity(user);
-                boolean isTokenValid = isTokenValid(jwtToken);
-                if (jwtService.isJwtTokenValid(jwtToken, userDetails) && isTokenValid) {
+                if (jwtService.isJwtTokenValid(jwtToken, userDetails) && isTokenValid(jwtToken)) {
                     setAuthenticationForUser(request, userDetails);
                 } else if (refreshIsExpired) {
                     setStoredTokenExpired(refreshToken);
@@ -113,7 +111,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 }
             }
-        } else if (jwtToken != null && refreshToken != null && refreshIsExpired && accessIsExpired) {
+        } else if (jwtToken != null && refreshToken != null) {
             logoutService.logout(request, response, null);
         }
         filterChain.doFilter(request, response);

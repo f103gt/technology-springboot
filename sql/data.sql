@@ -6,14 +6,6 @@ create table client
     email      varchar(255) not null unique,
     password   varchar(255) not null,
     is_enabled boolean default (false),
-    cart_id    bigint,
-    key (cart_id) references cart(id)
-);
-
-create table role
-(
-    id        serial primary key,
-    role_name varchar(25) not null unique
 );
 
 create table address
@@ -72,11 +64,14 @@ create table image
     foreign key (product_id) references product (id)
 );
 
-
-insert into role(role_name)
-values ('USER'),
-       ('MANAGER'),
-       ('ADMIN');
+create table new_employee
+(
+    id            serial primary key,
+    email         varchar(255) unique not null,
+    role          varchar(35),
+    file_hash     varchar(255)        not null,
+    is_registered boolean default ('false')
+);
 
 insert into client_role(client_id, role_id)
 values ((select id from client where email = 'john.doe@example.com'),
@@ -111,10 +106,10 @@ create table cart_item
     foreign key (product_id) references product (id)
 );
 
-craete
-table order_status(
-       id int primary key,
-       status_name varchar(15) not null
+create table order_status
+(
+    id          int primary key,
+    status_name varchar(15) not null
 );
 
 create table delivery_method
@@ -174,3 +169,13 @@ create table activity
     foreign key (client_id) references client (id)
 );
 
+create table token
+(
+    id      bigserial primary key,
+    token   varchar(500) not null unique,
+    type    varchar(50)  not null,
+    revoked boolean      not null,
+    expired boolean      not null,
+    user_id bigint       not null,
+    foreign key (user_id) references client (id)
+);

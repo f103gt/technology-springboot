@@ -20,7 +20,7 @@ public class Cart {
     private BigInteger id;
 
     @OneToOne
-    @JoinColumn(name = "client_id",referencedColumnName = "id")
+    @JoinColumn(name = "client_id")
     private User user;
 
     @OneToOne

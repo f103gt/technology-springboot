@@ -11,7 +11,7 @@ public interface NewEmployeeRepository extends JpaRepository<NewEmployee,Integer
     @Query("""
             select ne.fileHash from NewEmployee ne where ne.fileHash = :fileHash
             """)
-    Optional<String> findFileHash(@Param("fileName") String fileHash);
+    Optional<String> findFileHash(@Param("fileHash") String fileHash);
 
     @Query("""
             select ne from NewEmployee ne where ne.email = :email

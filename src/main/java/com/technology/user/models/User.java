@@ -52,8 +52,7 @@ public class User{
             inverseJoinColumns = @JoinColumn(name = "address_id", referencedColumnName = "id"))
     private Set<Address> addresses;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_id", referencedColumnName = "id")
+    @OneToOne(cascade = CascadeType.ALL,mappedBy = "user")
     private Cart cart;
 
     @OneToMany(mappedBy = "user")

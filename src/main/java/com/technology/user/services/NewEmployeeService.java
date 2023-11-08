@@ -1,5 +1,7 @@
 package com.technology.user.services;
 
+import com.technology.config.CustomMessage;
+import com.technology.config.MessagePublisher;
 import com.technology.role.enums.Role;
 import com.technology.role.errors.RoleNotFoundException;
 import com.technology.user.exceptions.FileAlreadyUploadedException;
@@ -7,8 +9,10 @@ import com.technology.user.repositories.NewEmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +23,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +34,7 @@ public class NewEmployeeService {
     private static final Logger logger = LoggerFactory.getLogger(NewEmployeeService.class);
     private final NewEmployeeRepository repository;
     private final JdbcTemplate jdbcTemplate;
-
+    private final MessagePublisher messagePublisher;
     public void uploadNewEmployeesData(MultipartFile file) {
         Pair<String, String> cleanedContentAndHash = null;
         try {
@@ -40,22 +45,35 @@ public class NewEmployeeService {
             logger.error("RUNTIME occurred: ", e);
         }
         if (cleanedContentAndHash != null) {
+            //notify user with response 200
             repository.findFileHash(cleanedContentAndHash.getSecond())
                     .ifPresent((hash) -> {
                         throw new FileAlreadyUploadedException("The file you submitted is already uploaded");
                     });
-            List<Object[]> employees = createNewEmployees(cleanedContentAndHash);
-            String sql = """
-                     INSERT INTO new_employee(email,role,file_hast) VALUES(?,?,?)\s
-                     ON CONFLICT(email) DO UPDATE SET role = ?, file_hash = ?
-                     """;
-            jdbcTemplate.batchUpdate(sql,employees);
+            messagePublisher.publishMessage(new CustomMessage(
+                    cleanedContentAndHash.getFirst(),
+                    cleanedContentAndHash.getSecond()));
         }
     }
 
+    @Async
+    @RabbitListener(queues = "${rabbitmq.message.queue}")
+    public CompletableFuture<Comparable<Void>> saveNewEmployees(CustomMessage message) {
+        if (message != null) {
+            List<Object[]> employees = createNewEmployees(Pair.of(message.getContent(), message.getFileHash()));
+            String sql = """
+                     
+                    INSERT INTO new_employee(email,role,file_hast) VALUES(?,?,?)\s
+                     ON CONFLICT(email) DO UPDATE SET role = ?, file_hash = ?
+                       
+                     """;
+            jdbcTemplate.batchUpdate(sql, employees);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
 
 
-    private List<Object[]> createNewEmployees(Pair<String, String> data){
+    private List<Object[]> createNewEmployees(Pair<String, String> data) {
         List<Object[]> employees = new ArrayList<>();
         String cleanedContent = data.getFirst();
         String fileHash = data.getSecond();
@@ -63,10 +81,10 @@ public class NewEmployeeService {
         Pattern pattern = Pattern.compile("username\\s(\\S+)\\srole\\s(\\S+)");
 
         Matcher matcher = pattern.matcher(cleanedContent);
-        while (matcher.find()){
+        while (matcher.find()) {
             Role role = Role.contains(matcher.group(2))
-                    .orElseThrow(()->new RoleNotFoundException("Role "+ matcher.group(2) + " does not exist"));
-            Object[] employeeData= {
+                    .orElseThrow(() -> new RoleNotFoundException("Role " + matcher.group(2) + " does not exist"));
+            Object[] employeeData = {
                     matcher.group(1),
                     role.name(),
                     fileHash};
