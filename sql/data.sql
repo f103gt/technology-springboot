@@ -5,6 +5,7 @@ create table client
     last_name  varchar(255) not null,
     email      varchar(255) not null unique,
     password   varchar(255) not null,
+    role       varchar(25),
     is_enabled boolean default (false),
 );
 
@@ -127,20 +128,23 @@ create table payment_method
 create table shop_order
 (
     id                  bigserial primary key,
-    client_id           bigint         not null,
+    client_id           bigint,
     cart_id             bigint,
-    order_status_id     int            not null,
-    delivery_address_id bigint         not null,
-    delivery_method_id  int            not null,
-    payment_method_id   int            not null,
-    order_date          date           not null,
-    total_price         numeric(10, 2) not null,
+    order_status_id     varchar(50),
+    delivery_address_id bigint,
+    delivery_method     varchar(50),
+    payment_method      varchar(50),
+    order_date          timestamp,
+    total_price         numeric(10, 2),
+    first_name          varchar(255),
+    last_name           varchar(255),
+    phone_number        varchar(15),
+    delivery_address    varchar(255),
+    employee_activity_id bigint,
     foreign key (client_id) references client (id),
     foreign key (cart_id) references cart (id),
-    foreign key (order_status_id) references order_status (id),
     foreign key (delivery_address_id) references address (id),
-    foreign key (delivery_method_id) references delivery_method (id),
-    foreign key (payment_method_id) references payment_method (id)
+    foreign key (employee_activity_id) references activity(id)
 );
 
 
@@ -162,10 +166,11 @@ create table client_shift
 
 create table activity
 (
-    id           bigserial primary key,
-    client_id    bigserial not null,
-    points       bigint             default '0',
-    is_available bool      not null default 'false',
+    id               bigserial primary key,
+    client_id        bigint not null,
+    potential_points integer default (0),
+    actual_points    integer default (0),
+    activity_status  varchar(50),
     foreign key (client_id) references client (id)
 );
 

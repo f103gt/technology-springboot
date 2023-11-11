@@ -24,29 +24,22 @@ public class Address {
     private String phoneNumber;
 
     @Column(nullable = false)
-    private String region;
-
-    @Column(nullable = false)
-    private String district;
-
-    //city town
-    @Column(nullable = false)
     private String locality;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String street;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String premise;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String zipcode;
 
-    @ManyToMany(mappedBy = "addresses")
-    private Set<User> users;
+    /*@ManyToMany(mappedBy = "addresses")
+    private Set<User> users;*/
 
-    @OneToMany(mappedBy = "deliveryAddress")
-    private Collection<Order> orders;
+    /*@OneToMany(mappedBy = "deliveryAddress")
+    private Collection<Order> orders;*/
 }
 
 /*

@@ -1,10 +1,12 @@
 package com.technology.activity.models;
 
+import com.technology.order.models.Order;
 import com.technology.user.models.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,12 +19,22 @@ public class Activity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
 
-    @ManyToOne
-    @JoinColumn(name="client_id")
-    private User user;
+    @OneToOne(cascade = CascadeType.MERGE,
+            fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id",referencedColumnName = "id")
+    private User employee;
 
-    @Column(name = "is_available")
-    private Boolean isAvailable;
+    @Enumerated(EnumType.STRING)
+    private ActivityStatus activityStatus;
 
-    private BigInteger points;
+    @OneToMany(mappedBy = "employeeActivity",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.MERGE)
+    private List<Order> orders;
+
+    @Column(name = "potential_points")
+    private Integer potentialPoints;
+
+    @Column(name = "actual_points")
+    private Integer actualPoints;
 }

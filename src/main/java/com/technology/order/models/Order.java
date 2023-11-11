@@ -1,19 +1,19 @@
 package com.technology.order.models;
 
+import com.technology.activity.models.Activity;
 import com.technology.address.models.Address;
 import com.technology.cart.models.Cart;
 import com.technology.user.models.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -28,25 +28,45 @@ public class Order {
     @JoinColumn(name="client_id")
     private User user;
 
+    @Column(name="first_name")
+    private String firstName;
+
+    @Column(name="last_name")
+    private String lastName;
+
+    // TODO create phone number (country code) api
+    @Column(name="phone_number")
+    private String phoneNumber;
+
+    private String email;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "cart_id", referencedColumnName = "id")
     private Cart cart;
 
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
     private DeliveryMethod deliveryMethod;
 
-    @ManyToOne
-    private Address deliveryAddress;
+    @Column(name="delivery_address")
+    private String deliveryAddress;
 
     @Column(name = "order_date")
-    private LocalDate orderDate;
+    private LocalDateTime orderDate;
 
     @Column(name = "total_price")
     private BigDecimal totalPrice;
+
+
+    @ManyToOne(fetch = FetchType.LAZY,
+            cascade = CascadeType.DETACH)
+    private Activity employeeActivity;
+
 }
+//TODO establish lazy fetch for user because not all users can
+// TODO have orders, employees only process the orders

@@ -1,9 +1,10 @@
 package com.technology.shift.models;
 
+import com.technology.user.models.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @Getter
@@ -18,12 +19,15 @@ public class Shift {
     private Integer id;
 
     @Column(name = "start_time")
-    private LocalTime startTime;
+    private LocalDateTime startTime;
 
     @Column(name = "end_time")
-    private LocalTime endTime;
+    private LocalDateTime endTime;
 
-    @OneToMany(mappedBy = "shift")
-    private Collection<UserShift> userShifts;
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @JoinTable(name = "employee_shift",
+            joinColumns = @JoinColumn(name = "employee_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "shift_id", referencedColumnName = "id"))
+    private Collection<User> employees;
 
 }

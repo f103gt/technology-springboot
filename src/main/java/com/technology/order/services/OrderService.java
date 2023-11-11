@@ -50,7 +50,7 @@ public class OrderService {
     private LocalTime currenShiftStartTime;
     private Long numberOfStaffMembersByShift;
 
-   /* @Scheduled(cron = "0 55 * * * ?")
+    /*@Scheduled(cron = "0 55 * * * ?")
     @Transactional
     public void shiftCheck() {
         Optional<Shift> currentShiftStartTimeOptional = shiftRepository.findShiftByCurrentTime();
@@ -84,8 +84,8 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    *//*
-     * write query to find the number of employees whose working day is the current day
+
+     *//** write query to find the number of employees whose working day is the current day
      * and whose shift is overlapping with the current time
      * (current time lies with the shift start and end hours)*//*
     @Scheduled(fixedRate = 5 * 60 * 1000)
@@ -134,16 +134,16 @@ public class OrderService {
                 messaging.convertAndSend(destination, message);
             }
         }
-        *//*availableUsers.forEach(user -> {
+        availableUsers.forEach(user -> {
             String destination = "/staff/task-processing/user-" + user.getId();
             String message = "You have been assigned a to process new order.";
             //TODO add new url upon following which an employee sees all the order details
             messaging.convertAndSend(destination, message);
-        });*//*
-    }*/
+        });
+    }
 
     private boolean userIsActive(User user) {
         return user.getUserActivity().stream()
                 .anyMatch(Activity::getIsAvailable);
-    }
+    }*/
 }

@@ -1,7 +1,7 @@
 package com.technology.user.services;
 
-import com.technology.config.CustomMessage;
-import com.technology.config.MessagePublisher;
+import com.technology.user.brokers.CustomMessage;
+import com.technology.user.brokers.MessagePublisher;
 import com.technology.role.enums.Role;
 import com.technology.role.errors.RoleNotFoundException;
 import com.technology.user.exceptions.FileAlreadyUploadedException;

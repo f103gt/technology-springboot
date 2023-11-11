@@ -22,8 +22,6 @@ public class AddressServiceImpl implements AddressService {
         Address address = Address.builder()
                 .phoneNumber(addressRegistrationRequest.phoneNumber()
                 )
-                .region(addressRegistrationRequest.region())
-                .district(addressRegistrationRequest.district())
                 .locality(addressRegistrationRequest.locality())
                 .street(addressRegistrationRequest.street())
                 .premise(addressRegistrationRequest.premise())

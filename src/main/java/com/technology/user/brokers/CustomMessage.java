@@ -1,4 +1,4 @@
-package com.technology.config;
+package com.technology.user.brokers;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

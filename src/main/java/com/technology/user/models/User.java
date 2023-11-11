@@ -2,17 +2,15 @@ package com.technology.user.models;
 
 import com.technology.activity.models.Activity;
 import com.technology.cart.models.Cart;
-import com.technology.address.models.Address;
+import com.technology.order.models.Order;
 import com.technology.role.enums.Role;
 import com.technology.security.jwt.models.Token;
-import com.technology.shift.models.UserShift;
+import com.technology.shift.models.Shift;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "client")
@@ -44,26 +42,37 @@ public class User{
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    //TODO test whether now address will be saved automatically when i save it in user
-    //TODO instead of saving address first and only then a user entity
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    @JoinTable(name = "client_address",
-            joinColumns = @JoinColumn(name = "client_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id", referencedColumnName = "id"))
-    private Set<Address> addresses;
-
-    @OneToOne(cascade = CascadeType.ALL,mappedBy = "user")
+    @OneToOne(cascade = CascadeType.ALL,
+            mappedBy = "user",fetch = FetchType.LAZY)
     private Cart cart;
 
-    @OneToMany(mappedBy = "user")
-    private Collection<UserShift> userShifts;
-
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,mappedBy = "user")
-    private Collection<Activity> userActivity;
+    @OneToOne(cascade = CascadeType.MERGE,
+            fetch = FetchType.LAZY,
+    mappedBy = "employee")
+    private Activity employeeActivity;
 
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
+
+    //TODO consider moving shifts to employee activity
+
+    @ManyToMany(mappedBy = "employees")
+    private List<Shift> shifts;
+
+    @OneToMany(fetch = FetchType.LAZY,cascade =
+            {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
+    private List<Order> orders;
 }
+
+//TODO test whether now address will be saved automatically when i save it in user
+//TODO instead of saving address first and only then a user entity
+
+
+ /* @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @JoinTable(name = "client_address",
+            joinColumns = @JoinColumn(name = "client_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "address_id", referencedColumnName = "id"))
+    private Set<Address> addresses;*/
 /*
 public static class Builder{
         private final User user;

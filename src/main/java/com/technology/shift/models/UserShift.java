@@ -7,11 +7,11 @@ import lombok.Getter;
 import java.math.BigInteger;
 import java.time.LocalDate;
 
-@Getter
+/*@Getter
 @Entity
-@Table(name = "client_shift")
+@Table(name = "client_shift")*/
 public class UserShift {
-    @Id
+   /* @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
 
@@ -91,5 +91,5 @@ public class UserShift {
         public String toString() {
             return "UserShift.UserShiftBuilder(id=" + this.id + ", user=" + this.user + ", shift=" + this.shift + ", shiftDate=" + this.shiftDate + ")";
         }
-    }
+    }*/
 }
