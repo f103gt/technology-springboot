@@ -138,10 +138,10 @@ public class OrderServiceV2 {
         //and update every time i distribute order to the user
         String sql = "UPDATE activity a " +
                 "SET potential_points = potential_points + ? " +
-                "FROM client c" +
-                "WHERE a.user_id = c.id " +
-                "AND c.role = ? " +
-                "AND (c.activity_status = ? OR c.activity_status = ?) " +
+                "FROM employee e" +
+                "WHERE a.employee_id = e.id " +
+                "AND e.role = ? " +
+                "AND (e.activity_status = ? OR e.activity_status = ?) " +
                 "AND potential_points = (SELECT MIN(potential_points) " +
                 "FROM activity WHERE user_id = id " +
                 "ORDER BY id LIMIT 1)";

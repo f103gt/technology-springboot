@@ -21,7 +21,7 @@ public class Activity {
     private Integer id;
 
     @OneToOne(cascade = CascadeType.MERGE,
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id",referencedColumnName = "id")
     private Employee employee;
 
@@ -29,7 +29,7 @@ public class Activity {
     private ActivityStatus activityStatus;
 
     @OneToMany(mappedBy = "employeeActivity",
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             cascade = CascadeType.MERGE)
     private List<Order> orders;
 

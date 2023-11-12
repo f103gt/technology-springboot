@@ -15,9 +15,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -55,7 +53,7 @@ public class ShiftService {
 
             String hash = calculateHash(file);
 
-            if(!hash.isEmpty()) {
+            if (!hash.isEmpty()) {
                 fileRepository.findFileByFileHash(hash)
                         .ifPresent(fileHash -> {
                             throw new FileAlreadyUploadedException("The provided file content has already been uploaded");
@@ -66,7 +64,7 @@ public class ShiftService {
 
             //List<Object[]> fileS
             for (CSVRecord record : records) {
-                String email = null;
+                String email = record.get(0);
                 List<Pair<LocalDate, LocalDate>> dates = null;
                 Duration timeInterval = null;
                 for (String column : record.toMap().keySet()) {
@@ -84,8 +82,8 @@ public class ShiftService {
                 // Now you have the email, date, and time for this record.
                 // You can store them in the appropriate database columns.
                 if (timeInterval != null && dates != null && email != null) {
-                    List<Pair<LocalDateTime,LocalDateTime>> shifts = fillDatesWithShiftTimes(timeInterval, dates);
-                    employeeShifts = getEmployeeShiftObjects(shifts,email);
+                    List<Pair<LocalDateTime, LocalDateTime>> shifts = fillDatesWithShiftTimes(timeInterval, dates);
+                    employeeShifts = getEmployeeShiftObjects(shifts, email);
                 }
 
             }
@@ -100,7 +98,56 @@ public class ShiftService {
         }
     }
 
-    private List<Object[]> getEmployeeShiftObjects(List<Pair<LocalDateTime,LocalDateTime>> shifts,String email){
+
+    @Transactional
+    public void saveAllTheShifts(List<Object[]> employeeShifts) {
+        String sql = """
+                INSERT INTO shift(employee_id,start_time,end_time) VALUES(
+                (SELECT id FROM employee WHERE email = ?),?,?) 
+                ON CONFLICT (employee_id) DO UPDATE SET 
+                start_time = EXCLUDED.start_time, end_time = EXCLUDED.end_time;
+                """;
+        jdbcTemplate.batchUpdate(sql, employeeShifts);
+    }
+
+    private List<Pair<LocalDateTime, LocalDateTime>> fillDatesWithShiftTimes(Duration shiftDuration, List<Pair<LocalDate, LocalDate>> dateIntervals) {
+        List<Pair<LocalDateTime, LocalDateTime>> dateTimePairs = new ArrayList<>();
+
+        for (Pair<LocalDate, LocalDate> dateInterval : dateIntervals) {
+            LocalDate startDate = dateInterval.getFirst();
+            LocalDate endDate = dateInterval.getSecond();
+
+            LocalDateTime startDateTime = startDate.atTime(LocalTime.MIDNIGHT);
+            LocalDateTime endDateTime = endDate.atTime(LocalTime.MIDNIGHT).plusDays(1); // Adding 1 day to include the end day
+
+            while (!startDateTime.isAfter(endDateTime.minus(shiftDuration))) {
+                LocalDateTime endShiftDateTime = startDateTime.plus(shiftDuration);
+
+                dateTimePairs.add(Pair.of(startDateTime, endShiftDateTime));
+
+                startDateTime = startDateTime.plus(shiftDuration);
+            }
+        }
+
+        return dateTimePairs;
+    }
+
+    private Duration getDuration(String value) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        String[] parts = value.split("-");
+
+        try {
+            LocalTime startTime = LocalTime.parse(parts[0].trim(), formatter);
+            LocalTime endTime = LocalTime.parse(parts[1].trim(), formatter);
+
+
+            return Duration.between(startTime, endTime);
+        } catch (DateTimeParseException e) {
+            return Duration.ZERO;
+        }
+    }
+
+    private List<Object[]> getEmployeeShiftObjects(List<Pair<LocalDateTime, LocalDateTime>> shifts, String email) {
         return shifts.stream().map(
                         localDateTime -> new Object[]{localDateTime.getFirst(),
                                 localDateTime.getSecond(),
@@ -108,18 +155,7 @@ public class ShiftService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public void saveAllTheShifts(List<Object[]> employeeShifts){
-        String sql = """
-                    INSERT INTO shift(employee_id,start_time,end_time) VALUES(
-                    (SELECT id FROM employee WHERE email = ?),?,?) 
-                    ON CONFLICT (employee_id) DO UPDATE SET 
-                    start_time = EXCLUDED.start_time, end_time = EXCLUDED.end_time;
-                    """;
-        jdbcTemplate.batchUpdate(sql, employeeShifts);
-    }
-
-    private String calculateHash(MultipartFile file){
+    private String calculateHash(MultipartFile file) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] digest = md.digest();
@@ -179,42 +215,5 @@ public class ShiftService {
         return dateIntervals;
     }
 
-
-    private Duration getDuration(String value) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        String[] parts = value.split("-");
-
-        try {
-            LocalTime startTime = LocalTime.parse(parts[0].trim(), formatter);
-            LocalTime endTime = LocalTime.parse(parts[1].trim(), formatter);
-
-            return Duration.between(startTime, endTime);
-        } catch (DateTimeParseException e) {
-            return Duration.ZERO;
-        }
-    }
-
-
-    private List<Pair<LocalDateTime, LocalDateTime>> fillDatesWithShiftTimes(Duration shiftDuration, List<Pair<LocalDate, LocalDate>> dateIntervals) {
-        List<Pair<LocalDateTime, LocalDateTime>> dateTimePairs = new ArrayList<>();
-
-        for (Pair<LocalDate, LocalDate> dateInterval : dateIntervals) {
-            LocalDate startDate = dateInterval.getFirst();
-            LocalDate endDate = dateInterval.getSecond();
-
-            LocalDateTime startDateTime = startDate.atTime(LocalTime.MIDNIGHT);
-            LocalDateTime endDateTime = endDate.atTime(LocalTime.MIDNIGHT).plusDays(1); // Adding 1 day to include the end day
-
-            while (!startDateTime.isAfter(endDateTime.minus(shiftDuration))) {
-                LocalDateTime endShiftDateTime = startDateTime.plus(shiftDuration);
-
-                dateTimePairs.add(Pair.of(startDateTime, endShiftDateTime));
-
-                startDateTime = startDateTime.plus(shiftDuration);
-            }
-        }
-
-        return dateTimePairs;
-    }
 
 }
