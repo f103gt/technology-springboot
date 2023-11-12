@@ -2,6 +2,7 @@ package com.technology.activity.models;
 
 import com.technology.order.models.Order;
 import com.technology.user.models.User;
+import employee.models.Employee;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,12 +18,12 @@ import java.util.List;
 public class Activity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private BigInteger id;
+    private Integer id;
 
     @OneToOne(cascade = CascadeType.MERGE,
             fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id",referencedColumnName = "id")
-    private User employee;
+    private Employee employee;
 
     @Enumerated(EnumType.STRING)
     private ActivityStatus activityStatus;

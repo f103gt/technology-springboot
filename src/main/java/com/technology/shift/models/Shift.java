@@ -1,6 +1,7 @@
 package com.technology.shift.models;
 
 import com.technology.user.models.User;
+import employee.models.Employee;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,10 +25,11 @@ public class Shift {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    /*@ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinTable(name = "employee_shift",
             joinColumns = @JoinColumn(name = "employee_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "shift_id", referencedColumnName = "id"))
-    private Collection<User> employees;
+            inverseJoinColumns = @JoinColumn(name = "shift_id", referencedColumnName = "id"))*/
+    @ManyToOne
+    private Employee employees;
 
 }

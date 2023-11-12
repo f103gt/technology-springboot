@@ -50,6 +50,7 @@ public class OrderServiceV2 {
     //TODO TEST CODE
     //TODO OPTIMIZE COMMUNICATION WITH DATABASE
 
+    //@Async
     @Scheduled(fixedRate = 60000)
     protected void currentShiftControl() {
         LocalDateTime currentTimeDate = LocalDateTime.now();

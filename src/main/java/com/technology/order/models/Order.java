@@ -62,11 +62,8 @@ public class Order {
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-
-    @ManyToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.DETACH)
+    @ManyToOne
     private Activity employeeActivity;
-
 }
 //TODO establish lazy fetch for user because not all users can
 // TODO have orders, employees only process the orders
