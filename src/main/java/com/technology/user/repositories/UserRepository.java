@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, BigInteger> {
     @Query("select u from User u where u.email = :email")
     Optional<User> findUserByEmail(String email);
 
-    @Query("""
+   /* @Query("""
             select u from User u\s
             inner join u.shifts us\s
             inner join u.employeeActivity ua\s
@@ -26,49 +26,5 @@ public interface UserRepository extends JpaRepository<User, BigInteger> {
             and ua.activityStatus = 'PRESENT' or ua.activityStatus = 'LATE'
             """)
     Optional<User> findUserByShiftAndActivityStatus(@Param("roleName")String roleName,
-                                                    @Param("shiftStartTime")LocalDateTime shiftStartTime);
-
-
-
-
-   /* @Query("""
-            select u from User u
-            join u.role r
-            join u.userShifts us
-            join u.userActivity ua
-            where u.role.roleName = :roleName
-            and us.shiftDate = current_date
-            and us.shift.startTime = :shiftStartTime
-            and ua.isAvailable = :activityStatus
-            """)
-    List<User> findAllByRoleNameAndUserShiftStartTimeAndUserActivityStatus(
-            @Param("roleName") String roleName,
-            @Param("shiftStartTime") LocalTime shiftStartTime,
-            @Param("activityStatus") Boolean activityStatus
-    );
-
-    @Query("""
-            select u from User u
-            join u.role r
-            join u.userShifts us
-            where r.roleName = :roleName
-            and us.shiftDate = current_date
-            and us.shift.startTime = :shiftStartTime
-            """)
-    List<User> findAllUsersByShiftAndRole(@Param("roleName") String roleName,
-                                          @Param("shiftStartTime") LocalTime shiftStartTime);
-
-    @Query("""
-            select count(u)
-            from User u
-            join u.role r
-            join u.userShifts us
-            join us.shift s
-            where r.roleName = :userRole
-            and us.shiftDate = current_date
-            and s.startTime = :currentShiftStartTime
-            """)
-    Long findNumberOfUsersByCurrentShiftStartTime(
-            @Param("userRole") String userRole,
-            @Param("currentShiftStartTime") LocalTime currentShiftStartTime);*/
+                                                    @Param("shiftStartTime")LocalDateTime shiftStartTime);*/
 }

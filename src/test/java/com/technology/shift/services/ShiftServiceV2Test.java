@@ -47,6 +47,8 @@ class ShiftServiceV2Test {
         shiftService = new ShiftServiceV2(fileRepository, jdbcTemplate);
     }
 
+    //TODO add more test on the formatting
+    //TODO testing of insertion of the objects into the database
     @Test
     public void testParseFile() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 

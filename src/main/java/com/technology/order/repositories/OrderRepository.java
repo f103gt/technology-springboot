@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, BigInteger> {
     @Query("""
-             select o from Order o\s
+            select o from Order o\s
             where o.orderStatus = :orderStatus
              """)
     List<Order> findOrdersWithOrderStatus(@Param("orderStatus") String orderStatus);

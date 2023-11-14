@@ -6,13 +6,19 @@ import com.technology.user.models.User;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
-public interface ActivityRepository extends JpaRepository<Activity,BigInteger> {
-    /*@Query("""
+@Repository
+public interface ActivityRepository extends JpaRepository<Activity,Integer> {
+
+}
+
+
+/*@Query("""
             select max (a.points) from Activity a
             """)
     Optional<BigInteger> findMaxPoints();
@@ -31,4 +37,3 @@ public interface ActivityRepository extends JpaRepository<Activity,BigInteger> {
             """)
     List<Activity> findActivitiesByShiftAAndRole(@Param("currentShift") Shift currentShift,
                                                  @Param("role")String role);*/
-}

@@ -1,12 +1,10 @@
 package com.technology.activity.models;
 
 import com.technology.order.models.Order;
-import com.technology.user.models.User;
-import employee.models.Employee;
+import com.technology.employee.models.Employee;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigInteger;
 import java.util.List;
 
 @Entity
@@ -20,7 +18,7 @@ public class Activity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(cascade = CascadeType.MERGE,
+    @OneToOne(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id",referencedColumnName = "id")
     private Employee employee;

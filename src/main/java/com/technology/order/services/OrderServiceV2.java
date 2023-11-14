@@ -63,17 +63,7 @@ public class OrderServiceV2 {
             return;
         }
         if (currentTimeDate.isAfter(MAX_END) || currentTimeDate.isBefore(MIN_START)) {
-            shiftRepository.findShiftClosestToCurrentTime()
-                    .ifPresentOrElse(
-                            shift -> currentShift = shift,
-                            ()-> logger.error("NO SHIFT CLOSEST TO THE PRESENT TIME WAS FOUND")
-                    );
-             shiftRepository.findEndOfTheLatestShift(currentShift.getStartTime().toLocalDate())
-                    .ifPresentOrElse(
-                          latestEnd -> MAX_END = latestEnd,
-                            ()->logger.error("NO LATEST SHIFT END WAS FOUND")
-                    );
-            MIN_START = currentShift.getStartTime();
+            setShiftBoundaries();
             //find shift with the closest start time
             //when comparing pass the whole date-time
             //compare using also considering date-time
@@ -86,26 +76,47 @@ public class OrderServiceV2 {
                     );
         }
         if (currentTimeDate.isAfter(currentShift.getEndTime())) {
+            updateShift();
             //stream through every user and find whether there is the difference between
             // the actual points and the potential number of points
-            // if there is the difference distribute unpacked the order to the
+            // if there is the difference distribute unpacked order to the
             // employee from the next shift
 
             //use batch update for the list of changed current activities
 
-            String sql = "UPDATE activity\s" +
-                    "SET potential = CASE\s" +
-                    "WHEN potential_points > actual_points THEN actual_points\s" +
-                    "ELSE potential_points\s" +
-                    "END";
-            //update all employees with current status present or late with the status absent
-            jdbcTemplate.update(sql);
-            orderRepository.findOrdersWithOrderStatus(OrderStatus.PENDING.name()).forEach(this::distributeOrder);
-            currentShift = shiftRepository.findShiftClosestToCurrentTime()
-                    .orElseThrow(() -> new RuntimeException(""));
+
             //find the next shift
             //all the unprocessed order distribute among employees from the following shift
         }
+    }
+
+    private void setShiftBoundaries(){
+        shiftRepository.findShiftClosestToCurrentTime()
+                .ifPresentOrElse(
+                        shift -> currentShift = shift,
+                        ()-> logger.error("NO SHIFT CLOSEST TO THE PRESENT TIME WAS FOUND")
+                );
+        shiftRepository.findEndOfTheLatestShift(currentShift.getStartTime().toLocalDate())
+                .ifPresentOrElse(
+                        latestEnd -> MAX_END = latestEnd,
+                        ()->logger.error("NO LATEST SHIFT END WAS FOUND")
+                );
+        MIN_START = currentShift.getStartTime();
+    }
+
+    private void updateShift(){
+        String sql = "UPDATE activity\s" +
+                "SET activity_status=\'ABSENT\'"+
+                "SET potential = CASE\s" +
+                "WHEN potential_points > actual_points THEN actual_points\s" +
+                "ELSE potential_points\s" +
+                "END";
+        //update all employees with current status present or late with the status absent
+        jdbcTemplate.update(sql);
+        orderRepository.findOrdersWithOrderStatus(
+                OrderStatus.PENDING.name()).forEach(this::distributeOrder);
+        currentShift = shiftRepository.findShiftClosestToCurrentTime()
+                .orElseThrow(() -> new RuntimeException(""));
     }
 
     //TODO extract this method into helper class
@@ -120,6 +131,7 @@ public class OrderServiceV2 {
         //send order to be distributed using rabbit mq
         //return the order when saving the order
         //create order mapper and map request to order
+        //TODO decrease the ordered product quantity
         Order order = orderMapper.orderRegistrationRequestToOrder(request);
         User user = getUserFromContext();
         order.setUser(user);

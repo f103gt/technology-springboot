@@ -1,4 +1,4 @@
-package employee.models;
+package com.technology.employee.models;
 
 import com.technology.activity.models.Activity;
 import com.technology.role.enums.Role;
@@ -23,11 +23,11 @@ public class Employee {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne(cascade = CascadeType.MERGE,
-            fetch = FetchType.LAZY,
+    @OneToOne(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
             mappedBy = "employee")
     private Activity employeeActivity;
 
-    @OneToMany(mappedBy = "employees")
+    @ManyToMany(mappedBy = "employees")
     private List<Shift> shifts;
 }

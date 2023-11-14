@@ -30,6 +30,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ShiftServiceV2 {
+    //TODO  ADD FILE HASH CHECK UP
 
     private static final Logger logger = LoggerFactory.getLogger(NewEmployeeService.class);
     private final FileRepository fileRepository;
