@@ -1,7 +1,6 @@
 package com.technology.order.models;
 
 import com.technology.activity.models.Activity;
-import com.technology.address.models.Address;
 import com.technology.cart.models.Cart;
 import com.technology.user.models.User;
 import jakarta.persistence.*;
@@ -9,7 +8,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter

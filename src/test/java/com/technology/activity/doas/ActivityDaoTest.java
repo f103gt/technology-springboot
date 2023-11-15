@@ -1,6 +1,10 @@
 package com.technology.activity.doas;
 
 import com.technology.activity.models.ActivityStatus;
+import com.technology.cart.models.Cart;
+import com.technology.cart.models.CartItem;
+import com.technology.order.models.Order;
+import com.technology.product.models.Product;
 import com.technology.role.enums.Role;
 import com.technology.shift.models.Shift;
 import org.junit.jupiter.api.Test;
@@ -10,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -56,13 +61,28 @@ class ActivityDaoTest {
                                 
                 INSERT INTO employee(id, email, role)
                 VALUES (2, 'employee2@email.com', 'STAFF');
+                                
+                INSERT INTO shift (start_time, end_time)
+                VALUES ('2023-11-15 09:00:00', '2023-11-15 23:00:00');
+                                
+                INSERT INTO activity(id, activity_status, employee_id,
+                                     potential_points, actual_points)
+                VALUES (1, 'PRESENT', 1, 5, 0);
+                                
+                INSERT INTO activity(id, activity_status, employee_id,
+                                     potential_points, actual_points)
+                VALUES (2, 'LATE', 2, 10, 5);
+                                
+                INSERT INTO employee_shift(employee_id, shift_id)
+                VALUES (1, 1),
+                       (2, 1);
                 """;
         jdbcTemplate.update(sqlSetUp);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         Shift shift1 = Shift.builder()
                 .id(1)
-                .startTime(LocalDateTime.parse("2023-11-13 10:00:00", formatter))
-                .endTime(LocalDateTime.parse("2023-11-13 23:59:59", formatter))
+                .startTime(LocalDateTime.parse("2023-11-15 09:00:00", formatter))
+                .endTime(LocalDateTime.parse("2023-11-15 23:00:00", formatter))
                 .build();
 
         activityDao.updateAllEmployeesActivity(shift1, Role.STAFF);
@@ -100,13 +120,28 @@ class ActivityDaoTest {
                                 
                 INSERT INTO employee(id, email, role)
                 VALUES (2, 'employee2@email.com', 'MANAGER');
+                             
+                INSERT INTO shift (start_time, end_time)
+                VALUES ('2023-11-15 09:00:00', '2023-11-15 23:00:00');
+                                
+                INSERT INTO activity(id, activity_status, employee_id,
+                                     potential_points, actual_points)
+                VALUES (1, 'PRESENT', 1, 5, 0);
+                                
+                INSERT INTO activity(id, activity_status, employee_id,
+                                     potential_points, actual_points)
+                VALUES (2, 'LATE', 2, 10, 5);
+                                
+                INSERT INTO employee_shift(employee_id, shift_id)
+                VALUES (1, 1),
+                       (2, 1)
                 """;
         jdbcTemplate.update(sqlSetUp);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         Shift shift1 = Shift.builder()
                 .id(1)
-                .startTime(LocalDateTime.parse("2023-11-13 10:00:00", formatter))
-                .endTime(LocalDateTime.parse("2023-11-13 23:59:59", formatter))
+                .startTime(LocalDateTime.parse("2023-11-15 09:00:00", formatter))
+                .endTime(LocalDateTime.parse("2023-11-15 23:00:00", formatter))
                 .build();
         activityDao.updateAllEmployeesActivity(shift1, Role.STAFF);
         String testSql = """
@@ -117,11 +152,81 @@ class ActivityDaoTest {
                 INNER JOIN shift s ON es.shift_id = s.id
                 WHERE s.start_time = ? AND a.activity_status = 'ABSENT'
                 """;
-        List<Map<String, Object>> staffEmployees = jdbcTemplate.queryForList(testSql,shift1.getStartTime());
+        List<Map<String, Object>> staffEmployees = jdbcTemplate.queryForList(testSql, shift1.getStartTime());
         assertThat(staffEmployees.size()).isEqualTo(1);
 
     }
 
+    @Test
+    public void distributeOrder_ORDER_WITHIN_ACTIVE_SHIFT() {
+        //TODO TEST FOR WHEN THE EMPLOYEE IS ABSENT
+        //TODO TEST FOR WHEN THE ORDER IS PLACED DURING NON WORK TIME
+        String sqlSetUp = """
+                INSERT INTO employee(id, email, role)
+                VALUES (1, 'employee1@email.com', 'STAFF');
+                                
+                INSERT INTO employee(id, email, role)
+                VALUES (2, 'employee2@email.com', 'STAFF');
+                                
+                INSERT INTO shift (start_time, end_time)
+                VALUES ('2023-11-15 09:00:00', '2023-11-15 23:00:00');
+                                
+                INSERT INTO activity(id, activity_status, employee_id,
+                                     potential_points, actual_points)
+                VALUES (1, 'PRESENT', 1, 5, 0);
+                                
+                INSERT INTO activity(id, activity_status, employee_id,
+                                     potential_points, actual_points)
+                VALUES (2, 'LATE', 2, 10, 5);
+                                
+                INSERT INTO employee_shift(employee_id, shift_id)
+                VALUES (1, 1),
+                       (2, 1);
+                       
+                INSERT INTO shop_order(id) VALUES(1);
+                """;
+        jdbcTemplate.update(sqlSetUp);
+
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Shift shift = Shift.builder()
+                .id(1)
+                .startTime(LocalDateTime.parse("2023-11-15 09:00:00", formatter))
+                .endTime(LocalDateTime.parse("2023-11-15 23:00:00", formatter))
+                .build();
+
+        Order order = Order.builder()
+                .id(BigInteger.ONE)
+                .cart(Cart.builder()
+                        .cartItems(List.of(CartItem.builder()
+                                .quantity(2)
+                                .product(Product.builder().build())
+                                .build()))
+                        .build())
+                .build();
+
+        String employeeEmail = activityDao.distributeOrder(order, shift);
+
+        assertThat(employeeEmail).isEqualTo("employee1@email.com");
+
+        String sqlTest = """
+                SELECT e.email, o.id, potential_points,
+                FROM activity a
+                INNER JOIN employee e ON a.employee_id = e.id
+                INNER JOIN employee_shift es ON a.employee_id = es.employee_id
+                INNER JOIN shift s ON es.shift_id = s.id
+                INNER JOIN shop_order o ON a.id = o.employee_activity_id
+                """;
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sqlTest);
+        results.stream().filter(
+                        (result -> result.get("email").toString().equals("employee1@email.com"))
+                ).findFirst()
+                .ifPresent(result -> {
+                    assertThat((Long) result.get("id")).isEqualTo(1);
+                    assertThat((Integer) result.get("potential_points")).isEqualTo(7);
+                });
+
+    }
 }
 
  /*activityDao.updateAllEmployeesActivity(shift1, Role.STAFF);

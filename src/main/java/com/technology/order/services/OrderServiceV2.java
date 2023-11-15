@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +35,7 @@ public class OrderServiceV2 {
     private final OrderMapper orderMapper;
     private final ActivityDao activityDao;
     private final OrderMessagePublisher messagePublisher;
+    private final SimpMessagingTemplate messaging;
     private static final Logger logger = LoggerFactory.getLogger(NewEmployeeService.class);
     private Shift currentShift;
     private User getUserFromContext() {
@@ -79,7 +80,10 @@ public class OrderServiceV2 {
                                         .ifPresentOrElse(
                                                 shift -> {
                                                     currentShift = shift;
-                                                    activityDao.distributeOrderClosestShift(order, shift);
+                                                    String employeeEmail = activityDao.distributeOrder(order, shift);
+                                                    String destination = "/staff/task-processing/user-" + employeeEmail;
+                                                    String message = "You have been assigned with a new order to pack.";
+                                                    messaging.convertAndSend(destination, message);
                                                 },
                                                 () -> logger.error("NO SHIFT CLOSEST TO THE PRESENT TIME WAS FOUND")
                                         );
@@ -92,7 +96,10 @@ public class OrderServiceV2 {
         LocalDateTime shiftEnd = currentShift.getEndTime();
         if ((currentTime.isAfter(shiftStart) || currentTime.isEqual(shiftStart)) &&
                 (currentTime.isBefore(shiftEnd))) {
-            activityDao.distributeOrder(order, currentShift);
+            String employeeEmail = activityDao.distributeOrder(order, currentShift);
+            String destination = "/staff/task-processing/user-" + employeeEmail;
+            String message = "You have been assigned with a new order to pack.";
+            messaging.convertAndSend(destination, message);
         } else {
             if(currentTime.isAfter(currentShift.getEndTime())){
                 shiftRepository.findShiftClosestToCurrentTime()
