@@ -4,14 +4,11 @@ import com.technology.activity.models.ActivityStatus;
 import com.technology.role.enums.Role;
 import com.technology.shift.models.Shift;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

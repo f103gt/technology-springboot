@@ -33,11 +33,11 @@ create table employee_shift
     shift_id    integer not null
 );
 
-/*insert into employee(id, email, role)
+insert into employee(id, email, role)
 values (1, 'employee1@email.com', 'STAFF');
 
 insert into employee(id, email, role)
-values (2, 'employee2@email.com', 'STAFF');*/
+values (2, 'employee2@email.com', 'STAFF');
 
 /*insert into employee(id,email,role)
 values (1, 'employee1@email.com', 'MANAGER');*/
@@ -51,10 +51,14 @@ insert into activity(id, activity_status, employee_id,
 values (2, 'LATE', 2, 10, 5);
 
 insert into shift (start_time, end_time)
-values ('2023-11-13 10:00:00', '2023-11-13 23:00:00');
+values ('2023-11-15 00:00:00', '2023-11-15 13:00:00');
+insert into shift (start_time, end_time)
+values ('2023-11-15 13:30:00', '2023-11-15 23:59:59');
 
 insert into employee_shift(employee_id, shift_id)
 values (1, 1),
-       (2, 1);
+       (2, 1),
+       (2,1),
+       (2,2);
 
 

@@ -1,6 +1,5 @@
 package com.technology.activity.doas;
 
-import com.technology.activity.models.ActivityStatus;
 import com.technology.order.models.Order;
 import com.technology.role.enums.Role;
 import com.technology.shift.models.Shift;
@@ -11,9 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class ActivityDao {
@@ -21,26 +17,68 @@ public class ActivityDao {
     private static final Logger logger =
             LoggerFactory.getLogger(ActivityDao.class);
 
+    //TODO WHAT IF ALL THE EMPLOYEES OF THE SHIFT ARE ABSENT
     @Transactional
-    public void distributeOrder(Order order) {
-        String sql = "UPDATE activity a " +
-                "SET potential_points = potential_points + ? " +
-                "FROM employee e" +
-                "WHERE a.employee_id = e.id " +
-                "AND e.role = ? " +
-                "AND (e.activity_status = ? OR e.activity_status = ?) " +
-                "AND potential_points = (SELECT MIN(potential_points) " +
-                "FROM activity WHERE user_id = id " +
-                "ORDER BY id LIMIT 1)";
-        jdbcTemplate.update(sql, order.getCart().getCartItems().size(),
-                Role.STAFF.name(), ActivityStatus.PRESENT, ActivityStatus.LATE);
+    public void distributeOrderClosestShift(Order order,Shift shift){
+        String sql = """
+                WITH min_potential_points AS(
+                    SELECT MIN(potential_points) FROM activity a
+                    INNER JOIN employee e ON a.employee_id = e.id
+                    INNER JOIN employee_shift es ON e.id = es.employee_id
+                    INNER JOIN shift s ON es.shift_id = s.id
+                    WHERE s.start_time = ?
+                    AND e.role = 'STAFF'
+                )
+                UPDATE activity a
+                INNER JOIN employee e ON a.employee_id = e.id
+                INNER JOIN employee_shift ON e.id = es.employee_id
+                INNER JOIN shift s ON es.shift_id = s.id
+                WHERE s.start_time = ?
+                AND e.role = 'STAFF'
+                AND a.potential_points = min_potential_points
+                ORDER BY a.id LIMIT 1
+                """;
+        jdbcTemplate.update(sql, order.getCart().getCartItems().size(), shift.getStartTime());
+    }
+
+    @Transactional
+    public void distributeOrder(Order order,Shift shift) {
+        String sql = """
+                WITH min_potential_points AS(
+                    SELECT MIN(potential_points) FROM activity a
+                    INNER JOIN employee e ON a.employee_id = e.id
+                    INNER JOIN employee_shift es ON e.id = es.employee_id
+                    INNER JOIN shift s ON es.shift_id = s.id
+                    WHERE s.start_time = ?
+                    AND e.role = 'STAFF'
+                    AND a.activity_status IN ('PRESENT','LATE')
+                )
+                UPDATE activity a
+                INNER JOIN employee e ON a.employee_id = e.id
+                INNER JOIN employee_shift ON e.id = es.employee_id
+                INNER JOIN shift s ON es.shift_id = s.id
+                WHERE s.start_time = ?
+                AND e.role = 'STAFF'
+                AND a.activity_status IN ('PRESENT','LATE')
+                AND a.potential_points = min_potential_points
+                ORDER BY a.id LIMIT 1
+                """;
+
+        int rowsAffected = jdbcTemplate.update(sql, order.getCart().getCartItems().size(), shift.getStartTime());
+        if(rowsAffected == 0){
+            distributeOrderClosestShift(order,shift);
+        }
     }
 
     @Transactional
     public void updateAllEmployeesActivity(Shift shift, Role role) {
         String sql = """
                 UPDATE activity
-                SET activity_status = 'ABSENT',
+                SET activity_status = CASE
+                                    WHEN activity_stas <> 'ABSENT'
+                                    THEN 'ABSENT'
+                                    ELSE activity_status
+                                    END,
                     potential_points = CASE
                                         WHEN potential_points > actual_points
                                         THEN actual_points
