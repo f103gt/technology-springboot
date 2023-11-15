@@ -119,7 +119,12 @@ class ActivityDaoTest {
                 """;
         List<Map<String, Object>> staffEmployees = jdbcTemplate.queryForList(testSql,shift1.getStartTime());
         assertThat(staffEmployees.size()).isEqualTo(1);
-        /*activityDao.updateAllEmployeesActivity(shift1, Role.STAFF);
+
+    }
+
+}
+
+ /*activityDao.updateAllEmployeesActivity(shift1, Role.STAFF);
         String sqlUpdated = """
                 SELECT e.email, a.activity_status, a.potential_points, a.actual_points
                 FROM activity a
@@ -138,9 +143,6 @@ class ActivityDaoTest {
                     assertThat(potentialPoints).isEqualTo(actualPoints);
                 }
         );*/
-    }
-
-}
 /*activityRepository.findById(1)
                 .ifPresentOrElse(
                         activity -> {

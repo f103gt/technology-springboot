@@ -1,11 +1,11 @@
 package com.technology.user.services;
 
-import com.technology.user.brokers.CustomMessage;
-import com.technology.user.brokers.MessagePublisher;
 import com.technology.role.enums.Role;
 import com.technology.role.errors.RoleNotFoundException;
+import com.technology.shift.repositories.FileRepository;
+import com.technology.user.brokers.CustomMessage;
+import com.technology.user.brokers.MessagePublisher;
 import com.technology.user.exceptions.FileAlreadyUploadedException;
-import com.technology.user.repositories.NewEmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +32,14 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class NewEmployeeService {
     private static final Logger logger = LoggerFactory.getLogger(NewEmployeeService.class);
-    private final NewEmployeeRepository repository;
     private final JdbcTemplate jdbcTemplate;
     private final MessagePublisher messagePublisher;
+    private final FileRepository fileRepository;
     public void uploadNewEmployeesData(MultipartFile file) {
+        fileRepository.findFileByFileName(file.getOriginalFilename())
+                .ifPresent((fileName) -> {
+                    throw new FileAlreadyUploadedException("The file you submitted is already uploaded");
+                });
         Pair<String, String> cleanedContentAndHash = null;
         try {
             cleanedContentAndHash = purifyContentAndCalculateHash(file);
@@ -46,7 +50,7 @@ public class NewEmployeeService {
         }
         if (cleanedContentAndHash != null) {
             //notify user with response 200
-            repository.findFileHash(cleanedContentAndHash.getSecond())
+            fileRepository.findFileByFileHash(cleanedContentAndHash.getSecond())
                     .ifPresent((hash) -> {
                         throw new FileAlreadyUploadedException("The file you submitted is already uploaded");
                     });
@@ -56,16 +60,15 @@ public class NewEmployeeService {
         }
     }
 
+    //TODO CHANGE TO USE THE EMPLOYEE AND FILE REPOSITORIES AND ENTITIES
     @Async
     @RabbitListener(queues = "${rabbitmq.message.queue}")
     public CompletableFuture<Comparable<Void>> saveNewEmployees(CustomMessage message) {
         if (message != null) {
             List<Object[]> employees = createNewEmployees(Pair.of(message.getContent(), message.getFileHash()));
             String sql = """
-                     
-                    INSERT INTO new_employee(email,role,file_hast) VALUES(?,?,?)\s
-                     ON CONFLICT(email) DO UPDATE SET role = ?, file_hash = ?
-                       
+                    INSERT INTO employee(email,role) VALUES(?,?)\s
+                    ON CONFLICT(email) DO UPDATE SET role = ?
                      """;
             jdbcTemplate.batchUpdate(sql, employees);
         }
@@ -76,7 +79,6 @@ public class NewEmployeeService {
     private List<Object[]> createNewEmployees(Pair<String, String> data) {
         List<Object[]> employees = new ArrayList<>();
         String cleanedContent = data.getFirst();
-        String fileHash = data.getSecond();
 
         Pattern pattern = Pattern.compile("username\\s(\\S+)\\srole\\s(\\S+)");
 
@@ -86,8 +88,7 @@ public class NewEmployeeService {
                     .orElseThrow(() -> new RoleNotFoundException("Role " + matcher.group(2) + " does not exist"));
             Object[] employeeData = {
                     matcher.group(1),
-                    role.name(),
-                    fileHash};
+                    role.name()};
             employees.add(employeeData);
         }
         return employees;

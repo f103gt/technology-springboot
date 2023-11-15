@@ -2,6 +2,7 @@ package com.technology.order.services;
 
 import com.technology.activity.doas.ActivityDao;
 import com.technology.cart.helpers.CartServiceHelper;
+import com.technology.order.brokers.OrderMessagePublisher;
 import com.technology.order.mappers.OrderMapper;
 import com.technology.order.models.Order;
 import com.technology.order.models.OrderStatus;
@@ -19,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ public class OrderServiceV2 {
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
     private final ActivityDao activityDao;
+    private final OrderMessagePublisher messagePublisher;
     private static final Logger logger = LoggerFactory.getLogger(NewEmployeeService.class);
     private Shift currentShift;
     private User getUserFromContext() {
@@ -53,6 +55,7 @@ public class OrderServiceV2 {
         order.setUser(user);
         order.setCart(user.getCart());
         Order savedOrder = orderRepository.saveAndFlush(order);
+        messagePublisher.publishMessage(savedOrder);
         //transfer saved order
     }
 
