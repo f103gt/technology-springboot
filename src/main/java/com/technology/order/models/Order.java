@@ -60,6 +60,9 @@ public class Order {
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
+    @Column(name="unique_identifier")
+    private String uniqueIdentifier;
+
     @ManyToOne
     private Activity employeeActivity;
 }

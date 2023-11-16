@@ -125,28 +125,27 @@ create table payment_method
     payment_method_name varchar(50) not null
 );
 
+/*TODO MODIFY SHOP_ORDER TABLE IN THE REAL DATABASE*/
 create table shop_order
 (
-    id                  bigserial primary key,
-    client_id           bigint,
-    cart_id             bigint,
-    order_status_id     varchar(50),
-    delivery_address_id bigint,
-    delivery_method     varchar(50),
-    payment_method      varchar(50),
-    order_date          timestamp,
-    total_price         numeric(10, 2),
-    first_name          varchar(255),
-    last_name           varchar(255),
-    phone_number        varchar(15),
-    delivery_address    varchar(255),
+    id                   bigserial primary key,
+    client_id            bigint,
+    cart_id              bigint,
+    unique_identifier    varchar(20),
+    order_status_id      varchar(50),
+    delivery_method      varchar(50),
+    payment_method       varchar(50),
+    order_date           timestamp,
+    total_price          numeric(10, 2),
+    first_name           varchar(255),
+    last_name            varchar(255),
+    phone_number         varchar(15),
+    delivery_address     varchar(255),
     employee_activity_id bigint,
     foreign key (client_id) references client (id),
     foreign key (cart_id) references cart (id),
-    foreign key (delivery_address_id) references address (id),
-    foreign key (employee_activity_id) references activity(id)
+    foreign key (employee_activity_id) references activity (id)
 );
-
 
 create table shift
 (

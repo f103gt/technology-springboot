@@ -3,11 +3,15 @@ package com.technology.order.services;
 import com.technology.activity.doas.ActivityDao;
 import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.order.brokers.OrderMessagePublisher;
+import com.technology.order.dtos.OrderDto;
+import com.technology.order.exceptions.OrderNotFoundException;
 import com.technology.order.mappers.OrderMapper;
 import com.technology.order.models.Order;
 import com.technology.order.models.OrderStatus;
 import com.technology.order.registration.requests.OrderRegistrationRequest;
 import com.technology.order.repositories.OrderRepository;
+import com.technology.product.models.Product;
+import com.technology.product.repositories.ProductRepository;
 import com.technology.role.enums.Role;
 import com.technology.security.adapters.SecurityUser;
 import com.technology.shift.models.Shift;
@@ -24,7 +28,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -32,16 +39,64 @@ public class OrderServiceV2 {
     private final OrderRepository orderRepository;
     private final ShiftRepository shiftRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
     private final ActivityDao activityDao;
     private final OrderMessagePublisher messagePublisher;
     private final SimpMessagingTemplate messaging;
     private static final Logger logger = LoggerFactory.getLogger(NewEmployeeService.class);
+
     private Shift currentShift;
+
     private User getUserFromContext() {
         SecurityUser securityUser = CartServiceHelper.getSecurityUserFromContext();
         return userRepository.findUserByEmail(securityUser.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    private String generateOrderIdentifier() {
+        long timestamp = Instant.now().getEpochSecond();
+        int randomNum = ThreadLocalRandom.current().nextInt(100000, 999999);
+        return timestamp + "-" + randomNum;
+    }
+
+    @Transactional
+    public void markOrderPacked(String uniqueIdentifier, String customerEmail) {
+        orderRepository.findOrderByUniqueIdentifier(uniqueIdentifier)
+                .ifPresent(order -> {
+                    orderRepository.updateOrderStatusByOrderId(OrderStatus.PACKED.name(),
+                            order.getId());
+                    /*TODO SEND MESSAGE TO THE CUSTOMER INFORMING
+                       THAT THE ORDER IS PACKED*/
+
+                    //TODO CHECK IF I CAN UPDATE PRODUCTS WITHOUT USING PRODUCT REPOSITORY
+                    List<Product> products = order.getCart().getCartItems().stream()
+                            .map(cartItem -> {
+                                Product product = cartItem.getProduct();
+                                product.setQuantity(product.getQuantity() - cartItem.getQuantity());
+                                return product;
+                            }).toList();
+                    productRepository.saveAll(products);
+                    //messaging.convertAndSend();
+                });
+    }
+
+    public void changeOrderStatus(String orderIdentifier, OrderStatus orderStatus) {
+        orderRepository.findOrderByUniqueIdentifier(orderIdentifier)
+                .ifPresentOrElse(order -> orderRepository.updateOrderStatusByOrderId(orderStatus.name(), order.getId()),
+                        () -> {
+                            throw new OrderNotFoundException("Order not found");
+                        }
+                );
+    }
+
+    @Transactional
+    public List<OrderDto> getAllPendingOrders() {
+        String employeeEmail = getUserFromContext().getEmail();
+        return orderRepository.findAllOrdersByEmployeeEmailAndOrderStatus(employeeEmail,
+                        OrderStatus.PENDING.name()).stream()
+                .map(orderMapper::orderToOrderDto)
+                .toList();
     }
 
     @Transactional
@@ -51,23 +106,25 @@ public class OrderServiceV2 {
         //return the order when saving the order
         //create order mapper and map request to order
         //TODO decrease the ordered product quantity
+        //TODO SEND MESSAGE TO THE CUSTOMER INFORMING THAT THE ORDER WAS PLACED
         Order order = orderMapper.orderRegistrationRequestToOrder(request);
         User user = getUserFromContext();
         order.setUser(user);
         order.setCart(user.getCart());
+        order.setUniqueIdentifier(generateOrderIdentifier());
         Order savedOrder = orderRepository.saveAndFlush(order);
         messagePublisher.publishMessage(savedOrder);
         //transfer saved order
     }
 
 
-    //the employees must be active and have the smallest number of points
-    // among active employees with current shift
+    /*the employees must be active and have the smallest number of points
+     among active employees with current shift
 
-    //also the role must be staff
-    //maybe i should return employees when i am setting the new shift
-    //and update every time i distribute order to the user
-    private void distributeOrderHelper(Order order,LocalDateTime currentTime) {
+    also the role must be staff
+    maybe i should return employees when i am setting the new shift
+    and update every time i distribute order to the user-*/
+    private void distributeOrderHelper(Order order, LocalDateTime currentTime) {
         if (currentShift == null) {
             shiftRepository.findShiftByCurrentTime()
                     .ifPresentOrElse(
@@ -101,7 +158,7 @@ public class OrderServiceV2 {
             String message = "You have been assigned with a new order to pack.";
             messaging.convertAndSend(destination, message);
         } else {
-            if(currentTime.isAfter(currentShift.getEndTime())){
+            if (currentTime.isAfter(currentShift.getEndTime())) {
                 shiftRepository.findShiftClosestToCurrentTime()
                         .ifPresentOrElse(
                                 shift -> {
@@ -126,15 +183,15 @@ public class OrderServiceV2 {
     public void distributeOrder(Order order) {
         if (order != null) {
             LocalDateTime currentTime = LocalDateTime.now();
-            distributeOrderHelper(order,currentTime);
+            distributeOrderHelper(order, currentTime);
         }
-        //find user with current shift,
-        // status present (the user is present on the workplace)
-        // and min number of the potential points
-        //(this employee search is happening only between present and late employees)
-        //assign the order to be processed.
-        //when the employee marks current order as processed,
-        //add the points from this order to the current points
+        /*find user with current shift,
+         status present (the user is present on the workplace)
+         and min number of the potential points
+        (this employee search is happening only between present and late employees)
+        assign the order to be processed.
+        when the employee marks current order as processed,
+        add the points from this order to the current points*/
     }
 }
 /*
