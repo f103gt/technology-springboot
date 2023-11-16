@@ -6,6 +6,7 @@ import com.technology.order.models.Order;
 import com.technology.role.enums.Role;
 import com.technology.security.jwt.models.Token;
 import com.technology.shift.models.Shift;
+import com.technology.validation.otp.models.Otp;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -64,6 +65,10 @@ public class User{
     @OneToMany(fetch = FetchType.LAZY,cascade =
             {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
     private List<Order> orders;
+
+
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private List<Otp> otps;
 }
 
 //TODO test whether now address will be saved automatically when i save it in user

@@ -25,13 +25,14 @@ public class OrderDto {
 
     private String email;
 
-    private PaymentMethod paymentMethod;
+    private String paymentMethod;
 
-    private DeliveryMethod deliveryMethod;
+    private String deliveryMethod;
 
     private String deliveryAddress;
 
     private LocalDateTime orderDate;
+    private String orderStatus;
 
     private BigDecimal totalPrice;
 

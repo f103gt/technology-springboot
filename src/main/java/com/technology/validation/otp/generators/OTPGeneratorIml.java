@@ -1,4 +1,4 @@
-package com.technology.validation.otp;
+package com.technology.validation.otp.generators;
 
 import org.springframework.stereotype.Component;
 

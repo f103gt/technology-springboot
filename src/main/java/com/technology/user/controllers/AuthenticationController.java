@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -21,9 +18,32 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<JsonAuthResponse> register(
+    public ResponseEntity<Void> register(
             @RequestBody RegistrationRequest request) {
-        return configureResponseEntity(service.register(request));
+        service.register(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping ("/generate-otp")
+    public ResponseEntity<String> generateOtp(
+            @RequestParam("email") String email
+    ) {
+        service.generateEmailValidationOtp(email);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/update-otp")
+    public ResponseEntity<String> updateOtp(
+            @RequestParam("email") String email){
+        service.regenerateEmailValidationOtp(email);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/otp-verification")
+    private ResponseEntity<JsonAuthResponse> otpVerify(
+            @RequestParam("top") String otp
+            ){
+        return configureResponseEntity(service.verifyOtp(otp));
     }
 
     @PostMapping("/authenticate")

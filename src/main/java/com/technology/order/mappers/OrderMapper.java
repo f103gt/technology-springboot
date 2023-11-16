@@ -22,6 +22,8 @@ public interface OrderMapper {
     @Mapping(target = "uniqueIdentifier",ignore = true)
     Order orderRegistrationRequestToOrder(OrderRegistrationRequest request);
 
+    //TODO HOW CAN I TURN ORDER STATUS INTO STRING WHEN MAPPING
+    @Mapping(target = "orderStatus",expression = "java(orderStatus.name())")
     @Mapping(source = "cart.cartItems",target = "cartItems")
     OrderDto orderToOrderDto(Order order);
 }

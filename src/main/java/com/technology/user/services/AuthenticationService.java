@@ -8,13 +8,15 @@ import com.technology.security.jwt.models.TokenType;
 import com.technology.security.jwt.repositores.TokenRepository;
 import com.technology.security.jwt.services.JwtService;
 import com.technology.user.errors.UserAlreadyExistsException;
-import com.technology.user.models.NewEmployee;
 import com.technology.user.models.User;
 import com.technology.user.repositories.NewEmployeeRepository;
 import com.technology.user.repositories.UserRepository;
 import com.technology.user.requests.AuthenticationRequest;
 import com.technology.user.requests.RegistrationRequest;
 import com.technology.user.response.AuthenticationResponse;
+import com.technology.validation.email.services.EmailSenderService;
+import com.technology.validation.otp.generators.OTPGenerator;
+import com.technology.validation.otp.services.OtpService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,9 +35,12 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
     private final NewEmployeeRepository newEmployeeRepository;
+    private final OtpService otpService;
+    private final EmailSenderService emailSenderService;
 
+    //TODO EXTRACT THE USER INSERTION INTO THE SECURITY CONTEXT AFTER THE OTP IS VERIFIED
     @Transactional
-    public AuthenticationResponse register(RegistrationRequest registrationRequest)
+    public void register(RegistrationRequest registrationRequest)
             throws UserAlreadyExistsException {
         String email = registrationRequest.getEmail();
         User user = User.builder()
@@ -56,11 +61,6 @@ public class AuthenticationService {
                 );
 
         userRepository.save(user);
-        String role = user.getRole().name();
-        SecurityUser securityUser = new SecurityUser(user);
-        String jwtToken = jwtService.generateToken(Map.of("role", role), securityUser);
-        String refreshToken = jwtService.generateRefreshToken();
-        return new AuthenticationResponse(jwtToken, refreshToken, user.getFirstName(), user.getLastName(), role);
     }
 
     @Transactional
@@ -72,6 +72,34 @@ public class AuthenticationService {
         User user = userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));
         //TODO replace oneToMany mapping with oneToOne
+
+        return saveTokensAndCreateResponse(user);
+    }
+
+    public void generateEmailValidationOtp(String email) {
+        emailSenderService.sendMessage(
+                email,
+                otpService.generateAndSaveOtp(email).getOtp(),
+                "Email confirmation"
+        );
+    }
+
+    public void regenerateEmailValidationOtp(String email){
+        emailSenderService.sendMessage(
+                email,
+                otpService.updateOtp(email),
+                "Email confirmation"
+        );
+    }
+
+    public AuthenticationResponse verifyOtp(String otp){
+        User user = otpService.otpConfirmation(otp);
+        String role = user.getRole().name();
+        SecurityUser securityUser = new SecurityUser(user);
+        return saveTokensAndCreateResponse(user);
+    }
+
+    private AuthenticationResponse saveTokensAndCreateResponse(User user){
         String role = user.getRole().name();
         Map<String, Object> claims = Map.of("role", role);
         SecurityUser securityUser = new SecurityUser(user);
@@ -91,6 +119,7 @@ public class AuthenticationService {
                 .expired(false)
                 .revoked(false)
                 .build());
-        return new AuthenticationResponse(jwtToken, refreshToken, user.getFirstName(), user.getLastName(), role);
+        return new AuthenticationResponse(
+                jwtToken, refreshToken, user.getFirstName(), user.getLastName(), role);
     }
 }

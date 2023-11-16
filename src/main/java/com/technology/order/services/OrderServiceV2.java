@@ -91,30 +91,38 @@ public class OrderServiceV2 {
     }
 
     @Transactional
-    public List<OrderDto> getAllPendingOrders() {
+    public List<OrderDto> getAllOrdersWithStatus(OrderStatus orderStatus) {
         String employeeEmail = getUserFromContext().getEmail();
         return orderRepository.findAllOrdersByEmployeeEmailAndOrderStatus(employeeEmail,
-                        OrderStatus.PENDING.name()).stream()
+                        orderStatus.name()).stream()
                 .map(orderMapper::orderToOrderDto)
                 .toList();
     }
 
-    @Transactional
-    public void saveOrder(OrderRegistrationRequest request) {
-        //save order with status pending
-        //send order to be distributed using rabbit mq
-        //return the order when saving the order
-        //create order mapper and map request to order
-        //TODO decrease the ordered product quantity
-        //TODO SEND MESSAGE TO THE CUSTOMER INFORMING THAT THE ORDER WAS PLACED
+    private Order completeFieldsSetting(OrderRegistrationRequest request) {
         Order order = orderMapper.orderRegistrationRequestToOrder(request);
         User user = getUserFromContext();
         order.setUser(user);
         order.setCart(user.getCart());
         order.setUniqueIdentifier(generateOrderIdentifier());
+        return order;
+    }
+
+    @Transactional
+    public void saveOrder(OrderRegistrationRequest request) {
+        /*save order with status pending
+        send order to be distributed using rabbit mq
+        return the order when saving the order
+        create order mapper and map request to order
+        TODO SEND MESSAGE TO THE CUSTOMER INFORMING THAT THE ORDER WAS PLACED*/
+        Order compeletedOrder = completeFieldsSetting(request);
+        saveOrder(compeletedOrder);
+        //transfer saved order
+    }
+
+    private void saveOrder(Order order) {
         Order savedOrder = orderRepository.saveAndFlush(order);
         messagePublisher.publishMessage(savedOrder);
-        //transfer saved order
     }
 
 

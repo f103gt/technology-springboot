@@ -27,7 +27,12 @@ public class OrderController {
 
     @GetMapping("/staff/get-all-pending-orders")
     public ResponseEntity<List<OrderDto>> getAllPendingOrders() {
-        return ResponseEntity.ok().body(orderService.getAllPendingOrders());
+        return ResponseEntity.ok().body(orderService.getAllOrdersWithStatus(OrderStatus.PENDING));
+    }
+
+    @GetMapping("/staff/get-all-packed-orders")
+    public ResponseEntity<List<OrderDto>> getAllPackedOrders(){
+        return ResponseEntity.ok().body(orderService.getAllOrdersWithStatus(OrderStatus.PACKED));
     }
 
     @PostMapping("/staff/change-order-status-packed")
