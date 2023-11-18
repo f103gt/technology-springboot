@@ -18,7 +18,7 @@ public class EmailSenderService{
                             String body,
                             String subject){
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("technology.com");
+        message.setFrom("projectemail430@gmail.com");
         message.setTo(receiver);
         message.setText(body);
         message.setSubject(subject);
@@ -32,7 +32,7 @@ public class EmailSenderService{
     ) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message,true);
-        helper.setFrom("technology.com");
+        helper.setFrom("projectemail430@gmail.com");
         helper.setTo(receiverEmail);
         helper.setSubject(subject);
         helper.setText(htmlBody,true);

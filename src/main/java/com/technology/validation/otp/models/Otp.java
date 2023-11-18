@@ -25,5 +25,6 @@ public class Otp {
     private boolean expired;
     private boolean revoked;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 }

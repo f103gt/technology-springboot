@@ -20,7 +20,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User{
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +44,7 @@ public class User{
     private Role role;
 
     @OneToOne(cascade = CascadeType.ALL,
-            mappedBy = "user",fetch = FetchType.LAZY)
+            mappedBy = "user", fetch = FetchType.LAZY)
     private Cart cart;
 
 /*
@@ -59,15 +59,17 @@ public class User{
 
     //TODO consider moving shifts to employee activity
 
-   /* @ManyToMany(mappedBy = "employees")
-    private List<Shift> shifts;
-*/
-    @OneToMany(fetch = FetchType.LAZY,cascade =
-            {CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH})
+    /* @ManyToMany(mappedBy = "employees")
+     private List<Shift> shifts;
+ */
+    @OneToMany(fetch = FetchType.LAZY, cascade =
+            {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH},
+            mappedBy = "user")
     private List<Order> orders;
 
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,
+    mappedBy = "user")
     private List<Otp> otps;
 }
 

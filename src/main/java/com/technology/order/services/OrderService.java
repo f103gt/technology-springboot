@@ -26,7 +26,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@EnableScheduling
 public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;

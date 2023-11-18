@@ -17,8 +17,6 @@ public class OrderRegistrationRequest {
     private String phoneNumber;
     private String email;
 
-    private String address;
-
     private String paymentMethod;
 
     private String deliveryMethod;

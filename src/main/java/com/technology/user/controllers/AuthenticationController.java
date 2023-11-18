@@ -32,6 +32,9 @@ public class AuthenticationController {
         return ResponseEntity.ok().build();
     }
 
+    /*TODO DO I REALLY NEED TO USE CONTROLLER FOR OTP GENERATION
+        OR RABBIT MQ WILL BE MORE SUITABLE IN THIS CONTEXT
+    *  */
     @GetMapping("/update-otp")
     public ResponseEntity<String> updateOtp(
             @RequestParam("email") String email){
@@ -41,7 +44,7 @@ public class AuthenticationController {
 
     @PostMapping("/otp-verification")
     private ResponseEntity<JsonAuthResponse> otpVerify(
-            @RequestParam("top") String otp
+            @RequestBody String otp
             ){
         return configureResponseEntity(service.verifyOtp(otp));
     }

@@ -54,9 +54,9 @@ public class NewEmployeeService {
                     .ifPresent((hash) -> {
                         throw new FileAlreadyUploadedException("The file you submitted is already uploaded");
                     });
-            messagePublisher.publishMessage(new CustomMessage(
+            /*messagePublisher.publishMessage(new CustomMessage(
                     cleanedContentAndHash.getFirst(),
-                    cleanedContentAndHash.getSecond()));
+                    cleanedContentAndHash.getSecond()));*/
         }
     }
 

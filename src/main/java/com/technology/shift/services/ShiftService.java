@@ -3,7 +3,6 @@ package com.technology.shift.services;
 import com.technology.shift.models.File;
 import com.technology.shift.repositories.FileRepository;
 import com.technology.user.exceptions.FileAlreadyUploadedException;
-import com.technology.user.services.NewEmployeeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
@@ -15,7 +14,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ShiftService {
-    private static final Logger logger = LoggerFactory.getLogger(NewEmployeeService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ShiftService.class);
     private final FileRepository fileRepository;
     private final JdbcTemplate jdbcTemplate;
 

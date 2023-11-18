@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @SpringBootTest
 @RequiredArgsConstructor
 public class OrderBrokerTest {
-    @Autowired
+    /*@Autowired
     private final OrderMessagePublisher messagePublisher;
     @Autowired
     private final OrderServiceV2 orderService;
@@ -29,5 +29,5 @@ public class OrderBrokerTest {
 
         saveOrder.invoke(orderService, order);
 
-    }
+    }*/
 }

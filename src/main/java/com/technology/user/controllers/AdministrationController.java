@@ -1,8 +1,8 @@
 package com.technology.user.controllers;
 
-import com.technology.user.dto.UserDto;
 import com.technology.role.services.RoleService;
-import com.technology.user.services.NewEmployeeService;
+import com.technology.user.dto.UserDto;
+import com.technology.user.services.NewEmployeeServiceV2;
 import com.technology.user.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,9 +18,11 @@ public class AdministrationController {
     //TODO check if user to delete is not a current user
     private final RoleService roleService;
     private final UserService userService;
-    private final NewEmployeeService newEmployeeService;
+    private final NewEmployeeServiceV2 newEmployeeService;
     @Autowired
-    public AdministrationController(RoleService roleService, UserService userService, NewEmployeeService newEmployeeService) {
+    public AdministrationController(RoleService roleService,
+                                    UserService userService,
+                                    NewEmployeeServiceV2 newEmployeeService) {
         this.roleService = roleService;
         this.userService = userService;
         this.newEmployeeService = newEmployeeService;
@@ -36,7 +38,7 @@ public class AdministrationController {
 
     @PostMapping("/admin/add-new-employees")
     public ResponseEntity<String> uploadNewEmployeesData(@RequestParam("newEmployeesData")MultipartFile data){
-        newEmployeeService.uploadNewEmployeesData(data);
+        newEmployeeService.parseFile(data);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .build();

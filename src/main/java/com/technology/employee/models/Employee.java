@@ -28,6 +28,9 @@ public class Employee {
             mappedBy = "employee")
     private Activity employeeActivity;
 
+    @Column(name = "is_registered")
+    private boolean isRegistered;
+
     @ManyToMany(mappedBy = "employees")
     private List<Shift> shifts;
 }

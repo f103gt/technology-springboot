@@ -23,7 +23,7 @@ public class Order {
     private BigInteger id;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="client_id")
+    @JoinColumn(name = "client_id")
     private User user;
 
     @Column(name="first_name")

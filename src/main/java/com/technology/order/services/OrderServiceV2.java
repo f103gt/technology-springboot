@@ -18,7 +18,6 @@ import com.technology.shift.models.Shift;
 import com.technology.shift.repositories.ShiftRepository;
 import com.technology.user.models.User;
 import com.technology.user.repositories.UserRepository;
-import com.technology.user.services.NewEmployeeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -44,7 +43,7 @@ public class OrderServiceV2 {
     private final ActivityDao activityDao;
     private final OrderMessagePublisher messagePublisher;
     private final SimpMessagingTemplate messaging;
-    private static final Logger logger = LoggerFactory.getLogger(NewEmployeeService.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceV2.class);
 
     private Shift currentShift;
 
@@ -102,6 +101,8 @@ public class OrderServiceV2 {
     private Order completeFieldsSetting(OrderRegistrationRequest request) {
         Order order = orderMapper.orderRegistrationRequestToOrder(request);
         User user = getUserFromContext();
+        user.getOrders().add(order);
+        userRepository.save(user);
         order.setUser(user);
         order.setCart(user.getCart());
         order.setUniqueIdentifier(generateOrderIdentifier());

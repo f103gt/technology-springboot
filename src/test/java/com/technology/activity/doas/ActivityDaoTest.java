@@ -7,12 +7,12 @@ import com.technology.order.models.Order;
 import com.technology.product.models.Product;
 import com.technology.role.enums.Role;
 import com.technology.shift.models.Shift;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
@@ -42,6 +42,17 @@ class ActivityDaoTest {
         this.activityDao = new ActivityDao(jdbcTemplate);
     }
 
+    @AfterEach
+    public void cleanUp(){
+        String slqCleanUp = """
+                TRUNCATE TABLE employee_shift CASCADE,
+                TRUNCATE TABLE employee CASCADE,
+                TRUNCATE TABLE shift CASCADE,
+                TRUNCATE TABLE activity CASCADE,
+                TRUNCATE TABLE shop_order CASCADE
+                """;
+        jdbcTemplate.execute(slqCleanUp);
+    }
 
     /*private static final Logger logger =
             LoggerFactory.getLogger(ActivityDaoTest.class);*/
@@ -50,7 +61,6 @@ class ActivityDaoTest {
     /*TODO method to handle order packing completion -
         setting new order status and updating actual points number*/
     @Test
-    @DirtiesContext
     public void updateAllEmployeeActivityTest() {
 
         //TODO HANDLE THE CASE WHEN THE STATED QUANTITY IS GREATER THEN THE AVAILABLE PRODUCT QUANTITY
@@ -109,7 +119,6 @@ class ActivityDaoTest {
     }
 
     @Test
-    @DirtiesContext
     public void updateAllEmployeeActivityTestTestForStaffManager() {
 
         //TODO HANDLE THE CASE WHEN THE STATED QUANTITY IS GREATER THEN THE AVAILABLE PRODUCT QUANTITY

@@ -1,7 +1,6 @@
 package com.technology.shift.services;
 
 import com.technology.shift.repositories.FileRepository;
-import com.technology.user.services.NewEmployeeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
@@ -32,7 +31,7 @@ import java.util.Optional;
 public class ShiftServiceV2 {
     //TODO  ADD FILE HASH CHECK UP
 
-    private static final Logger logger = LoggerFactory.getLogger(NewEmployeeService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ShiftServiceV2.class);
     private final FileRepository fileRepository;
     private final JdbcTemplate jdbcTemplate;
 

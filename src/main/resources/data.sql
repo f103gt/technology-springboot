@@ -50,32 +50,5 @@ create table shop_order
     foreign key (employee_activity_id) references activity(id)
 );
 
-/*insert into employee(id, email, role)
-values (1, 'employee1@email.com', 'STAFF');
-
-insert into employee(id, email, role)
-values (2, 'employee2@email.com', 'STAFF');*/
-
-/*insert into employee(id,email,role)
-values (1, 'employee1@email.com', 'MANAGER');*/
-
-/*insert into activity(id, activity_status, employee_id,
-                     potential_points, actual_points)
-values (1, 'PRESENT', 1, 5, 0);
-
-insert into activity(id, activity_status, employee_id,
-                     potential_points, actual_points)
-values (2, 'LATE', 2, 10, 5);*/
-
-/*insert into shift (start_time, end_time)
-values ('2023-11-15 00:00:00', '2023-11-15 13:00:00');
-insert into shift (start_time, end_time)
-values ('2023-11-15 13:30:00', '2023-11-15 23:59:59');
-
-insert into employee_shift(employee_id, shift_id)
-values (1, 1),
-       (2, 1),
-       (2,1),
-       (2,2);*/
 
 

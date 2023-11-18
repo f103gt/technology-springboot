@@ -1,6 +1,7 @@
 package com.technology.user.services;
 
 import com.technology.cart.exceptions.UserNotFoundException;
+import com.technology.employee.repositories.EmployeeRepository;
 import com.technology.role.enums.Role;
 import com.technology.security.adapters.SecurityUser;
 import com.technology.security.jwt.models.Token;
@@ -9,13 +10,11 @@ import com.technology.security.jwt.repositores.TokenRepository;
 import com.technology.security.jwt.services.JwtService;
 import com.technology.user.errors.UserAlreadyExistsException;
 import com.technology.user.models.User;
-import com.technology.user.repositories.NewEmployeeRepository;
 import com.technology.user.repositories.UserRepository;
 import com.technology.user.requests.AuthenticationRequest;
 import com.technology.user.requests.RegistrationRequest;
 import com.technology.user.response.AuthenticationResponse;
 import com.technology.validation.email.services.EmailSenderService;
-import com.technology.validation.otp.generators.OTPGenerator;
 import com.technology.validation.otp.services.OtpService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +33,9 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
-    private final NewEmployeeRepository newEmployeeRepository;
     private final OtpService otpService;
     private final EmailSenderService emailSenderService;
+    private final EmployeeRepository employeeRepository;
 
     //TODO EXTRACT THE USER INSERTION INTO THE SECURITY CONTEXT AFTER THE OTP IS VERIFIED
     @Transactional
@@ -48,19 +47,20 @@ public class AuthenticationService {
                 .lastName(registrationRequest.getLastName())
                 .email(email)
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
-                .isEnabled(true)
+                .isEnabled(false)
                 .build();
-        newEmployeeRepository.findNewEmployeeByEmail(email)
+        employeeRepository.findEmployeeByEmail(email)
                 .ifPresentOrElse(
                         (employee) -> {
                             user.setRole(employee.getRole());
                             employee.setRegistered(true);
-                            newEmployeeRepository.save(employee);
+                            employeeRepository.save(employee);
                         },
                         () -> user.setRole(Role.USER)
                 );
 
         userRepository.save(user);
+        generateEmailValidationOtp(user.getEmail());
     }
 
     @Transactional
@@ -72,7 +72,6 @@ public class AuthenticationService {
         User user = userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));
         //TODO replace oneToMany mapping with oneToOne
-
         return saveTokensAndCreateResponse(user);
     }
 
@@ -94,8 +93,6 @@ public class AuthenticationService {
 
     public AuthenticationResponse verifyOtp(String otp){
         User user = otpService.otpConfirmation(otp);
-        String role = user.getRole().name();
-        SecurityUser securityUser = new SecurityUser(user);
         return saveTokensAndCreateResponse(user);
     }
 

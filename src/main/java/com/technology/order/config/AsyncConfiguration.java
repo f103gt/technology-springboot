@@ -20,11 +20,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
-@Configuration
+/*@Configuration
 @EnableAsync
-@EnableScheduling
+@EnableScheduling*/
 public class AsyncConfiguration {
-    private final ShiftRepository shiftRepository;
+    /*private final ShiftRepository shiftRepository;
     private final UserRepository userRepository;
     private ThreadPoolTaskExecutor executor;
 
@@ -84,7 +84,7 @@ public class AsyncConfiguration {
             return thread;
         }
 
-    }
+    }*/
 
    /* @Scheduled(cron = "0 55 * * * ?")
     private void getAllUsersByShift() {
@@ -115,8 +115,8 @@ public class AsyncConfiguration {
                 });
     }*/
 
-    @Bean(name = "threadPoolTaskExecutor")
+    /*@Bean(name = "threadPoolTaskExecutor")
     public Executor asyncExecutor() {
         return executor;
-    }
+    }*/
 }
