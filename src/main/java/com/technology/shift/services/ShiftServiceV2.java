@@ -8,14 +8,20 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -35,10 +41,10 @@ public class ShiftServiceV2 {
     private final FileRepository fileRepository;
     private final JdbcTemplate jdbcTemplate;
 
-    public void parseCSVFile(MultipartFile multipartFile){
+    public void parseCSVFile(MultipartFile multipartFile) {
         try {
             List<Object[]> employeeShifts = parseFile(multipartFile);
-            if(!employeeShifts.isEmpty()){
+            if (!employeeShifts.isEmpty()) {
                 saveAllTheShifts(employeeShifts);
             }
         } catch (IOException e) {
@@ -68,15 +74,15 @@ public class ShiftServiceV2 {
                     LocalDateTime shiftStartDateTime = null;
                     LocalDateTime shiftEndDateTime = null;
                     if (!timeInterval.isEmpty()) {
-                        Optional<Pair<LocalTime,LocalTime>> intervals = parseTimeInterval(timeInterval);
-                        if(intervals.isPresent()){
+                        Optional<Pair<LocalTime, LocalTime>> intervals = parseTimeInterval(timeInterval);
+                        if (intervals.isPresent()) {
                             Optional<LocalDate> date = parseDate(columnName);
-                            if(date.isPresent()){
-                                shiftStartDateTime = LocalDateTime.of(date.get(),intervals.get().getFirst());
-                                shiftEndDateTime = LocalDateTime.of(date.get(),intervals.get().getSecond());
+                            if (date.isPresent()) {
+                                shiftStartDateTime = LocalDateTime.of(date.get(), intervals.get().getFirst());
+                                shiftEndDateTime = LocalDateTime.of(date.get(), intervals.get().getSecond());
                             }
                         }
-                        employeeShifts.add(new Object[]{employeeEmail,shiftStartDateTime,shiftEndDateTime});
+                        employeeShifts.add(new Object[]{employeeEmail, shiftStartDateTime, shiftEndDateTime});
                     }
                 }
             }
@@ -85,18 +91,50 @@ public class ShiftServiceV2 {
         return employeeShifts;
     }
 
+    //TODO implement batch insert using jdbc
+
     @Transactional
     public void saveAllTheShifts(List<Object[]> employeeShifts) {
-        String sql = """
-                INSERT INTO shift(employee_id,start_time,end_time) VALUES(
-                (SELECT id FROM employee WHERE email = ?),?,?) 
-                ON CONFLICT (employee_id) DO UPDATE SET 
-                start_time = EXCLUDED.start_time, end_time = EXCLUDED.end_time;
-                """;
-        jdbcTemplate.batchUpdate(sql, employeeShifts);
+        String selectShiftIdSql = "SELECT id FROM shift WHERE start_time = ? AND end_time = ?";
+        String insertShiftSql = "INSERT INTO shift(start_time, end_time) VALUES (?, ?)";
+        String selectEmployeeIdSql = "SELECT id FROM employee WHERE email = ?";
+        String insertEmployeeShiftSql = "INSERT INTO employee_shift(employee_id, shift_id) VALUES (?, ?)";
+
+        for (Object[] employeeShift : employeeShifts) {
+            String email = (String) employeeShift[0];
+            LocalDateTime startTime = (LocalDateTime) employeeShift[1];
+            LocalDateTime endTime = (LocalDateTime) employeeShift[2];
+
+            Integer shiftId = jdbcTemplate.query(selectShiftIdSql,
+                    (ResultSet rs) -> rs.next() ? rs.getInt(1) : null,
+                    startTime, endTime);
+
+            if (shiftId == null) {
+                KeyHolder keyHolder = new GeneratedKeyHolder();
+                jdbcTemplate.update(connection -> {
+                    PreparedStatement ps = connection.prepareStatement(insertShiftSql, new String[]{"id"});
+                    ps.setTimestamp(1, Timestamp.valueOf(startTime));
+                    ps.setTimestamp(2, Timestamp.valueOf(endTime));
+                    return ps;
+                }, keyHolder);
+
+                if (keyHolder.getKey() != null) {
+                    shiftId = keyHolder.getKey().intValue();
+                } else {
+                    throw new IllegalStateException("Failed to retrieve shift ID after insertion");
+                }
+            }
+
+            Integer employeeId = jdbcTemplate.queryForObject(selectEmployeeIdSql, Integer.class, email);
+
+            // Insert the relation between employee and shift
+            jdbcTemplate.update(insertEmployeeShiftSql, employeeId, shiftId);
+        }
     }
 
+
     private Optional<Pair<LocalTime, LocalTime>> parseTimeInterval(String timeInterval) {
+
         List<DateTimeFormatter> formatters24 = Arrays.asList(
                 DateTimeFormatter.ofPattern("HH:mm"),
                 DateTimeFormatter.ofPattern("kk:mm"),
@@ -123,7 +161,6 @@ public class ShiftServiceV2 {
         }
         return Optional.empty();
     }
-
 
 
     private Optional<LocalDate> parseDate(String dateString) {

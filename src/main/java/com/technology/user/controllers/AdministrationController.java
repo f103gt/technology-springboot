@@ -1,9 +1,11 @@
 package com.technology.user.controllers;
 
 import com.technology.role.services.RoleService;
+import com.technology.shift.services.ShiftServiceV2;
 import com.technology.user.dto.UserDto;
 import com.technology.user.services.NewEmployeeServiceV2;
 import com.technology.user.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,19 +16,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class AdministrationController {
     //TODO check if user to delete is not a current user
     private final RoleService roleService;
     private final UserService userService;
     private final NewEmployeeServiceV2 newEmployeeService;
-    @Autowired
-    public AdministrationController(RoleService roleService,
-                                    UserService userService,
-                                    NewEmployeeServiceV2 newEmployeeService) {
-        this.roleService = roleService;
-        this.userService = userService;
-        this.newEmployeeService = newEmployeeService;
-    }
+    private final ShiftServiceV2 shiftService;
+
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/admin/all-users")
@@ -37,8 +34,18 @@ public class AdministrationController {
     }
 
     @PostMapping("/admin/add-new-employees")
-    public ResponseEntity<String> uploadNewEmployeesData(@RequestParam("newEmployeesData")MultipartFile data){
+    public ResponseEntity<String> uploadNewEmployeesData(
+            @RequestParam("newEmployeesData")MultipartFile data){
         newEmployeeService.parseFile(data);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .build();
+    }
+
+    @PostMapping("/admin/distribute-shifts")
+    public ResponseEntity<String> distributeShifts(
+            @RequestParam("shifts")MultipartFile data){
+        shiftService.parseCSVFile(data);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .build();
