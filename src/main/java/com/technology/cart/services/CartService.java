@@ -1,9 +1,11 @@
 package com.technology.cart.services;
 
+import com.technology.cart.dtos.CartItemDto;
 import com.technology.user.models.User;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.math.BigInteger;
+import java.util.List;
 
 public interface CartService {
     void saveCart(BigInteger productId);
@@ -12,6 +14,7 @@ public interface CartService {
 
     void deleteItemFromCart(String productName);
     void addCartItem(String productName);
+     List<CartItemDto> getUserCart();
 
 
     /*in deleteCart method no need to check if the

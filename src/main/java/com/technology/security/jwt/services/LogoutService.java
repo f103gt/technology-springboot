@@ -49,4 +49,5 @@ public class LogoutService implements LogoutHandler {
             SecurityContextHolder.clearContext();
         }
     }
+
 }

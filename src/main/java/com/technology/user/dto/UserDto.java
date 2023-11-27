@@ -1,7 +1,7 @@
 package com.technology.user.dto;
 
 public record UserDto(
-        String fistName,
+        String firstName,
         String lastName,
         String email) {
 

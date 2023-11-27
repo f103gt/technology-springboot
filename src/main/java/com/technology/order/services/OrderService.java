@@ -1,50 +1,23 @@
 package com.technology.order.services;
 
-import com.technology.cart.exceptions.UserNotFoundException;
-import com.technology.cart.models.CartItem;
 import com.technology.cart.services.CartService;
-import com.technology.order.models.Order;
-import com.technology.order.models.OrderStatus;
-import com.technology.order.registration.requests.OrderRegistrationRequest;
 import com.technology.order.repositories.OrderRepository;
-import com.technology.activity.models.Activity;
-import com.technology.user.models.User;
-import com.technology.user.repositories.UserRepository;
-import com.technology.shift.models.Shift;
 import com.technology.shift.repositories.ShiftRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
+import com.technology.user.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ShiftRepository shiftRepository;
     private final CartService cartService;
-    private final SimpMessagingTemplate messaging;
+    /*private final SimpMessagingTemplate messaging;*/
 
-    @Autowired
-    public OrderService(OrderRepository orderRepository,
-                        UserRepository userRepository,
-                        ShiftRepository shiftRepository,
-                        CartService cartService,
-                        SimpMessagingTemplate messaging) {
-        this.orderRepository = orderRepository;
-        this.userRepository = userRepository;
-        this.shiftRepository = shiftRepository;
-        this.cartService = cartService;
-        this.messaging = messaging;
-    }
 
     private LocalTime currenShiftStartTime;
     private Long numberOfStaffMembersByShift;

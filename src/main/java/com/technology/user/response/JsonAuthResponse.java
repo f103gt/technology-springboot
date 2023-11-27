@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JsonAuthResponse {
     private String role;
-    private String firstName;
-    private String LastName;
+    private String uuid;
 }

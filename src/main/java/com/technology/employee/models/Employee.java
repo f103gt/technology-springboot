@@ -18,7 +18,7 @@ public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    //@Column(unique = true)
+    @Column(unique = true)
     private String email;
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -30,6 +30,9 @@ public class Employee {
 
     @Column(name = "is_registered")
     private boolean isRegistered;
+
+    @Column(name="unique_identifier")
+    private String uniqueIdentifier;
 
     @ManyToMany(mappedBy = "employees")
     private List<Shift> shifts;

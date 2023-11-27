@@ -18,6 +18,10 @@ public class RabbitMqConfig {
         return new Jackson2JsonMessageConverter();
     }
 
+   /* @Bean(name = "pushUpNotificationQueue")
+    public Queue notificationQueue() {
+        return new Queue("pushUpNotificationQueue");
+    }*/
     @Bean
     public AmqpTemplate template(ConnectionFactory connectionFactory){
         RabbitTemplate template = new RabbitTemplate(connectionFactory);

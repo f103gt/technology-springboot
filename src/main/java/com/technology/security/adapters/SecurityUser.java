@@ -1,13 +1,16 @@
 package com.technology.security.adapters;
 
 import com.technology.user.models.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
 
+@Getter
 public class SecurityUser implements UserDetails {
     private final User user;
 

@@ -31,7 +31,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void saveCategory(CategoryRegistrationRequest request) {
-        String categoryName = getCategoryName(request);
+        String categoryName = getCategoryName(request)
+                .toLowerCase()
+                .replaceAll("\\s+", "-");;
         if (categoryRepository.findCategoryByCategoryName(categoryName).isPresent()) {
             throw new CategoryAlreadyExistsException(
                     "Category " + categoryName + " already exists");

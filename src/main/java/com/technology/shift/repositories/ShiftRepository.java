@@ -13,13 +13,14 @@ import java.util.Optional;
 public interface ShiftRepository extends JpaRepository<Shift, Integer> {
         @Query("""
                 select s from Shift s
-                where current_time between s.startTime and s.endTime
+                where local_datetime between
+                cast(s.startTime as timestamp ) and cast(s.endTime as timestamp)
                 """)
         Optional<Shift> findShiftByCurrentTime();
 
     @Query(value= """
             select s from Shift s
-            where s.endTime > current_timestamp
+            where cast(s.endTime as timestamp) > current_timestamp
             order by s.endTime asc
             """)
     Optional<Shift> findShiftClosestToCurrentTime();

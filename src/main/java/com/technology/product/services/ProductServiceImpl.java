@@ -33,6 +33,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    public List<GeneralProductDto> getAllProductsByProductNames(List<String> productNames) {
+        return null;
+    }
+
+    @Override
+    @Transactional
     public ProductDto getProduct(String productName) {
         Product product = productRepository.findProductByProductName(productName)
                 .orElseThrow(() ->
@@ -42,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public List<GeneralProductDto> getAllProductsByCagoryName(String categoryName) {
+    public List<GeneralProductDto> getAllProductsByCategoryName(String categoryName) {
         List<Product> products = productRepository.findProductsByCategoryCategoryName(categoryName.trim());
         return products.stream()
                 .map(productMapper::productToGeneralProductDto)

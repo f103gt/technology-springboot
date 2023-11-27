@@ -1,32 +1,35 @@
 package com.technology.user.services;
 
+import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.user.dto.UserDto;
+import com.technology.user.mappers.UserMapper;
 import com.technology.user.repositories.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    @Override
+    public UserDto getUser() {
+        return userMapper.userToUserDto(
+                CartServiceHelper
+                        .getSecurityUserFromContext()
+                        .getUser());
     }
-
 
     @Override
     @Transactional
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> new UserDto(
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getEmail()
-                )).collect(Collectors.toList());
+                .map(userMapper::userToUserDto)
+                .collect(Collectors.toList());
     }
 }

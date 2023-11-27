@@ -1,10 +1,12 @@
 package com.technology.cart.controllers;
 
 import com.technology.cart.services.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.technology.user.dto.UserDto;
+import com.technology.user.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,12 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigInteger;
 
 @RestController
+@RequiredArgsConstructor
 public class UserController {
-    private final CartService cartService;
 
-            @Autowired
-    public UserController(CartService cartService) {
-        this.cartService = cartService;
+    private final CartService cartService;
+    private final UserService userService;
+
+
+    @PreAuthorize("hasAnyRole('USER','STAFF','MANAGER','ADMIN')")
+    @GetMapping("/get-user-data")
+    public ResponseEntity<UserDto> getUserData(){
+        return ResponseEntity.ok().body(userService.getUser());
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -28,6 +35,8 @@ public class UserController {
         return ResponseEntity
                 .ok("The product was successfully added to the cart");
     }
+
+
 
     /*@PreAuthorize("hasRole('USER')")
     @DeleteMapping("/delete-cart")

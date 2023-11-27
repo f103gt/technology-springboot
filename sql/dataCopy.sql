@@ -103,7 +103,7 @@ create table cart_item
     quantity   int            not null,
     price      numeric(10, 2) not null,
     product_id bigint         not null,
-    foreign key (cart_id) references category (id),
+    foreign key (cart_id) references cart (id),
     foreign key (product_id) references product (id)
 );
 

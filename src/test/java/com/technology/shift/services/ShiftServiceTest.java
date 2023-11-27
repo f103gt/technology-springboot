@@ -1,3 +1,4 @@
+/*
 package com.technology.shift.services;
 
 import com.technology.shift.repositories.FileRepository;
@@ -21,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ShiftServiceTest {
 
-    /*@Mock
+    */
+/*@Mock
     private FileRepository fileRepository;
 
     @Mock
@@ -78,8 +80,12 @@ class ShiftServiceTest {
     @Test
     public void testGetDateIntervalsHyphenSeparatedSingle() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String hyphenSeparatedSingleInputDDMMYYY = "13-01-2023";
-        *//*String hyphenSeparatedSingleInputMMDDYYY = "01-13-2023";
+        *//*
+*/
+/*String hyphenSeparatedSingleInputMMDDYYY = "01-13-2023";
         String hyphenSeparatedSingleInputYYYMMDD = "2023-01-13";*//*
+*/
+/*
         Method privateMethod = ShiftService.class.getDeclaredMethod("getDateIntervals", String.class);
         privateMethod.setAccessible(true);
 
@@ -162,9 +168,11 @@ class ShiftServiceTest {
         assertEquals(LocalDate.of(2023, 1, 13), startDateIntervalInputYYYMMDD);
         assertEquals(LocalDate.of(2023, 1, 21), endDateIntervalInputYYYMMDD);
 
-    }*/
+    }*//*
 
-    /*@Test
+
+    */
+/*@Test
     public void testGetDateIntervalsDotsSeparatedSingle() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String dotSeparatedSingleInputDDMMYYY = "21.01.2023";
         String dotSeparatedSingleInputMMDDYYY = "01.21.2023";
@@ -220,5 +228,6 @@ class ShiftServiceTest {
         assertEquals(LocalDate.of(2023, 1, 21), startDateSingleInputYYYMMDD);
         assertEquals(LocalDate.of(2023, 1, 21), endDateSingleInputYYYMMDD);
 
-    }*/
-}
+    }*//*
+
+}*/

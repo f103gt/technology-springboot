@@ -30,10 +30,15 @@ public class ProductManagementController {
                 .body(productDto);
     }
 
+    /*@GetMapping("/get-products-data")
+    public ResponseEntity<ProductDto> getProductData(@RequestParam List<String> productNames){
+
+    }*/
+
     @GetMapping("api/v1/category-products")
     public ResponseEntity<List<GeneralProductDto>> allProductByCategory(
             @RequestParam("categoryName") String categoryName) {
-        List<GeneralProductDto> products=productService.getAllProductsByCagoryName(categoryName);
+        List<GeneralProductDto> products=productService.getAllProductsByCategoryName(categoryName);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(products);

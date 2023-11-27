@@ -14,6 +14,7 @@ public interface ProductService {
     ProductDto getProduct(String productName);
 
     List<ProductDto> getAllProducts();
+    List<GeneralProductDto> getAllProductsByProductNames(List<String> productNames);
 
-    List<GeneralProductDto> getAllProductsByCagoryName(String categoryName);
+    List<GeneralProductDto> getAllProductsByCategoryName(String categoryName);
 }

@@ -1,6 +1,7 @@
 package com.technology.order.repositories;
 
 import com.technology.order.models.Order;
+import com.technology.order.models.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +17,9 @@ public interface OrderRepository extends JpaRepository<Order, BigInteger> {
             select o from Order o\s
             where o.orderStatus = :orderStatus
              """)
-    List<Order> findOrdersWithOrderStatus(@Param("orderStatus") String orderStatus);
+    List<Order> findOrdersWithOrderStatus(@Param("orderStatus") OrderStatus orderStatus);
+
+    List<Order> findOrderByUserId(BigInteger userId);
 
     Optional<Order> findOrderByUniqueIdentifier(String uniqueIdentifier);
 
@@ -28,7 +31,7 @@ public interface OrderRepository extends JpaRepository<Order, BigInteger> {
             where o.id = :orderId
             """)
     void updateOrderStatusByOrderId(
-            @Param("orderStatus") String orderStatus,
+            @Param("orderStatus") OrderStatus orderStatus,
             @Param("orderId") BigInteger orderId);
 
     @Query("""
@@ -38,6 +41,6 @@ public interface OrderRepository extends JpaRepository<Order, BigInteger> {
             """)
     List<Order> findAllOrdersByEmployeeEmailAndOrderStatus(
             @Param("employeeEmail") String employeeEmail,
-            String orderStatus);
+            OrderStatus orderStatus);
 
 }

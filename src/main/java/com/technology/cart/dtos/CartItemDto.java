@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 @Builder
 public class CartItemDto {
 
+    private BigDecimal unitPrice;
+
     private Integer quantity;
 
     private BigDecimal finalPrice;

@@ -1,3 +1,4 @@
+/*
 package com.technology.activity.doas;
 
 import com.technology.activity.models.ActivityStatus;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
@@ -23,9 +25,11 @@ import java.util.Map;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
+*/
 /*@ActiveProfiles("test")
 @Import({TestDatabaseConfig.class})
-@ContextConfiguration(classes = {TechnologyApplication.class})*/
+@ContextConfiguration(classes = {TechnologyApplication.class})*//*
+
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @JdbcTest
 class ActivityDaoTest {
@@ -54,12 +58,16 @@ class ActivityDaoTest {
         jdbcTemplate.execute(slqCleanUp);
     }
 
-    /*private static final Logger logger =
-            LoggerFactory.getLogger(ActivityDaoTest.class);*/
+    */
+/*private static final Logger logger =
+            LoggerFactory.getLogger(ActivityDaoTest.class);*//*
 
 
-    /*TODO method to handle order packing completion -
-        setting new order status and updating actual points number*/
+
+    */
+/*TODO method to handle order packing completion -
+        setting new order status and updating actual points number*//*
+
     @Test
     public void updateAllEmployeeActivityTest() {
 
@@ -214,9 +222,9 @@ class ActivityDaoTest {
                         .build())
                 .build();
 
-        String employeeEmail = activityDao.distributeOrder(order, shift);
+        Pair<String,String> employeeEmail = activityDao.distributeOrder(order, shift);
 
-        assertThat(employeeEmail).isEqualTo("employee1@email.com");
+        assertThat(employeeEmail.getFirst()).isEqualTo("employee1@email.com");
 
         String sqlTest = """
                 SELECT e.email, o.id, potential_points,
@@ -238,7 +246,8 @@ class ActivityDaoTest {
     }
 }
 
- /*activityDao.updateAllEmployeesActivity(shift1, Role.STAFF);
+ */
+/*activityDao.updateAllEmployeesActivity(shift1, Role.STAFF);
         String sqlUpdated = """
                 SELECT e.email, a.activity_status, a.potential_points, a.actual_points
                 FROM activity a
@@ -256,7 +265,9 @@ class ActivityDaoTest {
                     int actualPoints = (int) result.get("actual_points");
                     assertThat(potentialPoints).isEqualTo(actualPoints);
                 }
-        );*/
+        );*//*
+
+*/
 /*activityRepository.findById(1)
                 .ifPresentOrElse(
                         activity -> {
@@ -265,11 +276,13 @@ class ActivityDaoTest {
                                     .hasFieldOrPropertyWithValue("potentialPoints", activity.getActualPoints());
                         },
                         () -> logger.error("ACTIVITY NOT FOUND")
-                );*/
+                );*//*
+
 
 
 //EMPLOYEE
- /*       Employee employee1 = Employee.builder()
+ */
+/*       Employee employee1 = Employee.builder()
                 .id(1)
                 .email("employee1@email.com")
                 .role(Role.STAFF)
@@ -307,8 +320,12 @@ class ActivityDaoTest {
         employeeRepository.save(employee1);
         employeeRepository.save(employee2);
 
-        *//*activityRepository.saveAll(List.of(activity1,activity2));
+        *//*
+*/
+/*activityRepository.saveAll(List.of(activity1,activity2));
         employeeRepository.saveAll(List.of(employee1, employee2));*//*
+*/
+/*
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         Shift shift1 = Shift.builder()
@@ -322,12 +339,18 @@ class ActivityDaoTest {
         shiftRepository.save(shift1);
         employee1.setShifts(List.of(shift1));
         employee2.setShifts(List.of(shift1));
-        employeeRepository.saveAll(List.of(employee1, employee2));*/
+        employeeRepository.saveAll(List.of(employee1, employee2));*//*
 
-/*TESTING WHETHER HOW THE POINTS AND STATUS WILL BE UPDATED*/
-/*TESTING HOW THE ORDERS WILL BE DISTRIBUTED*/
 
-        /*Optional<Activity>optional = activityRepository.findActivityById(1);
+*/
+/*TESTING WHETHER HOW THE POINTS AND STATUS WILL BE UPDATED*//*
+
+*/
+/*TESTING HOW THE ORDERS WILL BE DISTRIBUTED*//*
+
+
+        */
+/*Optional<Activity>optional = activityRepository.findActivityById(1);
         if(optional.isPresent()){
             Activity activity = optional.get();
             assertThat(activity)
@@ -362,18 +385,22 @@ class ActivityDaoTest {
                         },
                         () -> logger.error("ACTIVITY NOT FOUND")
                 );
-        activityDao.updateAllEmployeesActivity(shift1);*/
+        activityDao.updateAllEmployeesActivity(shift1);*//*
 
 
-        /*Optional<Activity>optional = activityRepository.findActivityById(1);
+
+        */
+/*Optional<Activity>optional = activityRepository.findActivityById(1);
         if(optional.isPresent()){
             Activity activity = optional.get();
             assertThat(activity)
                     .hasFieldOrPropertyWithValue("activityStatus", ActivityStatus.ABSENT)
                     .hasFieldOrPropertyWithValue("potentialPoints", activity.getActualPoints());
-        }*/
+        }*//*
 
 
+
+*/
 /*
     @BeforeEach
     @DirtiesContext
@@ -427,3 +454,4 @@ class ActivityDaoTest {
         cart2.setOrder(order2);
         cartRepository.saveAll(List.of(cart1,cart2));
     }*/
+

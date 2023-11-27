@@ -15,11 +15,13 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -40,17 +42,28 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .requiresChannel(channel -> channel.requestMatchers("/**").requiresSecure())
+                .requiresChannel(channel -> channel
+                        .requestMatchers(request -> !request.getRequestURI().startsWith("/subscribe")).requiresSecure()
+                        /*.requestMatchers("/**").requiresSecure()*/
+                )
                 .csrf(csrfConfigurer ->
                         csrfConfigurer
                                 .csrfTokenRepository(
                                         CookieCsrfTokenRepository.withHttpOnlyFalse())
                                 .csrfTokenRequestHandler(new CustomCsrfTokenRequestHandler())
+                                /*.ignoringRequestMatchers("/notification/subscribe")*/
+                                .ignoringRequestMatchers("/subscribe/**")
+
                 )
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(
                         auth ->
                                 auth
+                                        /*.requestMatchers("/notification/subscribe").permitAll()*/
+                                        /*TODO .requestMatcher("/place-order").hasAuthority("ROLE_USER")*/
+                                        .requestMatchers("/subscribe/**").permitAll()
+                                        .requestMatchers("/place-order").permitAll()
+                                        .requestMatchers(HttpMethod.GET,"/trigger-notification").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/authenticate").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/generate-otp").permitAll()
@@ -83,7 +96,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000"));
-        corsConfiguration.setAllowedMethods(List.of("GET", "PUT", "POST", "DELETE", "OPTIONS"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "PUT","PATCH", "POST", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of(
                 HttpHeaders.AUTHORIZATION,
                 HttpHeaders.CONTENT_TYPE,

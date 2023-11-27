@@ -18,7 +18,7 @@ public class OrderMessagePublisher {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public void publishMessage(Order order) {
+    public void publishMessage(OrderMessage order) {
         rabbitTemplate.convertAndSend(
                 orderTopic,
                 orderBindingKey,

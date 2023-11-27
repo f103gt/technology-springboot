@@ -31,8 +31,13 @@ public class OrderDto {
 
     private String deliveryAddress;
 
-    private LocalDateTime orderDate;
+    private String orderDate;
+
     private String orderStatus;
+
+    private BigDecimal subTotal;
+
+    private BigDecimal deliveryPrice;
 
     private BigDecimal totalPrice;
 

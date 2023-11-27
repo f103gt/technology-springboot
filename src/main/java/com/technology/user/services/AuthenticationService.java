@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -36,8 +37,14 @@ public class AuthenticationService {
     private final OtpService otpService;
     private final EmailSenderService emailSenderService;
     private final EmployeeRepository employeeRepository;
+    private String uuid = "";
 
     //TODO EXTRACT THE USER INSERTION INTO THE SECURITY CONTEXT AFTER THE OTP IS VERIFIED
+
+    private String generateUniqueIdentifier() {
+        return UUID.randomUUID().toString();
+    }
+
     @Transactional
     public void register(RegistrationRequest registrationRequest)
             throws UserAlreadyExistsException {
@@ -54,6 +61,8 @@ public class AuthenticationService {
                         (employee) -> {
                             user.setRole(employee.getRole());
                             employee.setRegistered(true);
+                            uuid = generateUniqueIdentifier();
+                            employee.setUniqueIdentifier(uuid);
                             employeeRepository.save(employee);
                         },
                         () -> user.setRole(Role.USER)
@@ -83,7 +92,7 @@ public class AuthenticationService {
         );
     }
 
-    public void regenerateEmailValidationOtp(String email){
+    public void regenerateEmailValidationOtp(String email) {
         emailSenderService.sendMessage(
                 email,
                 otpService.updateOtp(email),
@@ -91,12 +100,12 @@ public class AuthenticationService {
         );
     }
 
-    public AuthenticationResponse verifyOtp(String otp){
+    public AuthenticationResponse verifyOtp(String otp) {
         User user = otpService.otpConfirmation(otp);
         return saveTokensAndCreateResponse(user);
     }
 
-    private AuthenticationResponse saveTokensAndCreateResponse(User user){
+    private AuthenticationResponse saveTokensAndCreateResponse(User user) {
         String role = user.getRole().name();
         Map<String, Object> claims = Map.of("role", role);
         SecurityUser securityUser = new SecurityUser(user);
@@ -116,7 +125,6 @@ public class AuthenticationService {
                 .expired(false)
                 .revoked(false)
                 .build());
-        return new AuthenticationResponse(
-                jwtToken, refreshToken, user.getFirstName(), user.getLastName(), role);
+        return new AuthenticationResponse(jwtToken, refreshToken, uuid, role);
     }
 }

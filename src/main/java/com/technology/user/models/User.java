@@ -47,21 +47,9 @@ public class User {
             mappedBy = "user", fetch = FetchType.LAZY)
     private Cart cart;
 
-/*
-    @OneToOne(cascade = CascadeType.MERGE,
-            fetch = FetchType.LAZY,
-    mappedBy = "employee")
-    private Activity employeeActivity;
-*/
-
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 
-    //TODO consider moving shifts to employee activity
-
-    /* @ManyToMany(mappedBy = "employees")
-     private List<Shift> shifts;
- */
     @OneToMany(fetch = FetchType.LAZY, cascade =
             {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH},
             mappedBy = "user")

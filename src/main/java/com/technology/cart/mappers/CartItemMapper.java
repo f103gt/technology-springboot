@@ -10,5 +10,6 @@ public interface CartItemMapper {
     @Mapping(source = "product.productName",target = "productName")
     @Mapping(source = "product.sku",target = "sku")
     @Mapping(source = "product.primaryImageUrl",target = "primaryImageUrl")
+    @Mapping(source = "product.price",target = "unitPrice")
     CartItemDto cartItemToCartItemDto(CartItem cartItem);
 }
