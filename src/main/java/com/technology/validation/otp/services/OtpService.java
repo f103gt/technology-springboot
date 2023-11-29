@@ -26,7 +26,7 @@ public class OtpService {
     private final UserRepository userRepository;
 
     public Otp generateAndSaveOtp(String email) {
-        String otpValue = otpGenerator.generateOTP(8);
+        String otpValue = otpGenerator.generateOTP(6);
         //TODO review the token type setup for the entity (string or token type)
         User user = userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));

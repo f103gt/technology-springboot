@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class CartServiceHelper {
     }
 
 
-    public static Optional<CartItem> findParticularCartItemOptional(Set<CartItem> cartItems, BigInteger productId) {
+    public static Optional<CartItem> findParticularCartItemOptional(Collection<CartItem> cartItems, BigInteger productId) {
         return cartItems.stream()
                 .filter(cartItem ->
                         cartItem.getProduct().getId().equals(productId))

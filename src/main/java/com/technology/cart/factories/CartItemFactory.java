@@ -13,7 +13,6 @@ public class CartItemFactory {
                 .product(product)
                 .build();
         cart.getCartItems().add(cartItem);
-        product.getCartItems().add(cartItem);
         return cartItem;
     }
 }

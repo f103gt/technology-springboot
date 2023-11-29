@@ -6,6 +6,7 @@ import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.cart.mappers.CartItemMapper;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
+import com.technology.cart.repositories.CartItemRepository;
 import com.technology.cart.repositories.CartRepository;
 import com.technology.product.exceptions.ProductNotFoundException;
 import com.technology.product.models.Product;
@@ -31,6 +32,7 @@ public class CartServiceImpl implements CartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CartItemMapper cartItemMapper;
+    private final CartItemRepository cartItemRepository;
 
 
     @Transactional
@@ -75,7 +77,13 @@ public class CartServiceImpl implements CartService {
         Product product = productRepository.findProductByProductName(productName)
                 .orElseThrow(() ->
                         new ProductNotFoundException("product not found"));
-        deleteCartItem(product.getId());
+        String userEmail = CartServiceHelper.getSecurityUserFromContext().getUser().getEmail();
+        userRepository.findUserByEmail(userEmail)
+                .ifPresent(user -> {
+                    Cart cart = user.getCart();
+                    cartItemRepository.deleteOrDecreaseCartItemByProductId(cart.getId(),product.getId());
+                });
+        //deleteCartItem(product.getId());
     }
 
     @Override
@@ -85,7 +93,7 @@ public class CartServiceImpl implements CartService {
                 .ifPresent(user -> {
                     Cart cart = user.getCart();
                     if (cart != null) {
-                        Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
+                        List<CartItem> cartItems = cart.getCartItems().stream().toList();
                         removeCartItemFromCartIfPresent(cartItems, cart, productId);
                     }
                 });
@@ -100,7 +108,7 @@ public class CartServiceImpl implements CartService {
     }
 
     private void addProductToCart(BigInteger productId, Cart cart) {
-        Set<CartItem> cartItems = new HashSet<>(cart.getCartItems());
+        List<CartItem> cartItems = cart.getCartItems().stream().toList();
         Optional<CartItem> cartItemOptional = findParticularCartItemOptional(cartItems, productId);
         //increaseQuantityOrAddNewCartItem
         cartItemOptional.ifPresentOrElse(
@@ -127,10 +135,11 @@ public class CartServiceImpl implements CartService {
         return cart;
     }
 
-    private void removeCartItemFromCartIfPresent(Set<CartItem> cartItems, Cart cart, BigInteger productId) {
+    private void removeCartItemFromCartIfPresent(List<CartItem> cartItems, Cart cart, BigInteger productId) {
         Optional<CartItem> cartItemToRemoveOptional = findParticularCartItemOptional(cartItems, productId);
         cartItemToRemoveOptional.ifPresentOrElse(cartItemToRemove -> {
                     cartItems.remove(cartItemToRemove);
+                    cart.setCartItems(cartItems);
                     cartRepository.save(cart);
                 },
                 () -> {

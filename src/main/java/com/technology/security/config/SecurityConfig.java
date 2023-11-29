@@ -67,6 +67,7 @@ public class SecurityConfig {
                                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/authenticate").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/generate-otp").permitAll()
+                                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/otp-verification").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/update-otp").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/all-categories").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/category-products").permitAll()

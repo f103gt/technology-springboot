@@ -81,8 +81,11 @@ public class OrderServiceV2 {
                 .ifPresent(order -> {
                     orderRepository.updateOrderStatusByOrderId(OrderStatus.PACKED,
                             order.getId());
-                    /*TODO SEND MESSAGE TO THE CUSTOMER INFORMING
-                       THAT THE ORDER IS PACKED*/
+                    emailSenderService.sendMessage(
+                            customerEmail,
+                            "The order was successfully packed.\n" +
+                                    "Thank you for choosing our services",
+                            "Order was packed");
 
                     //TODO CHECK IF I CAN UPDATE PRODUCTS WITHOUT USING PRODUCT REPOSITORY
                     List<Product> products = order.getCart().getCartItems().stream()
@@ -99,8 +102,19 @@ public class OrderServiceV2 {
     @Transactional
     public void changeOrderStatus(String orderIdentifier, OrderStatus orderStatus) {
         orderRepository.findOrderByUniqueIdentifier(orderIdentifier)
-                .ifPresentOrElse(order -> orderRepository
-                                .updateOrderStatusByOrderId(orderStatus, order.getId()),
+                .ifPresentOrElse(order ->
+                        {
+                            if (orderStatus.equals(OrderStatus.PACKED)) {
+                                markOrderPacked(orderIdentifier, order.getEmail());
+                                return;
+                            }
+                            orderRepository
+                                    .updateOrderStatusByOrderId(orderStatus, order.getId());
+                            emailSenderService.sendMessage(order.getEmail(),
+                                    "The order was successfully sent.\n" +
+                                            "Thank you for choosing our services",
+                                    "Order was sent");
+                        },
                         () -> {
                             throw new OrderNotFoundException("Order not found");
                         }
@@ -165,6 +179,11 @@ public class OrderServiceV2 {
         userRepository.save(user);
         cart.setOrder(savedOrder);
         cartRepository.save(cart);
+        emailSenderService.sendMessage(
+                user.getEmail(),
+                formMessageBody(savedOrder),
+                "Your order was successfully placed!"
+        );
         messagePublisher.publishMessage(
                 new OrderMessage(savedOrder.getId(),
                         ActivityDao.countItemsQuantity(savedOrder),

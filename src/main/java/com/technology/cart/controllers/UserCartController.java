@@ -4,6 +4,7 @@ import com.technology.cart.dtos.CartItemDto;
 import com.technology.cart.services.CartService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -13,9 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasAnyAuthority('ROlE_USER','ROLE_MANAGER','ROLE_ADMIN','ROLE_STAFF')")
-@RequestMapping("cart/api/v1")
+@PreAuthorize("hasRole('USER')")
+@RequestMapping("/cart/api/v1")
 @RequiredArgsConstructor
+@Log4j2
 public class UserCartController {
     private final CartService cartService;
 
@@ -27,6 +29,7 @@ public class UserCartController {
     public ResponseEntity<String> addItemToCart(
             @RequestParam("cartItemName") String cartItemName){
         cartService.addCartItem(cartItemName);
+        log.atInfo().log("ADDED NEW ITEM");
         return ResponseEntity.ok().build();
     }
     @DeleteMapping("/delete-item")

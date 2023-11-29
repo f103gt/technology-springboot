@@ -48,8 +48,7 @@ public class AuthenticationController {
         OR RABBIT MQ WILL BE MORE SUITABLE IN THIS CONTEXT
     *  */
     @GetMapping("/update-otp")
-    public ResponseEntity<String> updateOtp(
-            @RequestParam("email") String email) {
+    public ResponseEntity<String> updateOtp(@RequestParam("email") String email) {
         service.regenerateEmailValidationOtp(email);
         return ResponseEntity.ok().build();
     }

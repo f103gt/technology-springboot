@@ -75,7 +75,9 @@ public interface OrderMapper {
 
     default String mapOrderStatus(OrderStatus orderStatus) {
         if (orderStatus != null) {
-            return statusToTitleCase(orderStatus.name());
+            String word = orderStatus.name().toLowerCase();
+            word = word.substring(0, 1).toUpperCase() + word.substring(1);
+            return word;
         } else {
             return null;
         }
@@ -83,7 +85,9 @@ public interface OrderMapper {
 
     default String mapDeliveryMethod(DeliveryMethod deliveryMethod) {
         if (deliveryMethod != null) {
-            return statusToTitleCase(deliveryMethod.name());
+            String word = deliveryMethod.name().toLowerCase();
+            word = word.substring(0, 1).toUpperCase() + word.substring(1);
+            return word;
         } else {
             return null;
         }
@@ -91,16 +95,12 @@ public interface OrderMapper {
 
     default String mapPaymentMethod(PaymentMethod paymentMethod) {
         if (paymentMethod != null) {
-            return statusToTitleCase(paymentMethod.name());
+            String word = paymentMethod.name().toLowerCase();
+            word = word.substring(0, 1).toUpperCase() + word.substring(1);
+            return word;
         } else {
             return null;
         }
-    }
-
-    default String statusToTitleCase(String status){
-        String word = status.toLowerCase();
-        word = word.substring(0, 1).toUpperCase() + word.substring(1);
-        return word;
     }
 }
 
