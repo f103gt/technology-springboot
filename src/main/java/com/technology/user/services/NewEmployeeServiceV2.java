@@ -4,15 +4,17 @@ import com.technology.role.enums.Role;
 import com.technology.shift.models.File;
 import com.technology.shift.repositories.FileRepository;
 import com.technology.user.brokers.MessagePublisher;
-import com.technology.user.exceptions.FileAlreadyUploadedException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,10 +29,10 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.technology.user.services.FileHelper.calculateHash;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class NewEmployeeServiceV2 {
-    //private static final Logger logger = LoggerFactory.getLogger(NewEmployeeServiceV2.class);
     private final FileRepository fileRepository;
     private final JdbcTemplate jdbcTemplate;
     private final MessagePublisher messagePublisher;
@@ -38,7 +40,8 @@ public class NewEmployeeServiceV2 {
     public void parseFile(MultipartFile file) {
         fileRepository.findFileByFileName(file.getOriginalFilename())
                 .ifPresent(fileName -> {
-                    throw new FileAlreadyUploadedException("The file" + fileName + " has already been uploaded");
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "The provided file data is already uploaded.");
                 });
 
         String hash = calculateHash(file);
@@ -46,7 +49,8 @@ public class NewEmployeeServiceV2 {
         if (!hash.isEmpty()) {
             fileRepository.findFileByFileHash(hash)
                     .ifPresent(fileHash -> {
-                        throw new FileAlreadyUploadedException("The provided file content has already been uploaded");
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "The provided file data is already uploaded.");
                     });
         }
 
@@ -72,16 +76,22 @@ public class NewEmployeeServiceV2 {
                     }
                 }
                 if (!email.isEmpty() && role != null) {
-                    Object[] employeeData = {email, role.name(),role.name()};
+                    Object[] employeeData = {email, role.name(), role.name()};
                     employees.add(employeeData);
                 }
             }
             messagePublisher.publishMessage(employees);
 
         } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
+            log.error("NoSuchAlgorithmException OCCURRED IN parseFile() IN NewEmployeeServiceV2.class");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "An error occurred while saving new employees.\n" +
+                            "Please,try again latter.", ex);
         } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            log.error("IOException OCCURRED IN parseFile() IN NewEmployeeServiceV2.class");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "An error occurred while saving new employees.\n" +
+                            "Please,try again latter.", ex);
         }
         fileRepository.save(File.builder()
                 .fileName(file.getOriginalFilename())
@@ -101,6 +111,7 @@ public class NewEmployeeServiceV2 {
         }
         return CompletableFuture.completedFuture(null);
     }
+
     private boolean isEmail(String value) {
         return value.contains("@gmail.com");
     }

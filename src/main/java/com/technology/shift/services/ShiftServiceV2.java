@@ -37,6 +37,7 @@ import java.util.Optional;
 public class ShiftServiceV2 {
     //TODO  ADD FILE HASH CHECK UP
 
+    //TODO HANDLE THE CASE WHEN THE USERNAME IS PROVIDED INCORRECTLY
     private static final Logger logger = LoggerFactory.getLogger(ShiftServiceV2.class);
     private final FileRepository fileRepository;
     private final JdbcTemplate jdbcTemplate;

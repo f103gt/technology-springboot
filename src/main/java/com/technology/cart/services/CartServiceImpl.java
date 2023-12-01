@@ -83,10 +83,10 @@ public class CartServiceImpl implements CartService {
                     Cart cart = user.getCart();
                     cartItemRepository.deleteOrDecreaseCartItemByProductId(cart.getId(),product.getId());
                 });
-        //deleteCartItem(product.getId());
     }
 
-    @Override
+    //TODO DELTE ALL THE CART ITEMS OF THE PROVIDED PRODUCT
+    /*@Override
     public void deleteCartItem(BigInteger productId) {
         String userEmail = CartServiceHelper.getSecurityUserFromContext().getUser().getEmail();
         userRepository.findUserByEmail(userEmail)
@@ -94,11 +94,10 @@ public class CartServiceImpl implements CartService {
                     Cart cart = user.getCart();
                     if (cart != null) {
                         List<CartItem> cartItems = cart.getCartItems().stream().toList();
-                        removeCartItemFromCartIfPresent(cartItems, cart, productId);
                     }
                 });
 
-    }
+    }*/
 
     @Override
     public void deleteCart(User user) {
@@ -133,20 +132,6 @@ public class CartServiceImpl implements CartService {
             userRepository.save(user);
         }
         return cart;
-    }
-
-    private void removeCartItemFromCartIfPresent(List<CartItem> cartItems, Cart cart, BigInteger productId) {
-        Optional<CartItem> cartItemToRemoveOptional = findParticularCartItemOptional(cartItems, productId);
-        cartItemToRemoveOptional.ifPresentOrElse(cartItemToRemove -> {
-                    cartItems.remove(cartItemToRemove);
-                    cart.setCartItems(cartItems);
-                    cartRepository.save(cart);
-                },
-                () -> {
-                    throw new ProductNotFoundException(
-                            "Product with id " + productId + " not found");
-                }
-        );
     }
 
 }

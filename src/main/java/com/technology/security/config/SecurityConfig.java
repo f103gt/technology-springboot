@@ -1,5 +1,7 @@
 package com.technology.security.config;
 
+import com.technology.exception.handler.authentication.AuthenticationErrorHandler;
+import com.technology.exception.handler.authentication.CustomAuthenticationEntryPoint;
 import com.technology.security.csrf.CsrfCookieFilter;
 import com.technology.security.csrf.CustomCsrfTokenRequestHandler;
 import com.technology.security.jwt.filters.JwtAuthenticationFilter;
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -19,6 +22,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -38,12 +42,17 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutService logoutService;
+    private final AuthenticationErrorHandler authenticationErrorHandler;
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .exceptionHandling(exceptionHandlingConfigurer ->
+                        exceptionHandlingConfigurer
+                                .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+
                 .requiresChannel(channel -> channel
-                        .requestMatchers(request -> !request.getRequestURI().startsWith("/subscribe")).requiresSecure()
+                                .requestMatchers(request -> !request.getRequestURI().startsWith("/subscribe")).requiresSecure()
                         /*.requestMatchers("/**").requiresSecure()*/
                 )
                 .csrf(csrfConfigurer ->
@@ -63,7 +72,7 @@ public class SecurityConfig {
                                         /*TODO .requestMatcher("/place-order").hasAuthority("ROLE_USER")*/
                                         .requestMatchers("/subscribe/**").permitAll()
                                         .requestMatchers("/place-order").permitAll()
-                                        .requestMatchers(HttpMethod.GET,"/trigger-notification").permitAll()
+                                        .requestMatchers(HttpMethod.GET, "/trigger-notification").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/authenticate").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/auth/generate-otp").permitAll()
@@ -79,6 +88,8 @@ public class SecurityConfig {
                                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
+                /*.formLogin(httpSecurityFormLoginConfigurer ->
+                        httpSecurityFormLoginConfigurer.failureHandler(authenticationErrorHandler))*/
                 .sessionManagement(sessionManagementConfigurer -> sessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
@@ -97,7 +108,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("https://localhost:3000"));
-        corsConfiguration.setAllowedMethods(List.of("GET", "PUT","PATCH", "POST", "DELETE", "OPTIONS"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of(
                 HttpHeaders.AUTHORIZATION,
                 HttpHeaders.CONTENT_TYPE,

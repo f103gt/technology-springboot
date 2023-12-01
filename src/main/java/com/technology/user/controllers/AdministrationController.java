@@ -6,7 +6,6 @@ import com.technology.user.dto.UserDto;
 import com.technology.user.services.NewEmployeeServiceV2;
 import com.technology.user.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,15 +26,16 @@ public class AdministrationController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/admin/all-users")
-    public ResponseEntity<List<UserDto>> getUsers(){
+    public ResponseEntity<List<UserDto>> getUsers() {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(userService.getAllUsers());
     }
 
-    @PostMapping("/admin/add-new-employees")
+    @PostMapping(value = "/admin/add-new-employees",
+            consumes = "multipart/form-data")
     public ResponseEntity<String> uploadNewEmployeesData(
-            @RequestParam("newEmployeesData")MultipartFile data){
+            @RequestParam("newEmployeesData") MultipartFile data) {
         newEmployeeService.parseFile(data);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -44,7 +44,7 @@ public class AdministrationController {
 
     @PostMapping("/admin/distribute-shifts")
     public ResponseEntity<String> distributeShifts(
-            @RequestParam("shifts")MultipartFile data){
+            @RequestParam("shifts") MultipartFile data) {
         shiftService.parseCSVFile(data);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -52,19 +52,19 @@ public class AdministrationController {
     }
 
     @PatchMapping("/admin/add-manager")
-    public ResponseEntity<String> addManager(@RequestBody String username){
+    public ResponseEntity<String> addManager(@RequestBody String username) {
         roleService.addRoleManager(username);
         return ResponseEntity.ok("User role was changed to manager");
     }
 
     @PatchMapping("/admin/add-admin")
-    public ResponseEntity<String> makeAdmin(@RequestBody String username){
+    public ResponseEntity<String> makeAdmin(@RequestBody String username) {
         roleService.addRoleAdmin(username);
         return ResponseEntity.ok("User role was changed to admin");
     }
 
     @DeleteMapping("/admin/delete-manager")
-    public ResponseEntity<String> deleteManager(@RequestBody String username){
+    public ResponseEntity<String> deleteManager(@RequestBody String username) {
         roleService.deleteRoleManager(username);
         return ResponseEntity.ok("User has no management authorities");
     }

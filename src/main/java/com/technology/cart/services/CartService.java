@@ -10,7 +10,7 @@ import java.util.List;
 public interface CartService {
     void saveCart(BigInteger productId);
 
-    void deleteCartItem(BigInteger productId);
+   /* void deleteCartItem(BigInteger productId);*/
 
     void deleteItemFromCart(String productName);
     void addCartItem(String productName);
