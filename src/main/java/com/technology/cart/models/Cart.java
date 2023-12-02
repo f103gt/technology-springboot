@@ -24,9 +24,12 @@ public class Cart {
     private User user;
 
     @OneToOne
-    @JoinColumn(name = "order_id",referencedColumnName = "id")
+    @JoinColumn(name = "order_id",
+            referencedColumnName = "id")
     private Order order;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,mappedBy = "cart")
+    @OneToMany(fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL,
+            mappedBy = "cart")
     Collection<CartItem> cartItems;
 }

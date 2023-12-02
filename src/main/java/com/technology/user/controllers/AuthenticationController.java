@@ -55,8 +55,7 @@ public class AuthenticationController {
 
     @PostMapping("/otp-verification")
     private ResponseEntity<JsonAuthResponse> otpVerify(
-            @RequestBody String otp
-    ) {
+            @RequestBody String otp) {
         return configureResponseEntity(service.verifyOtp(otp));
     }
 

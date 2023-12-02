@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.mapstruct.Mapping;
 
 import java.math.BigDecimal;
 
@@ -13,16 +12,22 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class CartItemDto {
-
-    private BigDecimal unitPrice;
-
-    private Integer quantity;
-
-    private BigDecimal finalPrice;
+    private String categoryName;
 
     private String productName;
 
-    private String sku;
+    private String productImage;
 
-    private String primaryImageUrl;
+    private Integer productQuantity;
+
+    private Integer cartItemQuantity;
+
+    private BigDecimal cartItemPrice;
 }
+
+
+//private String sku;
+/*TODO REPLACE UNIT PRICE WITH PRODUCT QUANTITY
+       TO MAKE IT IMPOSSIBLE FOR USER TO ADD
+       MORE PRODUCTS TO THE CART THAT IT IS
+       CURRENTLY AVAILABLE*/

@@ -8,8 +8,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CartItemMapper {
     @Mapping(source = "product.productName",target = "productName")
-    @Mapping(source = "product.sku",target = "sku")
-    @Mapping(source = "product.primaryImageUrl",target = "primaryImageUrl")
-    @Mapping(source = "product.price",target = "unitPrice")
+    @Mapping(source = "product.category.categoryName",target = "categoryName")
+    @Mapping(source = "product.primaryImageUrl",target = "productImage")
+    @Mapping(source="product.quantity",target = "productQuantity")
+    @Mapping(source = "finalPrice", target = "cartItemPrice")
+    @Mapping(source = "quantity",target = "cartItemQuantity")
     CartItemDto cartItemToCartItemDto(CartItem cartItem);
 }

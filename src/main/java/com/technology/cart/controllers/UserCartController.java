@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @PreAuthorize("hasRole('USER')")
@@ -21,21 +22,28 @@ import java.util.List;
 public class UserCartController {
     private final CartService cartService;
 
-  /*  @GetMapping("/get-user-cart")
+    @GetMapping("/get-user-cart")
     public ResponseEntity<List<CartItemDto>> getUserCart(){
         return ResponseEntity.ok().body(cartService.getUserCart());
-    }*/
+    }
     @PostMapping("/add-item")
     public ResponseEntity<String> addItemToCart(
             @RequestParam("cartItemName") String cartItemName){
         cartService.addCartItem(cartItemName);
-        log.atInfo().log("ADDED NEW ITEM");
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/add-all-cart-items")
+    public ResponseEntity<List<CartItemDto>> addAllCartItemsToCart(
+            @RequestBody Map<String, String> productQuantityMap){
+        log.atInfo().log("IN addAllCartItemsToCart");
+        return ResponseEntity.ok()
+                .body(cartService
+                        .saveAllCartItems(productQuantityMap));
     }
     @DeleteMapping("/delete-item")
     public ResponseEntity<String> deleteItemFromCart(
-            @RequestParam("cartItemName") String cartItemName,
-            @NonNull HttpServletRequest request) {
+            @RequestParam("cartItemName") String cartItemName) {
         cartService.deleteItemFromCart(cartItemName);
         return ResponseEntity.ok().build();
     }

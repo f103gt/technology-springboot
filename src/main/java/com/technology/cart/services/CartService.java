@@ -6,11 +6,13 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 public interface CartService {
     void saveCart(BigInteger productId);
 
    /* void deleteCartItem(BigInteger productId);*/
+   List<CartItemDto> saveAllCartItems(Map<String, String> cartItemRequests);
 
     void deleteItemFromCart(String productName);
     void addCartItem(String productName);

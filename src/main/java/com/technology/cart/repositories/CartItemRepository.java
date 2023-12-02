@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigInteger;
+import java.util.Optional;
 
 public interface CartItemRepository extends JpaRepository<CartItem, BigInteger> {
     @Modifying
@@ -18,4 +19,5 @@ public interface CartItemRepository extends JpaRepository<CartItem, BigInteger> 
             nativeQuery = true)
     void deleteOrDecreaseCartItemByProductId(@Param("cartId") BigInteger cartId, @Param("productId") BigInteger productId);
 
+    Optional<CartItem> findCartItemByProductIdAndCartId(BigInteger productId, BigInteger cartId);
 }

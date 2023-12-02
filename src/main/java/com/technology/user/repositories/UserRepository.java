@@ -8,6 +8,9 @@ import java.math.BigInteger;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, BigInteger> {
+    //Optional<User> findUserById(BigInteger id);
+    @Query("select u from User u where u.id = :id")
+    Optional<User> findUserById(BigInteger id);
     @Query("select u from User u where u.email = :email")
     Optional<User> findUserByEmail(String email);
 
