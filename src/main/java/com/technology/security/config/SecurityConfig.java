@@ -1,5 +1,8 @@
 package com.technology.security.config;
 
+import com.technology.exception.filters.AnonymousFilter;
+import com.technology.exception.filters.ClearContextFilter;
+import com.technology.exception.handler.authentication.AccessDeniedExceptionHandler;
 import com.technology.exception.handler.authentication.AuthenticationErrorHandler;
 import com.technology.exception.handler.authentication.CustomAuthenticationEntryPoint;
 import com.technology.security.csrf.CsrfCookieFilter;
@@ -7,6 +10,8 @@ import com.technology.security.csrf.CustomCsrfTokenRequestHandler;
 import com.technology.security.jwt.filters.JwtAuthenticationFilter;
 import com.technology.security.jwt.services.LogoutService;
 import com.technology.security.services.JpaUserDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,11 +22,14 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -47,9 +55,15 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
+
+                .addFilterBefore(new ClearContextFilter(), AnonymousAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer
-                                .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+                                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                                .accessDeniedHandler(new AccessDeniedExceptionHandler()))
+                .securityMatcher(request -> !request.getRequestURI().equals("/error"))
+
+                /*.anonymous(anonymousConfigurer -> anonymousConfigurer.authenticationFilter())*/
 
                 .requiresChannel(channel -> channel
                                 .requestMatchers(request -> !request.getRequestURI().startsWith("/subscribe")).requiresSecure()
@@ -70,6 +84,7 @@ public class SecurityConfig {
                                 auth
                                         /*.requestMatchers("/notification/subscribe").permitAll()*/
                                         /*TODO .requestMatcher("/place-order").hasAuthority("ROLE_USER")*/
+                                       /* .requestMatchers("/error").permitAll()*/
                                         .requestMatchers("/subscribe/**").permitAll()
                                         .requestMatchers("/place-order").permitAll()
                                         .requestMatchers(HttpMethod.GET, "/trigger-notification").permitAll()
@@ -88,8 +103,6 @@ public class SecurityConfig {
                                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
-                /*.formLogin(httpSecurityFormLoginConfigurer ->
-                        httpSecurityFormLoginConfigurer.failureHandler(authenticationErrorHandler))*/
                 .sessionManagement(sessionManagementConfigurer -> sessionManagementConfigurer
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
