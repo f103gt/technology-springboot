@@ -32,25 +32,23 @@ public class AdministrationController {
                 .body(userService.getAllUsers());
     }
 
+    //TODO ADD RESPONSE DATA TYPE
     @PostMapping(value = "/admin/add-new-employees",
             consumes = "multipart/form-data")
     public ResponseEntity<String> uploadNewEmployeesData(
             @RequestParam("newEmployeesData") MultipartFile data) {
         newEmployeeService.parseFile(data);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/admin/distribute-shifts")
     public ResponseEntity<String> distributeShifts(
             @RequestParam("shifts") MultipartFile data) {
         shiftService.parseCSVFile(data);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .build();
+        return ResponseEntity.ok().build();
     }
 
+    //TODO REVISE ALL ADD- CONTROLLERS
     @PatchMapping("/admin/add-manager")
     public ResponseEntity<String> addManager(@RequestBody String username) {
         roleService.addRoleManager(username);

@@ -1,5 +1,6 @@
 package com.technology.shift.services;
 
+import com.technology.shift.models.File;
 import com.technology.shift.repositories.FileRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.util.Pair;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,6 +35,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.technology.user.services.FileHelper.calculateHash;
+
 @Service
 @RequiredArgsConstructor
 public class ShiftServiceV2 {
@@ -43,6 +48,21 @@ public class ShiftServiceV2 {
     private final JdbcTemplate jdbcTemplate;
 
     public void parseCSVFile(MultipartFile multipartFile) {
+        fileRepository.findFileByFileName(multipartFile.getOriginalFilename())
+                .ifPresent(fileName -> {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "The provided file data is already uploaded.");
+                });
+
+        String hash = calculateHash(multipartFile);
+
+        if (!hash.isEmpty()) {
+            fileRepository.findFileByFileHash(hash)
+                    .ifPresent(fileHash -> {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "The provided file data is already uploaded.");
+                    });
+        }
         try {
             List<Object[]> employeeShifts = parseFile(multipartFile);
             if (!employeeShifts.isEmpty()) {
@@ -51,6 +71,10 @@ public class ShiftServiceV2 {
         } catch (IOException e) {
             logger.error("UNABLE TO PARSE THE FILE");
         }
+        fileRepository.save(File.builder()
+                .fileName(multipartFile.getOriginalFilename())
+                .fileHash(hash)
+                .build());
     }
 
     private List<Object[]> parseFile(MultipartFile multipartFile) throws IOException {
@@ -174,7 +198,17 @@ public class ShiftServiceV2 {
                 DateTimeFormatter.ofPattern("yyyy-MM-dd"),
                 DateTimeFormatter.ofPattern("dd/MM/yyyy"),
                 DateTimeFormatter.ofPattern("MM/dd/yyyy"),
-                DateTimeFormatter.ofPattern("yyyy/MM/dd")
+                DateTimeFormatter.ofPattern("yyyy/MM/dd"),
+
+                DateTimeFormatter.ofPattern("d.M.yyyy"),
+                DateTimeFormatter.ofPattern("M.d.yyyy"),
+                DateTimeFormatter.ofPattern("yyyy.M.d"),
+                DateTimeFormatter.ofPattern("d-M-yyyy"),
+                DateTimeFormatter.ofPattern("M-d-yyyy"),
+                DateTimeFormatter.ofPattern("yyyy-M-d"),
+                DateTimeFormatter.ofPattern("d/M/yyyy"),
+                DateTimeFormatter.ofPattern("M/d/yyyy"),
+                DateTimeFormatter.ofPattern("yyyy/M/d")
         );
 
         for (DateTimeFormatter formatter : formatters) {

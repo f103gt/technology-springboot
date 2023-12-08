@@ -22,7 +22,4 @@ public class OrderRegistrationRequest {
     private String deliveryMethod;
 
     private String deliveryAddress;
-    //TODO calculate final based on the item price and delivery method
-
-    /*private BigDecimal totalPrice;*/
 }

@@ -1,6 +1,7 @@
 package com.technology.cart.repositories;
 
 import com.technology.cart.models.CartItem;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,12 +13,19 @@ import java.util.Optional;
 public interface CartItemRepository extends JpaRepository<CartItem, BigInteger> {
     @Modifying
     @Query(value = """
-            DELETE FROM cart_item WHERE cart_id = :cartId AND product_id = :productId AND quantity = 1;
-            UPDATE cart_item SET quantity = quantity - 1 WHERE cart_id = :cartId
-            AND product_id = :productId AND quantity > 1
-            """,
-            nativeQuery = true)
-    void deleteOrDecreaseCartItemByProductId(@Param("cartId") BigInteger cartId, @Param("productId") BigInteger productId);
+            UPDATE cart_item
+            SET quantity = quantity - 1,
+            price = price - (SELECT price FROM product WHERE id = :productId)
+            WHERE cart_id = :cartId AND product_id = :productId
+            """,nativeQuery = true)
+    void deleteOrDecreaseCartItemByProductId(@Param("cartId") BigInteger cartId,
+                                             @Param("productId") BigInteger productId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM CartItem ci WHERE ci.cart.id = :cardId AND ci.product.id = :productId")
+    void deleteCartItemByProductId(@Param("cardId") BigInteger cardId,
+                                   @Param("productId") BigInteger productId);
 
     Optional<CartItem> findCartItemByProductIdAndCartId(BigInteger productId, BigInteger cartId);
 }

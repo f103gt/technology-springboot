@@ -2,6 +2,7 @@ package com.technology.order.services;
 
 import com.rabbitmq.client.Channel;
 import com.technology.activity.doas.ActivityDao;
+import com.technology.activity.repositories.ActivityRepository;
 import com.technology.cart.helpers.CartServiceHelper;
 import com.technology.cart.models.Cart;
 import com.technology.cart.models.CartItem;
@@ -38,6 +39,7 @@ import reactor.core.publisher.Sinks;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -57,6 +59,7 @@ public class OrderServiceV2 {
     private final CartRepository cartRepository;
     private final OrderMessagePublisher messagePublisher;
     private final EmailSenderService emailSenderService;
+    private final ActivityRepository activityRepository;
     /* private final SimpMessagingTemplate messaging;*/
     private final Sinks.Many<String> sink = Sinks.many().multicast().onBackpressureBuffer();
     private static final Logger logger = LoggerFactory.getLogger(OrderServiceV2.class);
@@ -106,10 +109,18 @@ public class OrderServiceV2 {
                         {
                             if (orderStatus.equals(OrderStatus.PACKED)) {
                                 markOrderPacked(orderIdentifier, order.getEmail());
+                                BigInteger id = CartServiceHelper.getSecurityUserFromContext()
+                                        .getUser().getId();
+                                activityRepository.changeActualPointsByUserId(id,
+                                        ActivityDao.countItemsQuantity(order));
                                 return;
                             }
                             orderRepository
                                     .updateOrderStatusByOrderId(orderStatus, order.getId());
+                            BigInteger id = CartServiceHelper.getSecurityUserFromContext()
+                                    .getUser().getId();
+                            activityRepository.changeActualPointsByUserId(id,
+                                    ActivityDao.countItemsQuantity(order));
                             emailSenderService.sendMessage(order.getEmail(),
                                     "The order was successfully sent.\n" +
                                             "Thank you for choosing our services",

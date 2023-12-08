@@ -9,7 +9,9 @@ import com.technology.validation.otp.models.Otp;
 import com.technology.validation.otp.repositories.OtpRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +31,8 @@ public class OtpService {
         String otpValue = otpGenerator.generateOTP(6);
         //TODO review the token type setup for the entity (string or token type)
         User user = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User " + email + " not found"));
+                .orElseThrow(() ->
+                        new UserNotFoundException("User " + email + " not found"));
         LocalDateTime currentTime = LocalDateTime.now();
         Otp otp = Otp.builder()
                 .otp(otpValue)
@@ -52,13 +55,19 @@ public class OtpService {
         if(LocalDateTime.now().isAfter(presentOtp.getExpirationTime())){
             presentOtp.setExpired(true);
             otpRepository.save(presentOtp);
-            throw new OtpExpiredException("Otp " + presentOtp + " is expired");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Otp " + presentOtp + " is expired");
+            //throw new OtpExpiredException("Otp " + presentOtp + " is expired");
         }
         if (presentOtp.isExpired()) {
-            throw new OtpExpiredException("Otp " + presentOtp + " is expired");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Otp " + presentOtp + " is expired");
+            //throw new OtpExpiredException("Otp " + presentOtp + " is expired");
         }
         if (presentOtp.isRevoked()) {
-            throw new OtpExpiredException("Otp " + presentOtp + " is revoked");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Otp " + presentOtp + " is revoked");
+            //throw new OtpExpiredException("Otp " + presentOtp + " is revoked");
         }
 
         User user = presentOtp.getUser();
@@ -68,7 +77,8 @@ public class OtpService {
 
     public String updateOtp(String email){
         User user = userRepository.findUserByEmail(email)
-                .orElseThrow(()-> new UserNotFoundException("User "+ email +" not found"));
+                .orElseThrow(()->
+                        new UserNotFoundException("User "+ email +" not found"));
         user.getOtps().stream()
                 .filter(otp -> !otp.isExpired() && !otp.isRevoked())
                 .forEach(otp -> {

@@ -10,6 +10,7 @@ import java.util.Map;
 
 public interface CartService {
     void saveCart(BigInteger productId);
+    void forceDeleteItemFromCart(String productName);
 
    /* void deleteCartItem(BigInteger productId);*/
    List<CartItemDto> saveAllCartItems(Map<String, String> cartItemRequests);

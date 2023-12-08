@@ -106,8 +106,8 @@ public class CartServiceImpl implements CartService {
     }
 
     /*TODO CHECK IF USER IS ACTUALLY REGISTERED, AND ACTIVATED,
-    *  IF USER HAS NOT ACTIVATED, RIGHT AWAY REDIRECT
-    *  TO THE EMAIL CONFIRMATION*/
+     *  IF USER HAS NOT ACTIVATED, RIGHT AWAY REDIRECT
+     *  TO THE EMAIL CONFIRMATION*/
     @Override
     public void saveCart(BigInteger productId) {
         String userEmail = CartServiceHelper
@@ -123,6 +123,8 @@ public class CartServiceImpl implements CartService {
 
     }
 
+    /*deletes item from cart if the quantity is 1
+    otherwise decreases item quantity*/
     @Override
     public void deleteItemFromCart(String productName) {
         Product product = productRepository.findProductByProductName(productName)
@@ -136,6 +138,22 @@ public class CartServiceImpl implements CartService {
                 });
     }
 
+    /*deletes the provided item from cart
+    regardless of the item quantity*/
+    /*TODO FIND PRODUCT BY PRODUCT ID AND FIND CART BY USER ID
+     *  INSTEAD OF RETRIEVING THE WHOLE OBJECTS */
+    @Override
+    @Transactional
+    public void forceDeleteItemFromCart(String productName) {
+        Product product = productRepository.findProductByProductName(productName)
+                .orElseThrow(() ->
+                        new ProductNotFoundException("product not found"));
+        BigInteger userId = CartServiceHelper.getSecurityUserFromContext().getUser().getId();
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new UserNotFoundException("user not found"));
+        Cart cart = user.getCart();
+        cartItemRepository.deleteCartItemByProductId(cart.getId(), product.getId());
+    }
 
     @Override
     public void deleteCart(User user) {

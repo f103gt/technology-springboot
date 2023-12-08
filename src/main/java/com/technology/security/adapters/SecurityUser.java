@@ -28,11 +28,9 @@ public class SecurityUser implements UserDetails {
         return user.getPassword();
     }
 
-    //TODO after adding email confirmation
-    //TODO user.getEnabled();
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getIsEnabled();
     }
 
     @Override
