@@ -8,6 +8,7 @@ import com.technology.user.response.JsonAuthResponse;
 import com.technology.user.services.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -31,7 +32,7 @@ public class AuthenticationController {
     }
     @PostMapping("/register")
     public ResponseEntity<Void> register(
-            @RequestBody RegistrationRequest request) {
+           @Valid @RequestBody RegistrationRequest request) {
         service.register(request);
         return ResponseEntity.ok().build();
     }
