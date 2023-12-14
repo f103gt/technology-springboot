@@ -6,6 +6,13 @@ build/
 !**/src/test/**/build/
 **/application.properties
 
+### IGNORE CONFIGURATIONS ###
+/src/main/resources/application.properties
+/src/test/resources/application.properties
+
+# bfg-report
+.git.bfg-report
+
 ### STS ###
 .apt_generated
 .classpath

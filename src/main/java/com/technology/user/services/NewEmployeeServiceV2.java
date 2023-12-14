@@ -38,16 +38,10 @@ public class NewEmployeeServiceV2 {
     private final MessagePublisher messagePublisher;
 
     public void parseFile(MultipartFile file) {
-        fileRepository.findFileByFileName(file.getOriginalFilename())
-                .ifPresent(fileName -> {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "The provided file data is already uploaded.");
-                });
-
         String hash = calculateHash(file);
 
         if (!hash.isEmpty()) {
-            fileRepository.findFileByFileHash(hash)
+            fileRepository.findFileWithMaxId()
                     .ifPresent(fileHash -> {
                         throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                                 "The provided file data is already uploaded.");
@@ -56,47 +50,48 @@ public class NewEmployeeServiceV2 {
 
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            InputStream is = new DigestInputStream(file.getInputStream(), md);
-            Reader reader = new InputStreamReader(is);
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder()
-                    .setHeader().setSkipHeaderRecord(true).build().parse(reader);
+            try (InputStream is = new DigestInputStream(file.getInputStream(), md);
+                 Reader reader = new InputStreamReader(is)) {
 
+                Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder()
+                        .setHeader().setSkipHeaderRecord(true).build().parse(reader);
 
-            List<Object[]> employees = new ArrayList<>();
+                List<Object[]> employees = new ArrayList<>();
 
-            for (CSVRecord record : records) {
-                String email = "";
-                Role role = null;
-                for (String column : record.toMap().keySet()) {
-                    String value = record.get(column);
-                    if (isEmail(value)) {
-                        email = value;
-                    } else {
-                        role = rolePositionResolver(value);
+                for (CSVRecord record : records) {
+                    String email = "";
+                    Role role = null;
+                    for (String column : record.toMap().keySet()) {
+                        String value = record.get(column);
+                        if (isEmail(value)) {
+                            email = value;
+                        } else {
+                            role = rolePositionResolver(value);
+                        }
+                    }
+                    if (!email.isEmpty() && role != null) {
+                        Object[] employeeData = {email, role.name(), role.name()};
+                        employees.add(employeeData);
                     }
                 }
-                if (!email.isEmpty() && role != null) {
-                    Object[] employeeData = {email, role.name(), role.name()};
-                    employees.add(employeeData);
-                }
+                messagePublisher.publishMessage(employees);
+            } catch (IOException ex) {
+                log.error("IOException OCCURRED IN parseFile() IN NewEmployeeServiceV2.class");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "An error occurred while saving new employees.\n" +
+                                "Please,try again latter.", ex);
             }
-            messagePublisher.publishMessage(employees);
 
+            fileRepository.save(File.builder()
+                    .fileName(file.getOriginalFilename())
+                    .fileHash(hash)
+                    .build());
         } catch (NoSuchAlgorithmException ex) {
             log.error("NoSuchAlgorithmException OCCURRED IN parseFile() IN NewEmployeeServiceV2.class");
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "An error occurred while saving new employees.\n" +
                             "Please,try again latter.", ex);
-        } catch (IOException ex) {
-            log.error("IOException OCCURRED IN parseFile() IN NewEmployeeServiceV2.class");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "An error occurred while saving new employees.\n" +
-                            "Please,try again latter.", ex);
         }
-        fileRepository.save(File.builder()
-                .fileName(file.getOriginalFilename())
-                .fileHash(hash)
-                .build());
     }
 
     @Async
