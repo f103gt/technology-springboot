@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
-//TODO add cashing to speed up the code
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -48,10 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        /*if (request.getServletPath().contains("/api/v1/auth/register")) {
-            filterChain.doFilter(request, response);
-            return;
-        }*/
         Cookie[] cookies = request.getCookies();
         Map<String, String> tokens = CookieUtility.getTokens(cookies);
         String jwtToken = tokens.get("jwtToken");
@@ -80,9 +74,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         }
-        //TODO do the same check for expiration as in jwtToken
         else if (refreshToken != null && !refreshIsExpired) {
-            //TODO deactivate previous tokens and set new ones, store them in token repository
 
             boolean isRefreshTokenValid = isTokenValid(refreshToken);
             if (isRefreshTokenValid) {

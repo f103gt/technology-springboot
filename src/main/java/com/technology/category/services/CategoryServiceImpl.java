@@ -76,7 +76,9 @@ public class CategoryServiceImpl implements CategoryService {
                                 category.getChildCategories().stream()
                                         .map(childCategory -> JsonCategoryDto.builder()
                                                 .categoryName(childCategory.getCategoryName())
-                                                .build()).collect(Collectors.toList()))
+                                                .build())
+                                        .sorted(Comparator.comparing(JsonCategoryDto::getCategoryName)) // Sort child categories
+                                        .collect(Collectors.toList()))
                         .build());
                 isPresent.add(category);
                 if (!category.getChildCategories().isEmpty()) {
@@ -84,12 +86,9 @@ public class CategoryServiceImpl implements CategoryService {
                 }
             }
         }
+        finalList.sort(Comparator.comparing(JsonCategoryDto::getCategoryName)); // Sort parent categories
         return finalList;
     }
-
-   /* private void categoriesArePresent(Map<Category, Boolean> isPresent, List<Category> categories,) {
-
-    }*/
 
     private void createParentOrChildCategory(CategoryRegistrationRequest request) {
         String parentCategoryName = request.getParentCategoryName();
